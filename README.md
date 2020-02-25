@@ -60,7 +60,7 @@ IntStream.range(2,1000)
 
 更常用的就是筛选法，埃拉托色尼筛和欧拉筛，基本原理就是下面这张动图：
 
-![image](https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1582625118878&di=ec711b0b635c22a1c6414364fde2702c&imgtype=0&src=http%3A%2F%2Fwww.pianshen.com%2Fimages%2F973%2F8968b0ea7949f54c3192f6a7f4904985.gif)
+![image](https://github.com/alexy2008/HelloPrime/blob/master/img/prime.gif)
 
 但是，筛选法有个问题，就是典型的空间换时间，速度快，但内存占用太大，跑个10亿以上基本上就把内存吃完了。
 
