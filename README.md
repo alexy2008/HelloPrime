@@ -86,7 +86,7 @@ Ruby这个基本上也是全新学的。比较容易，就是容易跟Python混
 
 之所以选择这10中，因为刚好装了JetBrains全家桶，这几个都是原生支持。不得不说JetBrains全家桶，那是真香。什么VS code,什么宇宙第一IDE都是浮云
 
-![image](https://github.com/alexy2008/HelloPrime/blob/master/img/jetbrains.png)
+![image](https://github.com/alexy2008/HelloPrime/blob/master/img/JetBrains.png)
 
 
 ## **计划**
