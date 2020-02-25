@@ -68,21 +68,28 @@ IntStream.range(2,1000)
 
 ## **开发**
 
-花了三天的时间，实现了10种语言，先发布出来。说是10种，多少也有凑数之嫌。
+花了三天的时间，实现了10种语言，先发布出来。说是10种，多少也有凑数之嫌。时间主要花在安装和搭建环境上，。
 
-Java和他的朋友们——Kotlin，Groovy。写出Java版，自动转kt，换成Groovy也基本不改啥
 
-C#和他的伙计——VB.net。写出C#版，用工具转的VB.net
 
-C++和他的大哥——C 。写出C++版，再改C
+Java和他的朋友们——Kotlin，Groovy。首先写了Java版，自动转kt，换成Groovy也基本不改啥
 
-Python独立写的。
+C#和他的伙计——VB.net。用Java版改C#版，比想象的容易多了，两个语言太像了，然后用工具转的VB.net
 
-Go这个是全新学的。Ruby这个基本上也是全新学的。
+C++和他的大哥——C 。C++版遇到了传说中的内存泄露问题，windows下环境搭建也复杂，再改C语言版就容易了。令人意外的是C++版竟然还没有Java版快
 
-之所以选择这10中，因为刚好装了JetBrains全家桶，这几个都是原生支持
+Python独立写的，动态语言用起来就是爽啊，尤其是刚写完C++程序，就是运行速度感人
 
-## **后续**
+Go这个是全新学的。数据类型转换让人头疼。
+
+Ruby这个基本上也是全新学的。比较容易，就是容易跟Python混
+
+之所以选择这10中，因为刚好装了JetBrains全家桶，这几个都是原生支持。不得不说JetBrains全家桶，那是真香。什么VS code,什么宇宙第一IDE都是浮云
+
+![image](https://github.com/alexy2008/HelloPrime/blob/master/img/jetbrains.png)
+
+
+## **计划**
 
 接下来计划实现：Scala，Rust，Dart，Clojure……
 
