@@ -1,16 +1,14 @@
 package helloprime;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 
 public class JHelloPrime {
-    private static boolean isBench = false;
 
     public static int primeByEuler(int limit, Prime prime) {
         int top = 0;
         boolean[] num = new boolean[limit + 1];
         for (int i = 2; i < limit; i++) {
             if (!num[i]) {
-                prime.add((long)i);
+                prime.add(i);
                 top++;
             }
             for (int j = 0; j < prime.size() && (long) i * prime.get(j) <= limit; j++) {
@@ -36,44 +34,35 @@ public class JHelloPrime {
         return top;
     }
 
-    static DecimalFormat dfne;
-
     public static void main(String[] args) {
         System.out.println("Hello Prime! I'm Java :-)");
         int step = 100_0000;
-        int repeat = 1_0000;
+        int repeat = 1_000;
         long limit = (long) step * repeat;
         long maxIndex = 0;
+        int keepIn = (int) (Math.sqrt(limit) / Math.log(Math.sqrt(limit)) * 2);
+        Prime prime  = new Prime(keepIn);
 
-        int keepin = (int) (Math.sqrt(limit) / Math.log(Math.sqrt(limit)) * 2);
-        Prime prime  = new Prime(keepin);
-        long startTime;
-        dfne = new DecimalFormat("0E00");
-
-        System.out.println("使用分区埃拉托色尼筛选法计算" + dfne.format(limit) + "以内素数：");
-        startTime = System.currentTimeMillis();
+        System.out.println("使用分区埃拉托色尼筛选法计算" + prime.getDfString(limit) + "以内素数：");
+        long startTime = System.currentTimeMillis();
         //首先使用欧拉法得到种子素数组
         int n = primeByEuler(step,prime);
         maxIndex += n;
-        if (!isBench) prime.outputSequence(maxIndex);
-        if (!isBench) prime.outputInterval(step);
+        prime.outputSequence(0,maxIndex);
+        prime.outputInterval(step);
         //循环使用埃拉托色尼法计算分区
         for (int i = 1; i < repeat; i++) {
             long pos = step * (long) i;
             n = primeByEratosthenesInterval(pos, step, prime);
             maxIndex += n;
-            if (!isBench) prime.outputSequence(maxIndex-n,maxIndex);
-            if (!isBench) prime.outputInterval(pos+step);
+            prime.outputSequence(maxIndex-n,maxIndex);
+            prime.outputInterval(pos+step);
             prime.freeUp();
         }
-        System.out.printf("%s以内计算完毕。累计耗时：%d毫秒%n",prime.getDfString(limit), System.currentTimeMillis() - startTime);
+        System.out.printf("%s以内计算完毕。累计耗时：%d毫秒%n",
+                prime.getDfString(limit), System.currentTimeMillis() - startTime);
         prime.printTable();
     }
-
-
-
-//    private static Prime prime;
-    static boolean isSilent=false;//缄默模式，不输出中间信息
 }
 
 class Prime{
@@ -82,7 +71,7 @@ class Prime{
     private int _maxKeep; //允许在内存中保留的素数数量
     private ArrayList<String> seqList = new ArrayList<>();
     private ArrayList<String> interList = new ArrayList<>();
-    private boolean isDebug = true;
+    private boolean isDebug = false;
 
     Prime(int keep){
         _maxKeep = keep;
@@ -92,10 +81,6 @@ class Prime{
 
     long get(int index){
         return index >= _maxInd - 1 ? _prime.get(_prime.size() - 1) : _prime.get(index);
-    }
-
-    long getlast(){
-        return _prime.get(_prime.size() - 1);
     }
 
     long size() {
@@ -110,43 +95,24 @@ class Prime{
     void outputInterval(long inter) {
         String s;
         if (inter % Math.pow(10, String.valueOf(inter).length() - 1) == 0) {
-            s = String.format("%s以内，共%d个，最大素数为：%d",
-                    getDfString(inter), _maxInd, _prime.get(_prime.size() - 1));
+            s = String.format("%s|%d|%d",
+                    inter, _maxInd, _prime.get(_prime.size() - 1));
             interList.add(s);
-            if (isDebug) System.out.println(s);
+            if (isDebug) System.out.println("[In:]"+getDfString(s));
         }
     }
 
-    void outputSequence(long beginNo, long endNo) {
-//        System.out.println(beginNo+ " - " + endNo);
+    void outputSequence(long beginNo,long endNo){
         String s;
-        String beginStr = String.valueOf(beginNo);
-        String endStr = String.valueOf(endNo);
-        if (beginStr.charAt(0) == endStr.charAt(0) && beginStr.length() == endStr.length() ) return;
-
-        int k = beginStr.charAt(0) - '0' + 1;
-        do{
-            long seq = (long) (k * Math.pow(10, beginStr.length()-1));
-//            System.out.println(seq);
-            long l = _prime.get(_prime.size() - 1 - (int)(endNo - seq));
-            s = "第"+ getDfString(seq) + "个素数是：" + l;
-            seqList.add(s);
-            if (isDebug) System.out.println("==>"+s);
-            k++;
-        }while (k<endStr.charAt(0) - '0' + 1);
-    }
-
-    void outputSequence(long endNo){
-        String s;
-        String endStr = String.valueOf(endNo);
-        for (int i = 0; i <= endStr.length()-1 ; i++) {
+        for (int i = String.valueOf(beginNo).length()-1; i <= String.valueOf(endNo).length()-1 ; i++) {
             for (int j = 1; j < 10 ; j++) {
                 long seq = (long) (j*Math.pow(10,i));
+                if (seq < beginNo) continue;
                 if (seq >= endNo) return;
-                long l = _prime.get((int) (seq-1));
-                s = "第"+ getDfString(seq) + "个素数是：" + l;
+                long l = _prime.get(_prime.size() - 1 - (int)(endNo - seq));
+                s = seq + "|" + l;
                 seqList.add(s);
-                if (isDebug) System.out.println("==>"+s);
+                if (isDebug) System.out.println("==>[No:]"+getDfString(s));
             }
         }
     }
@@ -156,20 +122,30 @@ class Prime{
     }
 
     String getDfString(long l) {
-        if (l < 10000) return String.valueOf(l);
-        String s = String.valueOf(l);
+        return getDfString(String.valueOf(l));
+    }
 
-        if (l >= 1_0000) s = s.substring(0, s.length() - 4) + "万";
-        if (l % 1_0000_0000 == 0) s = s.substring(0, s.length() - 5) + "亿";
-        else if (l >= 1_0000_0000) s = s.substring(0, s.length() - 5) + "亿" + s.substring(s.length() - 5);
-        return s;
+    String getDfString(String s) {
+        return s.replace("000000000000","万亿").
+                replace("00000000000","000亿").
+                replace("0000000000","00亿").
+                replace("000000000","0亿").
+                replace("00000000","亿").
+                replace("0000000","000万").
+                replace("000000","00万").
+                replace("00000","0万").
+                replace("0000","万");
     }
 
     void printTable(){
-        System.out.println("===素数个数表====");
-        interList.forEach(System.out::println);
-        System.out.println("===素数序列表====");
-        seqList.forEach(System.out::println);
+        System.out.println("## 素数区间表");
+        System.out.println("区间|个数|最大值");
+        System.out.println("---|---|---");
+        interList.forEach(s -> System.out.println(getDfString(s)));
+        System.out.println("## 素数序列表");
+        System.out.println("序号|数值");
+        System.out.println("---|---");
+        seqList.forEach(s -> System.out.println(getDfString(s)));
     }
 }
 
