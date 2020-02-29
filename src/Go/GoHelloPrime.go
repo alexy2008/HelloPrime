@@ -6,70 +6,60 @@ import (
 	"time"
 )
 
-func primeByEuler(limit int , prime *[]uint64) int {
+func primeByEuler(limit uint64 ,prime *Prime) uint64 {
+	top := 0
 	num := make([]bool, limit+1)
-	for i := 2; i < limit; i++ {
-		if num[i] == false { *prime = append(*prime, uint64(i)) }
-		for j := 0; j < len(*prime) && uint64(i) * (*prime)[j] <= uint64(limit); j++ {
-			num[i * int((*prime)[j])] = true
-			if i % int((*prime)[j]) == 0 {break}
+	for  i := uint64(2); i < limit; i++ {
+		if !num[i] {
+			prime.add(i)
+			top++
+		}
+		for j := 0; j < prime.size() && i * prime.get(j) <= limit; j++ {
+			num[i * prime.get(j)] = true
+			if i % prime.get(j) == 0 {break}
 		}
 	}
-	return len(*prime)
+	return uint64(top)
 }
 
-func primeByEratosthenesInterval(pos uint64 , limit int , prime *[]uint64) int{
+func primeByEratosthenesInterval(pos uint64 , limit uint64 ,prime *Prime) uint64{
 	top := 0
 	num := make([]bool, limit)
-	for i := 0; float64((*prime)[i]) < math.Sqrt(float64(pos+uint64(limit))) ; i++{
-		p := (*prime)[i]
-		for j:= uint64(math.Ceil(float64(pos)/float64(p))*float64(p)); j<pos+uint64(limit); j+=p {
-			num[int(j-pos)] = true
+	for i := 0; float64(prime.get(i)) < math.Sqrt(float64(pos+limit)) ; i++{
+		p := prime.get(i)
+		for j:= uint64(math.Ceil(float64(pos)/float64(p))*float64(p)); j<pos+limit; j+=p {
+			num[j-pos] = true
 		}
 	}
 	for i := 0; i< len(num); i++{
 		if num[i] == false {
-			*prime = append(*prime, pos+uint64(i))
+			prime.add(pos + uint64(i))
 			top++
 		}
 	}
-	return top
-}
-
-func dfString(l uint64)  string {
-	s := fmt.Sprintf("%d",l)
-	if l % (10000*10000) == 0  {
-		s = s[:len(s)-8] + "亿"
-	}	else if l % 10000 == 0 {
-		s = s[:len(s) -4] + "万"
-	}
-	return s
+	return uint64(top)
 }
 
 func main() {
 	fmt.Println("Hello Mr.Prime! I'm Go :-)")
-	step := 10_0000
-	repeat := 10_0000
-	limit := step*repeat
-	p := 0
-	maxKeep := int(math.Sqrt(float64(limit)) / math.Log(math.Sqrt(float64(limit)))* 1.3)
-	maxPrime := uint64(0)
-	var prime []uint64
+	var page uint64 = 10_0000
+	var repeat uint64 = 10_0000
+	limit := page *repeat
+	var prime Prime = *newPrime(limit)
+	var top uint64 = 0
 	var startTime time.Time
 
-	fmt.Println("使用分区筛选法计算",dfString(uint64(limit)),"以内素数：")
-
+	fmt.Println("使用分区埃拉托色尼筛选法计算",dfString(limit),"以内素数：")
 	startTime = time.Now()
-	p += primeByEuler(step,&prime)
-	maxPrime =  prime[len(prime)-1]
+	top += primeByEuler(page,&prime)
+	prime.generateResults(page,top)
 
-	for i := 1; i < repeat; i++{
-		pos := uint64(step * i)
-		p += primeByEratosthenesInterval(pos,step,&prime)
-		maxPrime =  prime[len(prime)-1]
-		if len(prime) > maxKeep {
-			prime = prime[:maxKeep]
-		}
+	for i := uint64(1); i < repeat; i++{
+		pos := page * i
+		top += primeByEratosthenesInterval(pos, page,&prime)
+		prime.generateResults(pos + page, top)
 	}
-	fmt.Println("共", p ,"个,最大质数：", maxPrime,"耗时：",time.Now().Sub(startTime).Milliseconds(),"毫秒")
+	totalTime := time.Now().Sub(startTime).Milliseconds()
+	prime.printTable()
+	fmt.Println(dfString(limit),"以内计算完毕。累计耗时：",totalTime,"毫秒")
 }
