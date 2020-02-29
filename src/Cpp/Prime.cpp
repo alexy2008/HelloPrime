@@ -82,8 +82,6 @@ void Prime:: printTable(){
 
 Prime::Prime(llong limit) {
     _maxKeep = sqrt(limit) / log(sqrt(limit)) * 1.3 ;
-    _maxInd = 0;
-    _offSet = 0;
     _prime = new llong[_maxKeep + 200000];
     cout << "ÄÚ´æÊ¹ÓÃ£º" << _maxKeep << endl;
 }

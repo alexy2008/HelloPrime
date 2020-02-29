@@ -40,9 +40,9 @@ class Prime{
         String s;
         if (inter % Math.pow(10, String.valueOf(inter).length() - 1) == 0) {
             s = String.format("%s|%d|%d",
-                    inter, _maxInd, _prime.get(_prime.size() - 1));
+                    getDfString(inter), _maxInd, _prime.get(_prime.size() - 1));
             interList.add(s);
-            if (isDebug) System.out.println("[In:]"+getDfString(s));
+            if (isDebug) System.out.println("[In:]"+s);
         }
     }
 
@@ -54,9 +54,9 @@ class Prime{
                 if (seq < beginNo) continue;
                 if (seq >= endNo) return;
                 long l = _prime.get(_prime.size() - 1 - (int)(endNo - seq));
-                s = seq + "|" + l;
+                s = getDfString(seq) + "|" + l;
                 seqList.add(s);
-                if (isDebug) System.out.println("==>[No:]"+getDfString(s));
+                if (isDebug) System.out.println("==>[No:]"+s);
             }
         }
     }
@@ -77,26 +77,14 @@ class Prime{
         return s;
     }
 
-    String getDfString(String s) {
-        return s.replace("000000000000","万亿").
-                replace("00000000000","000亿").
-                replace("0000000000","00亿").
-                replace("000000000","0亿").
-                replace("00000000","亿").
-                replace("0000000","000万").
-                replace("000000","00万").
-                replace("00000","0万").
-                replace("0000","万");
-    }
-
     void printTable(){
         System.out.println("## 素数区间表");
         System.out.println("区间|个数|最大值");
         System.out.println("---|---|---");
-        interList.forEach(s -> System.out.println(getDfString(s)));
+        interList.forEach(s -> System.out.println(s));
         System.out.println("## 素数序列表");
         System.out.println("序号|数值");
         System.out.println("---|---");
-        seqList.forEach(s -> System.out.println(getDfString(s)));
+        seqList.forEach(s -> System.out.println(s));
     }
 }

@@ -1,0 +1,82 @@
+import math
+
+
+class Prime:
+    isDebug = False
+    prime_list = []
+    max_ind = 0
+    max_keep = 0
+    prev_no = 0
+    seq_list = []
+    inter_list = []
+
+    def __init__(self, limit):
+        self.max_keep = round(math.sqrt(limit) / math.log(math.sqrt(limit), math.e) * 1.5)
+
+    def get(self, index):
+        return self.prime_list[index] if (index < self.max_ind - 1) else self.prime_list[self.max_ind - 1]
+
+    def getlast(self):
+        return self.prime_list[len(self.prime_list) - 1]
+
+    def size(self):
+        return self.max_ind
+
+    def add(self, p):
+        # if self._maxInd < self._maxKeep:
+        #     self._prime.append(p)
+        # else:
+        #     self._prime[len(self._prime) - 1] = p
+        #
+        # if (not isSilent) and (self._maxInd + 1) % pow(10, len(str(self._maxInd + 1)) - 1) == 0:
+        #     print("==>第", format(self._maxInd + 1, '0.0E'), "个素数为：", p)
+
+        self.prime_list.append(p)
+        self.max_ind = self.max_ind + 1
+
+    def generate_results(self, inter, endNo):
+        self.output_sequence(self.prev_no, endNo)
+        self.output_interval(inter);
+        self.prev_no = endNo
+        self.free_up()
+
+    def output_interval(self, inter):
+        if inter % pow(10, len(str(inter)) - 1) == 0:
+            s = self.df_string(inter) + "|" + str(self.max_ind) + "|" + str(self.prime_list[len(self.prime_list) - 1])
+            self.inter_list.append(s)
+            if self.isDebug: print(s)
+
+    def output_sequence (self, beginNo, endNo):
+        for i in range (len(str(beginNo)) - 1, len(str(endNo))):
+            for j in range(1,10):
+                seq = j * pow(10, i)
+                if seq < beginNo : continue
+                if seq >= endNo : return
+                l = self.prime_list[len(self.prime_list) - 1 - (endNo - seq)]
+                s = self.df_string(seq) + "|" + str(l)
+                self.seq_list.append(s)
+                if self.isDebug: print(s)
+
+    def free_up(self):
+        if self.max_ind > self.max_keep:
+            del self.prime_list[self.max_keep:len(self.prime_list)]
+
+    def df_string(self, l):
+        s = str(l)
+        if l % 1_0000_0000_0000 == 0:
+            s = s[:-12] + "万亿"
+        elif l % 1_0000_0000 == 0:
+            s = s[:-8] + "亿"
+        elif l % 1_0000 == 0:
+            s = s[:-4] + "万"
+        return s
+
+    def print_table(self):
+        print("## 素数区间表")
+        print("区间|个数|最大值")
+        print("---|---|---")
+        for s in self.inter_list: print(s)
+        print("## 素数序列表")
+        print("序号|数值")
+        print("---|---")
+        for s in self.seq_list: print(s)

@@ -6,10 +6,7 @@ public class JHelloPrime {
         int top = 0;
         boolean[] num = new boolean[limit + 1];
         for (int i = 2; i < limit; i++) {
-            if (!num[i]) {
-                prime.add(i);
-                top++;
-            }
+            if (!num[i]) { prime.add(i); top++; }
             for (int j = 0; j < prime.size() && (long) i * prime.get(j) <= limit; j++) {
                 num[(int) (i * prime.get(j))] = true;
                 if (i % prime.get(j) == 0) break;
@@ -27,17 +24,14 @@ public class JHelloPrime {
                 num[(int) (j - pos)] = true;
         }
         for (int i = 0; i < num.length; i++)
-            if (!num[i]) {
-                prime.add(pos + i);
-                top++;
-            }
+            if (!num[i]) { prime.add(pos + i); top++;}
         return top;
     }
 
     public static void main(String[] args) {
         System.out.println("Hello Prime! I'm Java :-)");
-        int page = 100_0000;
-        long repeat = 1_0000;
+        int page = 1_0000;
+        long repeat = 1_000;
         Prime prime = new Prime(page * repeat);
         long top = 0;
 
@@ -54,7 +48,6 @@ public class JHelloPrime {
         }
         long totalTime = System.currentTimeMillis() - startTime;
         prime.printTable();
-        System.out.printf("%s以内计算完毕。累计System.currentTimeMillis() - startTime耗时：%d毫秒%n",
-                prime.getDfString(page * repeat), totalTime);
+        System.out.printf("%s以内计算完毕。累计耗时：%d毫秒%n",prime.getDfString(page * repeat), totalTime);
     }
 }
