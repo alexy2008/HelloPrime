@@ -4,7 +4,6 @@ import time
 
 PAGE = 1_0000
 REPEAT = 1_0000
-isSilent = False
 
 prime = Prime(PAGE * REPEAT)
 
