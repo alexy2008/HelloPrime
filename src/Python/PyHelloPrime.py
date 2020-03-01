@@ -3,7 +3,7 @@ import math
 import time
 
 PAGE = 1_0000
-REPEAT = 1_0000
+REPEAT = 1_000
 
 prime = Prime(PAGE * REPEAT)
 
