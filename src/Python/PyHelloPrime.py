@@ -2,7 +2,7 @@ from Prime import Prime
 import math
 import time
 
-PAGE = 10_0000
+PAGE = 1_0000
 REPEAT = 1_0000
 isSilent = False
 

@@ -2,7 +2,7 @@ import math
 
 
 class Prime:
-    isDebug = False
+    is_debug = True
     prime_list = []
     max_ind = 0
     max_keep = 0
@@ -23,39 +23,31 @@ class Prime:
         return self.max_ind
 
     def add(self, p):
-        # if self._maxInd < self._maxKeep:
-        #     self._prime.append(p)
-        # else:
-        #     self._prime[len(self._prime) - 1] = p
-        #
-        # if (not isSilent) and (self._maxInd + 1) % pow(10, len(str(self._maxInd + 1)) - 1) == 0:
-        #     print("==>第", format(self._maxInd + 1, '0.0E'), "个素数为：", p)
-
         self.prime_list.append(p)
         self.max_ind = self.max_ind + 1
 
-    def generate_results(self, inter, endNo):
-        self.output_sequence(self.prev_no, endNo)
-        self.output_interval(inter);
-        self.prev_no = endNo
+    def generate_results(self, inter, end_no):
+        self.output_sequence(self.prev_no, end_no)
+        self.output_interval(inter)
+        self.prev_no = end_no
         self.free_up()
 
     def output_interval(self, inter):
         if inter % pow(10, len(str(inter)) - 1) == 0:
             s = self.df_string(inter) + "|" + str(self.max_ind) + "|" + str(self.prime_list[len(self.prime_list) - 1])
             self.inter_list.append(s)
-            if self.isDebug: print(s)
+            if self.is_debug: print("[In:]" + s)
 
-    def output_sequence (self, beginNo, endNo):
-        for i in range (len(str(beginNo)) - 1, len(str(endNo))):
-            for j in range(1,10):
+    def output_sequence(self, begin_no, end_no):
+        for i in range(len(str(begin_no)) - 1, len(str(end_no))):
+            for j in range(1, 10):
                 seq = j * pow(10, i)
-                if seq < beginNo : continue
-                if seq >= endNo : return
-                l = self.prime_list[len(self.prime_list) - 1 - (endNo - seq)]
+                if seq < begin_no: continue
+                if seq >= end_no: return
+                l = self.prime_list[len(self.prime_list) - 1 - (end_no - seq)]
                 s = self.df_string(seq) + "|" + str(l)
                 self.seq_list.append(s)
-                if self.isDebug: print(s)
+                if self.is_debug: print("==>[No:]" + s)
 
     def free_up(self):
         if self.max_ind > self.max_keep:
