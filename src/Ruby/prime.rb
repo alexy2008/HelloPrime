@@ -1,7 +1,7 @@
 class Prime
 
   def initialize (limit)
-    @is_debug = false
+    @is_debug = true
     @max_keep = (Math.sqrt(limit) / Math.log(Math.sqrt(limit)) * 2.5).to_i
     @prime_list = []
     @max_ind = 0

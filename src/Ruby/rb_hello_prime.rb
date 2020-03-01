@@ -31,7 +31,7 @@ def prime_by_eratosthenes_interval(pos, limit, prime)
 end
 
 puts "Hello Prime! I'm Ruby :-)"
-PAGE = 10_0000
+PAGE = 1_0000
 repeat = 1_0000
 limit = PAGE*repeat
 top = 0
@@ -49,4 +49,4 @@ end
 
 total_time = ((Time.now-start_time)*1000).round(0)
 prime.print_table
-puts "#{prime.df_string(limit)}以内计算完毕。累计耗时：#{total_time}豪秒"
+puts "#{prime.df_string limit}以内计算完毕。累计耗时：#{total_time}豪秒"
