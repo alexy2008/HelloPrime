@@ -1,4 +1,4 @@
-package helloprime;
+//package helloprime;
 
 public class JHelloPrime {
 
