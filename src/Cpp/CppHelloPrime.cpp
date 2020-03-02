@@ -7,8 +7,8 @@
 typedef long long llong;
 using namespace std;
 
-const llong PAGE = 100 * 10000;
-const llong REPEAT = 100000;
+const llong PAGE = 10 * 10000;
+const llong REPEAT = 1000;
 
 Prime prime(PAGE * REPEAT);
 
@@ -22,9 +22,9 @@ int PrimeByEratosthenesInterval(llong pos, int limit) {
             num[(int) (j - pos)] = true;
     }
     for (int i = 0; i < limit; i++) if (!num[i]) {
-        prime.add(pos + i);
-        top++;
-    }
+            prime.add(pos + i);
+            top++;
+        }
     return top;
 }
 
