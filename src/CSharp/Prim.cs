@@ -1,4 +1,4 @@
-ï»¿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,8 +8,8 @@ namespace HelloPrime
     class Prime
     {
         private long[] _prime;
-        private long _maxInd; //ç”¨æ¥å­˜å‚¨å½“å‰è®¡ç®—çš„æœ€å¤§ç´ æ•°çš„åºå·
-        private int _maxKeep; //å…è®¸åœ¨å†…å­˜ä¸­ä¿ç•™çš„ç´ æ•°æ•°é‡
+        private long _maxInd; //ÓÃÀ´´æ´¢µ±Ç°¼ÆËãµÄ×î´óËØÊýµÄÐòºÅ
+        private int _maxKeep; //ÔÊÐíÔÚÄÚ´æÖÐ±£ÁôµÄËØÊýÊýÁ¿
         private static bool isSilent;
         private long _offSet;
         private long _prevNo = 0;
@@ -82,12 +82,12 @@ namespace HelloPrime
         }
 
         public void printTable(){
-            Console.WriteLine("## ç´ æ•°åŒºé—´è¡¨");
-            Console.WriteLine("åŒºé—´|ä¸ªæ•°|æœ€å¤§å€¼");
+            Console.WriteLine("## ËØÊýÇø¼ä±í");
+            Console.WriteLine("Çø¼ä|¸öÊý|×î´óÖµ");
             Console.WriteLine("---|---|---");
             interList.ForEach( s => Console.WriteLine(s) );
-            Console.WriteLine("## ç´ æ•°åºåˆ—è¡¨");
-            Console.WriteLine("åºå·|æ•°å€¼");
+            Console.WriteLine("## ËØÊýÐòÁÐ±í");
+            Console.WriteLine("ÐòºÅ|ÊýÖµ");
             Console.WriteLine("---|---");
             seqList.ForEach( s => Console.WriteLine(s));
         }
@@ -97,11 +97,11 @@ namespace HelloPrime
         {
             string s = l.ToString();
             if(l % 10000_0000_0000L == 0) {
-                s = s.Substring(0,s.Length - 12 ) + "ä¸‡äº¿";
+                s = s.Substring(0,s.Length - 12 ) + "ÍòÒÚ";
             }else if(l % 10000_0000L == 0){
-                s = s.Substring(0,s.Length - 8 ) + "äº¿";
+                s = s.Substring(0,s.Length - 8 ) + "ÒÚ";
             }else if(l%10000 == 0){
-                s = s.Substring(0,s.Length - 4 ) + "ä¸‡";
+                s = s.Substring(0,s.Length - 4 ) + "Íò";
             }
             return s;
         }

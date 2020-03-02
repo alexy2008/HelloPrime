@@ -1,4 +1,4 @@
-锘縰sing System;
+using System;
 
 namespace HelloPrime
 {
@@ -47,20 +47,20 @@ namespace HelloPrime
         static void Main(string[] args)
         {
             Console.WriteLine("Hello Mr.Prime! I'm C# :-)");
-            int PAGE = 100_0000;
-            int repeat = 10_0000;
+            int PAGE = 1_0000;
+            int repeat = 1_0000;
             long limit = (long) PAGE * repeat;
             DateTime startTime;
             long top = 0;
 
             prime = new Prime(limit);
 
-            Console.WriteLine("浣跨敤鍒嗗尯鍩冩媺鎵樿壊灏肩瓫閫夋硶璁＄畻{0}浠ュ唴绱犳暟", Prime.getDfString(limit));
+            Console.WriteLine("使用分区埃拉托色尼筛选法计算{0}以内素数", Prime.getDfString(limit));
             startTime = DateTime.Now;
-            //棣栧厛浣跨敤娆ф媺娉曞緱鍒扮瀛愮礌鏁扮粍
+            //首先使用欧拉法得到种子素数组
             top += PrimeByEuler(PAGE);
             prime.generateResults(PAGE, top);
-            //寰幆浣跨敤鍩冩媺鎵樿壊灏兼硶璁＄畻鍒嗗尯
+            //循环使用埃拉托色尼法计算分区
             for (int i = 1; i < repeat; i++)
             {
                 long pos = PAGE * (long) i;
@@ -69,7 +69,7 @@ namespace HelloPrime
             }
             long totalTime = (long) (DateTime.Now.Subtract(startTime).TotalMilliseconds);
             prime.printTable();
-            Console.WriteLine("{0}浠ュ唴璁＄畻瀹屾瘯銆傜疮璁¤�楁椂 :{1}姣", Prime.getDfString(limit), totalTime);
+            Console.WriteLine("{0}以内计算完毕。累计耗时 :{1}毫秒", Prime.getDfString(limit), totalTime);
        }
         private static Prime prime;
     }
