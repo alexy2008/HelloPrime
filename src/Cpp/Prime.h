@@ -25,11 +25,6 @@ public:
     void printTable();
     explicit Prime(llong);
     string dfString(llong l);
-
-    void generateResults(long inter, long endNo);
-
     void generateResults(llong inter, llong endNo);
-
-
 };
 #endif //HELLOPRIME_PRIME_H
