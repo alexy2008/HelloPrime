@@ -16,6 +16,7 @@ def prime_by_eratosthenes_interval(pos, limit):
         if p * p >= pos + limit: break
         for j in range(math.ceil(pos / p), int((pos + limit - 1) / p) + 1):
             num[j * p - pos] = False
+
     for i in range(0, limit):
         if num[i]:
             prime.add(pos + i)

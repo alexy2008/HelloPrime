@@ -17,8 +17,7 @@ class Prime{
     }
 
     long get(int index){
-//        return index >= maxInd - 1 ? primeList.get(primeList.size() - 1) : primeList.get(index);
-        return  primeList.get(index);
+       return  primeList.get(index);
     }
 
     int size() {
@@ -38,23 +37,21 @@ class Prime{
     }
 
     void putInterval(long inter) {
-        String s;
         if (inter % Math.pow(10, String.valueOf(inter).length() - 1) == 0) {
-            s = String.format("%s|%d|%d", getDfString(inter), maxInd, get(size() - 1));
+            var s = String.format("%s|%d|%d", getDfString(inter), maxInd, get(size() - 1));
             interList.add(s);
             if (isDebug) System.out.println("[In:]"+s);
         }
     }
 
     void putSequence(long beginNo, long endNo){
-        String s;
         for (int i = String.valueOf(beginNo).length()-1; i <= String.valueOf(endNo).length()-1 ; i++) {
             for (int j = 1; j < 10 ; j++) {
                 long seq = (long) (j*Math.pow(10,i));
                 if (seq < beginNo) continue;
                 if (seq >= endNo) return;
                 long l = get(size() - 1 - (int)(endNo - seq));
-                s = getDfString(seq) + "|" + l;
+                var s = getDfString(seq) + "|" + l;
                 seqList.add(s);
                 if (isDebug) System.out.println("==>[No:]"+s);
             }
