@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"math"
+	"os"
+	"strconv"
 	"time"
 )
 
@@ -44,10 +46,13 @@ func primeByEratosthenesInterval(pos uint64, limit uint64, prime *Prime) uint64 
 
 func main() {
 	fmt.Println("Hello Mr.Prime! I'm Go :-)")
-	var page uint64 = 1_0000
-	var repeat uint64 = 1_0000
-	limit := page * repeat
-	var prime Prime = *newPrime(limit)
+	ipage, _ := strconv.Atoi(os.Args[1])
+	page := uint64(ipage)
+	irepeat, _ := strconv.Atoi(os.Args[2])
+	repeat := uint64(irepeat)
+	isDebug, _ = strconv.ParseBool(os.Args[3])
+	var limit uint64 = uint64(page * repeat)
+	var prime Prime = *newPrime(page, repeat)
 	var top uint64 = 0
 	var startTime time.Time
 
@@ -63,5 +68,5 @@ func main() {
 	}
 	totalTime := time.Now().Sub(startTime).Milliseconds()
 	prime.printTable()
-	fmt.Println(dfString(limit), "以内计算完毕。累计耗时：", totalTime, "毫秒")
+	fmt.Println("Go finished within", fmt.Sprintf("%g", float64(limit)), "; time cost:", totalTime, "ms")
 }
