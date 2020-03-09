@@ -90,7 +90,7 @@ int main(int argc, char *argv[]) {
     }
     llong totalTime = clock() - startTime;
     prime.printTable();
-    cout << Prime::dfString(PAGE * REPEAT) << "以内计算完毕。累计耗时：" << totalTime << "毫秒" << endl;
+    printf("C++ finished within %.0e; time cost: %d ms" , (double)(PAGE * REPEAT) , totalTime);
     return 0;
 }
 
