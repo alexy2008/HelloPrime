@@ -21,7 +21,6 @@ public:
     explicit Prime(llong page, llong repeat, bool isDbg);
     static string dfString(llong l);
     void generateResults(llong inter, llong endNo);
-    llong getLast();
 
 private:
     llong _maxInd = 0;
@@ -90,7 +89,7 @@ int main(int argc, char *argv[]) {
     }
     llong totalTime = clock() - startTime;
     prime.printTable();
-    printf("C++ finished within %.0e; time cost: %d ms" , (double)(PAGE * REPEAT) , totalTime);
+    printf("C++ finished within %.0e; time cost: %lld ms \n" , (double)(PAGE * REPEAT) , totalTime);
     return 0;
 }
 
@@ -126,10 +125,6 @@ llong Prime::size() {
 void Prime::add(llong p) {
     _prime[_maxInd - _offSet] = p;
     _maxInd++;
-}
-
-llong Prime::getLast(){
-    return _prime[_maxInd - _offSet - 1];
 }
 
 void Prime::generateResults(llong inter, llong endNo) {
