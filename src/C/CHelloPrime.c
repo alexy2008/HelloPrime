@@ -18,70 +18,6 @@ bool isDebug;
 llong _prevNo = 0;
 llong _prime[150000];
 
-llong get(int index);
-llong size();
-void add(llong p);
-void printTable();
-static char *dfString(llong l);
-void generateResults(llong inter, llong endNo);
-
-int primeByEuler(int limit) {
-    int top = 0;
-    bool num[limit];
-    for (int i = 0; i < limit; i++) num[i] = false;
-    for (int i = 2; i < limit; i++) {
-        if (!num[i]) {
-            add(i);
-            top++;
-        }
-        for (int j = 0; j < size() && i * get(j) < limit; j++) {
-            num[i * get(j)] = true;
-            if (i % get(j) == 0) break;
-        }
-    }
-    return top;
-}
-
-int PrimeByEratosthenesInterval(llong pos, int limit) {
-    int top = 0;
-    bool num[limit];
-    for (int i = 0; i < limit; i++) num[i] = false;
-    for (int i = 0; get(i) < sqrt(pos + limit); i++) {
-        llong p = get(i);
-        for (llong j = ceil(pos * 1.0 / p) * p; j < pos + (llong) limit; j += p)
-            num[(int) (j - pos)] = true;
-    }
-    for (int i = 0; i < limit; i++)
-        if (!num[i]) {
-            add(pos + i);
-            top++;
-        }
-    return top;
-}
-
-int main(int argc, char *argv[]) {
-    printf("Hello, Mr.Prime! I'm C\n");
-    const llong PAGE = atoi(argv[1]);
-    const llong REPEAT = atoi(argv[2]);
-    isDebug = (strcmp(argv[3], "true") == 0);
-    llong top = 0;
-
-    printf("使用分区埃拉托色尼筛选法计算 %s 以内素数：\n", dfString(PAGE * REPEAT));
-    llong startTime = clock();
-    top += primeByEuler(PAGE);
-    generateResults(PAGE, top);
-
-    for (int i = 1; i < REPEAT; i++) {
-        llong pos = PAGE * (llong) i;
-        top += PrimeByEratosthenesInterval(pos, PAGE);
-        generateResults(pos + PAGE, top);
-    }
-    llong totalTime = clock() - startTime;
-    printTable();
-    printf("C finished within %.0e; time cost: %lld ms \n", (double) (PAGE * REPEAT), totalTime);
-    return 0;
-}
-
 int lLength(llong l) {
     llong sizeTable[12] = {9, 99, 999, 9999, 99999, 999999, 9999999, 99999999, 999999999, 9999999999, 99999999999,
                            999999999999};
@@ -122,7 +58,7 @@ void add(llong p) {
 }
 
 llong get(int index) {
-    return index > _maxInd - 1 ? _prime[index - _offSet] : _prime[index];
+    return _prime[index];
 }
 
 llong size() {
@@ -168,13 +104,66 @@ void printTable() {
     printf("## 素数序列表\n");
     printf("序号|数值\n");
     printf("---|---\n");
-    for (int i = 0; i < seqIndx; i++) {
-        printf("%s\n", seqList[i]);
-    }
+    for (int i = 0; i < seqIndx; i++)  printf("%s\n", seqList[i]);
     printf("## 素数区间表\n");
     printf("区间|个数|最大值\n");
     printf("---|---|---\n");
-    for (int i = 0; i < interIndx; i++) {
-        printf("%s\n", interList[i]);
+    for (int i = 0; i < interIndx; i++)  printf("%s\n", interList[i]);
+}
+
+int primeByEuler(int limit) {
+    int top = 0;
+    bool num[limit];
+    for (int i = 0; i < limit; i++) num[i] = false;
+    for (int i = 2; i < limit; i++) {
+        if (!num[i]) {
+            add(i);
+            top++;
+        }
+        for (int j = 0; j < size() && i * get(j) < limit; j++) {
+            num[i * get(j)] = true;
+            if (i % get(j) == 0) break;
+        }
     }
+    return top;
+}
+
+int PrimeByEratosthenes(llong pos, int limit) {
+    int top = 0;
+    bool num[limit];
+    for (int i = 0; i < limit; i++) num[i] = false;
+    for (int i = 0; get(i) < sqrt(pos + limit); i++) {
+        llong p = get(i);
+        for (llong j = ceil(pos * 1.0 / p) * p; j < pos + (llong) limit; j += p)
+            num[(int) (j - pos)] = true;
+    }
+    for (int i = 0; i < limit; i++)
+        if (!num[i]) {
+            add(pos + i);
+            top++;
+        }
+    return top;
+}
+
+int main(int argc, char *argv[]) {
+    printf("Hello, Mr.Prime! I'm C\n");
+    const llong PAGE = atoi(argv[1]);
+    const llong REPEAT = atoi(argv[2]);
+    isDebug = (strcmp(argv[3], "true") == 0);
+    llong top = 0;
+
+    printf("使用分区埃拉托色尼筛选法计算 %s 以内素数：\n", dfString(PAGE * REPEAT));
+    llong startTime = clock();
+    top += primeByEuler(PAGE);
+    generateResults(PAGE, top);
+
+    for (int i = 1; i < REPEAT; i++) {
+        llong pos = PAGE * (llong) i;
+        top += PrimeByEratosthenes(pos, PAGE);
+        generateResults(pos + PAGE, top);
+    }
+    llong totalTime = clock() - startTime;
+    printTable();
+    printf("C finished within %.0e; time cost: %lld ms \n", (double) (PAGE * REPEAT), totalTime);
+    return 0;
 }

@@ -9,8 +9,9 @@ import (
 )
 
 const cache uint64 = 80000
+
 var thread int
-var page,repeat uint64
+var page, repeat uint64
 var isDebug bool
 var prime Prime
 
@@ -24,7 +25,9 @@ func primeByEuler(limit uint64, prime *Prime) uint64 {
 		}
 		for j := 0; j < prime.size() && i*prime.get(j) <= limit; j++ {
 			num[i*prime.get(j)] = true
-			if i%prime.get(j) == 0 { break }
+			if i%prime.get(j) == 0 {
+				break
+			}
 		}
 	}
 	return uint64(top)
@@ -56,7 +59,7 @@ func main() {
 	repeat = uint64(irepeat)
 	isDebug, _ = strconv.ParseBool(os.Args[3])
 	thread, _ = strconv.Atoi(os.Args[4])
-	var limit  = page * repeat
+	var limit = page * repeat
 	prime = *newPrime(page, repeat)
 	var top uint64 = 0
 	var startTime time.Time
@@ -84,7 +87,7 @@ func main() {
 
 func runMultiple(top uint64) uint64 {
 	fmt.Println("启动多线程模式，线程数量：", thread)
-	var chs  = make([]chan *[cache]uint64, thread)
+	var chs = make([]chan *[cache]uint64, thread)
 	for i := 0; i < thread; i++ {
 		chs[i] = make(chan *[cache]uint64)
 		go runTask(i, chs[i])
@@ -100,7 +103,9 @@ func runMultiple(top uint64) uint64 {
 			}
 			okAll = true
 			for k := range r {
-				if r[k] == 0 { break }
+				if r[k] == 0 {
+					break
+				}
 				prime.add(r[k])
 				//println("线程",i,"第",m,"次添加top: ",top,",",k," = ",r[k])
 				top++
@@ -112,9 +117,9 @@ func runMultiple(top uint64) uint64 {
 	return top
 }
 
-func runTask(tid int, result chan *[cache]uint64)  {
+func runTask(tid int, result chan *[cache]uint64) {
 
-	for n := uint64(1 + tid ); n < repeat; n+= uint64(thread) {
+	for n := uint64(1 + tid); n < repeat; n += uint64(thread) {
 		pos := page * n
 		num := make([]bool, page)
 		for i := 0; float64(prime.get(i)) < math.Sqrt(float64(pos+page)); i++ {
@@ -159,6 +164,7 @@ func newPrime(page uint64, repeat uint64) *Prime {
 
 func (p Prime) get(index int) uint64 {
 	return (*p._prime)[index]
+
 }
 
 func (p *Prime) add(n uint64) {
@@ -180,9 +186,11 @@ func (p *Prime) generateResults(inter uint64, endNo uint64) {
 func (p Prime) outputInterval(inter uint64) {
 	var s string
 	if inter%uint64(math.Pow10(len(fmt.Sprintf("%d", inter))-1)) == 0 {
-		s = dfString(inter) + "|" + fmt.Sprintf("%d", p._maxInd) + "|" + fmt.Sprintf("%d", (*p._prime)[p._maxInd-p._offSet-1])
+		s = fmt.Sprintf("%s|%d|%d", dfString(inter), p._maxInd, (*p._prime)[p._maxInd-p._offSet-1])
 		*p.interList = append(*p.interList, s)
-		if isDebug { fmt.Println("[In:]", s) }
+		if isDebug {
+			fmt.Println("[In:]", s)
+		}
 	}
 }
 
@@ -191,12 +199,17 @@ func (p Prime) outputSequence(beginNo uint64, endNo uint64) {
 	for i := len(fmt.Sprintf("%d", beginNo)) - 1; i <= len(fmt.Sprintf("%d", endNo))-1; i++ {
 		for j := 1; j < 10; j++ {
 			seq := uint64(j) * uint64(math.Pow10(i))
-			if seq < beginNo { continue	}
-			if seq >= endNo { break	}
-			v := (*p._prime)[p._maxInd-p._offSet-1-(endNo-seq)]
-			s = dfString(seq) + "|" + fmt.Sprintf("%d", v)
+			if seq < beginNo {
+				continue
+			}
+			if seq >= endNo {
+				break
+			}
+			s = fmt.Sprintf("%s|%d", dfString(seq), (*p._prime)[p._maxInd-p._offSet-1-(endNo-seq)])
 			*p.seqList = append(*p.seqList, s)
-			if isDebug { fmt.Println("==>[No:]", s)	}
+			if isDebug {
+				fmt.Println("==>[No:]", s)
+			}
 		}
 	}
 }
@@ -208,14 +221,18 @@ func (p *Prime) freeUp() {
 }
 
 func (p Prime) printTable() {
-	fmt.Println("## 素数区间表")
-	fmt.Println("区间|个数|最大值")
-	fmt.Println("---|---|---")
-	for _, s := range *p.interList { fmt.Println(s)	}
 	fmt.Println("## 素数序列表")
 	fmt.Println("序号|数值")
 	fmt.Println("---|---")
-	for _, s := range *p.seqList { fmt.Println(s) }
+	for _, s := range *p.seqList {
+		fmt.Println(s)
+	}
+	fmt.Println("## 素数区间表")
+	fmt.Println("区间|个数|最大值")
+	fmt.Println("---|---|---")
+	for _, s := range *p.interList {
+		fmt.Println(s)
+	}
 }
 
 func dfString(l uint64) string {

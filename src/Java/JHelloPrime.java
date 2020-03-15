@@ -47,6 +47,7 @@ public class JHelloPrime {
         }
         long totalTime = System.currentTimeMillis() - startTime;
         prime.printTable();
-        System.out.println( Prime.getDfString(page * repeat) + "以内计算完毕。累计耗时："+totalTime+"毫秒");
+        System.out.printf("Java finished within %.0e; time cost: %d ms \n" , (double) (page * repeat) , totalTime);
+//                ( Prime.getDfString(page * repeat) + "以内计算完毕。累计耗时："+totalTime+"毫秒");
     }
 }

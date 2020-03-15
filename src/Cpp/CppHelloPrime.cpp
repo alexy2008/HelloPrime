@@ -34,23 +34,6 @@ private:
 
 };
 
-int PrimeByEratosthenesInterval(llong pos, int limit, Prime *prime) {
-    int top = 0;
-    bool num[limit];
-    for (int i = 0; i < limit; i++) num[i] = false;
-    for (int i = 0; prime->get(i) < sqrt(pos + limit); i++) {
-        llong p = prime->get(i);
-        for (llong j = ceil(pos * 1.0 / p) * p; j < pos + (llong) limit; j += p)
-            num[(int) (j - pos)] = true;
-    }
-    for (int i = 0; i < limit; i++)
-        if (!num[i]) {
-            prime->add(pos + i);
-            top++;
-        }
-    return top;
-}
-
 int primeByEuler(int limit, Prime *prime) {
     int top = 0;
     bool num[limit];
@@ -68,8 +51,25 @@ int primeByEuler(int limit, Prime *prime) {
     return top;
 }
 
+int PrimeByEratosthenes(llong pos, int limit, Prime *prime) {
+    int top = 0;
+    bool num[limit];
+    for (int i = 0; i < limit; i++) num[i] = false;
+    for (int i = 0; prime->get(i) < sqrt(pos + limit); i++) {
+        llong p = prime->get(i);
+        for (llong j = ceil(pos * 1.0 / p) * p; j < pos + (llong) limit; j += p)
+            num[(int) (j - pos)] = true;
+    }
+    for (int i = 0; i < limit; i++)
+        if (!num[i]) {
+            prime->add(pos + i);
+            top++;
+        }
+    return top;
+}
+
 int main(int argc, char *argv[]) {
-    cout << "Hello, Mr.Prime! I'm C++ :-)" << endl;
+    cout << "Hello Prime! I'm C++ :-)" << endl;
     const llong PAGE = atoi(argv[1]);
     const llong REPEAT = atoi(argv[2]);
     const bool isDebug = (strcmp(argv[3], "true") == 0);
@@ -84,7 +84,7 @@ int main(int argc, char *argv[]) {
 
     for (int i = 1; i < REPEAT; i++) {
         llong pos = PAGE * (llong) i;
-        top += PrimeByEratosthenesInterval(pos, PAGE, &prime);
+        top += PrimeByEratosthenes(pos, PAGE, &prime);
         prime.generateResults(pos + PAGE, top);
     }
     llong totalTime = clock() - startTime;
@@ -115,7 +115,7 @@ string Prime::dfString(llong l) {
 }
 
 llong Prime::get(int index) {
-    return index > _maxInd - 1 ? _prime[index - _offSet] : _prime[index];
+    return _prime[index];
 }
 
 llong Prime::size() {
@@ -123,8 +123,7 @@ llong Prime::size() {
 }
 
 void Prime::add(llong p) {
-    _prime[_maxInd - _offSet] = p;
-    _maxInd++;
+    _prime[_maxInd++ - _offSet] = p;
 }
 
 void Prime::generateResults(llong inter, llong endNo) {
@@ -151,9 +150,6 @@ void Prime::putSequence(llong beginNo, llong endNo) {
 
 void Prime::putInterval(llong inter) {
     stringstream ss;
-//    int n = lLength(inter) - 1;
-//    if (n > 10 ) n = 10;
-//    if (inter >= 1000000000000) n = 2;
     if (inter % pow10(lLength(inter) - 1) == 0) {
         ss << dfString(inter) << "|" << _maxInd << "|" << _prime[_maxInd - _offSet - 1];
         interList.push_back(ss.str());
@@ -166,14 +162,14 @@ void Prime::freeUp() {
 }
 
 void Prime::printTable() {
-    cout << "## 素数区间表" << endl;
-    cout << "区间|个数|最大值" << endl;
-    cout << "---|---|---" << endl;
-    for (const string &s:interList) cout << s << endl;
     cout << "## 素数序列表" << endl;
     cout << "序号|数值" << endl;
     cout << "---|---" << endl;
     for (const string &s:seqList) cout << s << endl;
+    cout << "## 素数区间表" << endl;
+    cout << "区间|个数|最大值" << endl;
+    cout << "---|---|---" << endl;
+    for (const string &s:interList) cout << s << endl;
 }
 
 Prime::Prime(llong page, llong repeat, bool isDbg) {

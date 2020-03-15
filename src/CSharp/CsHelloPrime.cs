@@ -1,35 +1,37 @@
 using System;
 using System.Collections.Generic;
+using static System.Math;
 
 class CsHelloPrime
 {
+    private static Prime prime;
     static long PrimeByEuler(long limit)
     {
         long top = 0;
-        bool[] num = new bool[limit + 1];
-        for (int i = 2; i <= limit; i++)
+        var num = new bool[limit + 1];
+        for (var i = 2; i <= limit; i++)
         {
             if (!num[i]) { prime.Add(i); top++; }
-            for (int j = 0; j < prime.Size() && (long) i * prime.Get(j) <= limit; j++)
+            for (var j = 0; j < prime.MaxInd && (long) i * prime[j] <= limit; j++)
             {
-                num[i * prime.Get(j)] = true;
-                if (i % prime.Get(j) == 0) break;
+                num[i * prime[j]] = true;
+                if (i % prime[j] == 0) break;
             }
         }
         return top;
     }
 
-    static long PrimeByEratosthenesInterval(long pos, long limit)
+    static long PrimeByEratosthenes(long pos, long limit)
     {
         long top = 0;
-        bool[] num = new bool[limit];
-        for (int i = 0; prime.Get(i) < Math.Sqrt(pos + limit); i++)
+        var num = new bool[limit];
+        for (var i = 0; prime[i] < Sqrt(pos + limit); i++)
         {
-            long p = prime.Get(i);
-            for (long j = (long) (Math.Ceiling((double) pos / p) * p); j < pos + (long) limit; j += p)
+            var p = prime[i];
+            for (var j = (long) (Ceiling((double) pos / p) * p); j < pos +  limit; j += p)
                 num[(int) (j - pos)] = true;
         }
-        for (int i = 0; i < num.Length; i++)
+        for (var i = 0; i < num.Length; i++)
             if (!num[i]) { prime.Add(pos + i); top++; }
         return top;
     }
@@ -37,13 +39,13 @@ class CsHelloPrime
     static void Main(string[] args)
     {
         Console.WriteLine("Hello Prime! I'm C# :-)");
-        long page = Int32.Parse(args[0]);
-        long repeat = Int32.Parse(args[1]);
-        bool isDebug = Boolean.Parse(args[2]);
-        prime = new Prime(page, repeat, isDebug);
+        long page = long.Parse(args[0]);
+        long repeat = long.Parse(args[1]);
+        int mode = int.Parse(args[2]);
+        prime = new Prime(page, repeat, mode);
         long top = 0;
 
-        Console.WriteLine("使用分区埃拉托色尼筛选法计算{0}以内素数", Prime.DfString(page*repeat));
+        Console.WriteLine("Calculate prime numbers up to {0} using partitioned Eratosthenic sieve", Prime.DfString(page*repeat));
         var startTime = DateTime.Now;
         //首先使用欧拉法得到种子素数组
         top += PrimeByEuler(page);
@@ -51,104 +53,119 @@ class CsHelloPrime
         //循环使用埃拉托色尼法计算分区
         for (var i = 1; i < repeat; i++)
         {
-            long pos = page * (long) i;
-            top += PrimeByEratosthenesInterval(pos, page);
+            var pos = page * i;
+            top += PrimeByEratosthenes(pos, page);
             prime.GenerateResults(pos + page, top);
         }
-        var totalTime = (long) (DateTime.Now.Subtract(startTime).TotalMilliseconds);
+        var totalTime = (long) DateTime.Now.Subtract(startTime).TotalMilliseconds;
         prime.PrintTable();
-        Console.WriteLine("{0}以内计算完毕。累计耗时 :{1}毫秒", Prime.DfString(page*repeat), totalTime);
+        Console.WriteLine("C# finished within {0:0.#e+00} the {1}th prime is {2}, cost time:{3}ms",
+                                                page*repeat, prime.MaxInd, prime.MaxPrime, totalTime);
    }
-    private static Prime prime;
+
 }
 class Prime
     {
-        private long[] _prime;
-        private long _maxInd; //用来存储当前计算的最大素数的序号
+        private long[] _primeArray;
         private int _maxKeep; //允许在内存中保留的素数数量
         private long _offSet;
         private long _prevNo;
-        private List<String> seqList = new List<string>();
-        private List<String> interList = new List<string>();
-        private bool isDebug;
+        private List<string> seqList = new List<string>();
+        private List<string> interList = new List<string>();
+        private int _mode;//运行模式：0：跑分模式，1：正常模式，2:调试模式
+        public long this[int index] => _primeArray[index];
+        public long MaxInd { get; private set; }
+        public long MaxPrime { get; private set; }
 
-        public Prime(long page, long repeat, bool isDbg)
+        public Prime(long page, long repeat, int mode)
         {
-            isDebug = isDbg;
-            _maxKeep = (int) (Math.Sqrt(page * repeat) / Math.Log(Math.Sqrt(page * repeat)) * 1.3);
-            var reserve = (int) ((Math.Sqrt(page * repeat) + page) / Math.Log(Math.Sqrt(page * repeat) + page) * 1.3);
-            _prime = new long[reserve];
-            Console.WriteLine("内存分配：" + _maxKeep + " - " + reserve);
-        }
-
-        public long Get(int index)
-        {
-            return _prime[index];
-        }
-
-        public long Size()
-        {
-            return  _maxInd;
+            _mode = mode;
+            _maxKeep = (int) (Sqrt(page * repeat) / Log(Sqrt(page * repeat)) * 1.3);
+            var reserve = (int) ((Sqrt(page * repeat) + page) / Log(Sqrt(page * repeat) + page) * 1.3);
+            _primeArray = new long[reserve];
+            if (mode > 1) Console.WriteLine("Memory allocation: " + _maxKeep + " - " + reserve);
         }
 
         public void Add(long p)
         {
-            _prime[_maxInd - _offSet] = p;
-            _maxInd++;
+            _primeArray[MaxInd++ - _offSet] = p;
         }
 
         public void GenerateResults (long inter, long endNo){
-            PutSequence(_prevNo,endNo);
-            PutInterval(inter);
-            _prevNo = endNo;
+            if (_mode > 0)
+            {
+                PutSequence(_prevNo,endNo);
+                PutInterval(inter);
+                _prevNo = endNo;
+            }
             FreeUp();
         }
 
         private void PutSequence(long beginNo, long endNo){
-            for (int i = beginNo.ToString().Length - 1; i <= endNo.ToString().Length - 1 ; i++) {
-                for (int j = 1; j < 10 ; j++) {
-                    long seq =  (long)(j * Math.Pow(10, i) + 0.5);
+            for (var i = beginNo.ToString().Length - 1; i <= endNo.ToString().Length - 1 ; i++) {
+                for (var j = 1; j < 10 ; j++) {
+                    var seq =  (long)(j * Pow(10, i) + 0.5);
                     if (seq < beginNo) continue;
                     if (seq >= endNo) return;
-                    long l = Get((int)(Size() - _offSet - 1 - (endNo - seq)));
-                    var s = DfString(seq) + "|" + l;
+                    var l = this[(int)(MaxInd - _offSet - 1 - (endNo - seq))];
+                    var s = CDfString(seq) + "|" + l;
                     seqList.Add(s);
-                    if (isDebug) Console.WriteLine("==>[No:] "+s);
+                    if (_mode > 1) Console.WriteLine("==>[No:] "+s);
                 }
             }
         }
 
-        public void PutInterval(long inter) {
-            if (inter % (long)(Math.Pow(10, inter.ToString().Length - 1) + 0.5) == 0) {
-                var ss  = DfString(inter) + "|" + _maxInd + "|" + _prime[_maxInd - _offSet - 1] ;
+        private void PutInterval(long inter) {
+            if (inter % (long)(Pow(10, inter.ToString().Length - 1) + 0.5) == 0) {
+                var ss  = CDfString(inter) + "|" + MaxInd + "|" + this[(int)(MaxInd - _offSet - 1)] ;
                 interList.Add(ss);
-                if (isDebug) Console.WriteLine("[In:]" + ss);
+                if (_mode > 1) Console.WriteLine("[In:]" + ss);
             }
         }
 
         private void FreeUp() {
-            if (_maxInd > _maxKeep) _offSet = _maxInd-_maxKeep;
+            if (MaxInd > _maxKeep)
+            {
+                MaxPrime = this[(int)(MaxInd - _offSet - 1)];
+                _offSet = MaxInd-_maxKeep;
+            }
         }
 
         public void PrintTable(){
-            Console.WriteLine("## 素数区间表");
-            Console.WriteLine("区间|个数|最大值");
-            Console.WriteLine("---|---|---");
-            interList.ForEach( s => Console.WriteLine(s) );
+            if (_mode < 1) return;
             Console.WriteLine("## 素数序列表");
             Console.WriteLine("序号|数值");
             Console.WriteLine("---|---");
-            seqList.ForEach( s => Console.WriteLine(s));
+            seqList.ForEach( Console.WriteLine);
+            Console.WriteLine("## 素数区间表");
+            Console.WriteLine("区间|个数|最大值");
+            Console.WriteLine("---|---|---");
+            interList.ForEach( Console.WriteLine );
         }
-        public static string DfString(long l)
+        public static string CDfString(long l)
         {
-            string s = l.ToString();
+            var s = l.ToString();
             if(l % 10000_0000_0000L == 0) {
                 s = s.Substring(0,s.Length - 12 ) + "万亿";
             }else if(l % 10000_0000L == 0){
                 s = s.Substring(0,s.Length - 8 ) + "亿";
             }else if(l%10000 == 0){
                 s = s.Substring(0,s.Length - 4 ) + "万";
+            }
+            return s;
+        }
+
+        public static string DfString(long l)
+        {
+            var s = l.ToString();
+            if(l % 1000_000_000_000L == 0) {
+                s = s.Substring(0,s.Length - 12 ) + "T";
+            }else if(l % 1000_000_000L == 0){
+                s = s.Substring(0,s.Length - 9 ) + "G";
+            }else if(l%1000_000 == 0){
+                s = s.Substring(0,s.Length - 6 ) + "M";
+            }else if(l%1000 == 0){
+                s = s.Substring(0,s.Length - 3 ) + "K";
             }
             return s;
         }
