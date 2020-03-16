@@ -3,7 +3,7 @@ public class JHiPrime {
     private static long[] primeArray = new long[maxKeep +70000];
     private static long offSet;
     private static long maxInd;
-    private static long _maxPrime;
+    private static long maxPrime;
 
     private static void primeByEuler(int limit) {
         var num = new boolean[limit];
@@ -37,12 +37,12 @@ public class JHiPrime {
         for (int i = 1; i < repeat; i++) {
             primeByEratosthenes(page * (long) i, page);
             if (maxInd > maxKeep){
-                _maxPrime = primeArray[(int)(maxInd - offSet - 1)];
+                maxPrime = primeArray[(int)(maxInd - offSet - 1)];
                 offSet = maxInd - maxKeep;
             }
         }
         var totalTime = System.currentTimeMillis() - startTime;
         System.out.printf("Java finished within %.0e the %dth prime is %d, time cost: %d ms \n" ,
-                            (double) (page * repeat), maxInd, _maxPrime, totalTime);
+                            (double) (page * repeat), maxInd, maxPrime, totalTime);
     }
 }
