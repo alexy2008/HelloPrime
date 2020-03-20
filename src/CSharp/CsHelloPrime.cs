@@ -39,19 +39,19 @@ class CsHelloPrime
     static void Main(string[] args)
     {
         Console.WriteLine("Hello Prime! I'm C# :-)");
-        long page = long.Parse(args[0]);
-        long repeat = long.Parse(args[1]);
+        long limit = long.Parse(args[0]);
+        long page = long.Parse(args[1]);
         int mode = int.Parse(args[2]);
-        prime = new Prime(page, repeat, mode);
+        prime = new Prime(limit, page, mode);
         long top = 0;
 
-        Console.WriteLine("Calculate prime numbers up to {0} using partitioned Eratosthenic sieve", Prime.DfString(page*repeat));
+        Console.WriteLine("Calculate prime numbers up to {0} using partitioned Eratosthenic sieve", Prime.DfString(limit));
         var startTime = DateTime.Now;
         //首先使用欧拉法得到种子素数组
         top += PrimeByEuler(page);
         prime.GenerateResults(page, top);
         //循环使用埃拉托色尼法计算分区
-        for (var i = 1; i < repeat; i++)
+        for (var i = 1; i < limit/page; i++)
         {
             var pos = page * i;
             top += PrimeByEratosthenes(pos, page);
@@ -60,10 +60,10 @@ class CsHelloPrime
         var totalTime = (long) DateTime.Now.Subtract(startTime).TotalMilliseconds;
         prime.PrintTable();
         Console.WriteLine("C# finished within {0:0.#e+00} the {1}th prime is {2}, cost time:{3}ms",
-                                                page*repeat, prime.MaxInd, prime.MaxPrime, totalTime);
+                                                limit, prime.MaxInd, prime.MaxPrime, totalTime);
    }
-
 }
+
 class Prime
     {
         private long[] _primeArray;
@@ -77,11 +77,11 @@ class Prime
         public long MaxInd { get; private set; }
         public long MaxPrime { get; private set; }
 
-        public Prime(long page, long repeat, int mode)
+        public Prime(long limit, long page, int mode)
         {
             _mode = mode;
-            _maxKeep = (int) (Sqrt(page * repeat) / Log(Sqrt(page * repeat)) * 1.3);
-            var reserve = (int) ((Sqrt(page * repeat) + page) / Log(Sqrt(page * repeat) + page) * 1.3);
+            _maxKeep = (int) (Sqrt(limit) / Log(Sqrt(limit)) * 1.3);
+            var reserve = (int) ((Sqrt(limit) + page) / Log(Sqrt(limit) + page) * 1.3);
             _primeArray = new long[reserve];
             if (mode > 1) Console.WriteLine("Memory allocation: " + _maxKeep + " - " + reserve);
         }
@@ -98,6 +98,7 @@ class Prime
                 PutInterval(inter);
                 _prevNo = endNo;
             }
+            MaxPrime = this[(int)(MaxInd - _offSet - 1)];
             FreeUp();
         }
 
@@ -124,11 +125,7 @@ class Prime
         }
 
         private void FreeUp() {
-            if (MaxInd > _maxKeep)
-            {
-                MaxPrime = this[(int)(MaxInd - _offSet - 1)];
-                _offSet = MaxInd-_maxKeep;
-            }
+            if (MaxInd > _maxKeep)  _offSet = MaxInd-_maxKeep;
         }
 
         public void PrintTable(){

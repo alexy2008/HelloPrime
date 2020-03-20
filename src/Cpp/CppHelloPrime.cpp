@@ -70,8 +70,8 @@ int PrimeByEratosthenes(llong pos, int limit, Prime *prime) {
 
 int main(int argc, char *argv[]) {
     cout << "Hello Prime! I'm C++ :-)" << endl;
-    const llong PAGE = atoi(argv[1]);
-    const llong REPEAT = atoi(argv[2]);
+    const llong PAGE = atoll(argv[1]);
+    const llong REPEAT = atoll(argv[2]);
     const bool isDebug = (strcmp(argv[3], "true") == 0);
     Prime prime(PAGE, REPEAT, isDebug);
 

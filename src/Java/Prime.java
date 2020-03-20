@@ -1,19 +1,22 @@
 import java.util.ArrayList;
+import static java.lang.Math.*;
 
 class Prime{
     private ArrayList<Long> primeList;
-    private long maxInd; //用来存储当前计算的最大素数的序号
+    public long maxInd; //用来存储当前计算的最大素数的序号
+    public long maxPrime;
     private int maxKeep; //允许在内存中保留的素数数量
     private ArrayList<String> seqList = new ArrayList<>();
     private ArrayList<String> interList = new ArrayList<>();
-    private boolean isDebug;
     private long prevNo;
+    private int mode;
 
-    Prime(long page, long repeat, boolean isDbg){
-        isDebug = isDbg;
-        maxKeep = (int) (Math.sqrt(page*(repeat+1)) / Math.log(Math.sqrt(page*(repeat+1))) * 1.3);
+    Prime(long limit, long page, int mo){
+        mode = mo;
+        maxKeep = (int) (sqrt(limit) / log(sqrt(limit)) * 1.3);
+        var reserve = (int) ((sqrt(limit)+page) / log(sqrt(limit)+page) * 1.3);
         System.out.println("内存分配：" + maxKeep);
-        primeList = new ArrayList<>(maxKeep);
+        primeList = new ArrayList<>(reserve);
     }
 
     long get(int index){
@@ -30,30 +33,33 @@ class Prime{
     }
 
     void generateResults (long inter, long endNo){
-        putSequence(prevNo,endNo);
-        putInterval(inter);
-        prevNo = endNo;
+        if (mode > 0){
+            putSequence(prevNo,endNo);
+            putInterval(inter);
+            prevNo = endNo;
+        }
+        maxPrime = primeList.get(primeList.size() - 1);
         freeUp();
     }
 
     void putInterval(long inter) {
-        if (inter % Math.pow(10, String.valueOf(inter).length() - 1) == 0) {
+        if (inter % pow(10, String.valueOf(inter).length() - 1) == 0) {
             var s = String.format("%s|%d|%d", getDfString(inter), maxInd, get(size() - 1));
             interList.add(s);
-            if (isDebug) System.out.println("[In:]"+s);
+            if (mode > 1) System.out.println("[In:]"+s);
         }
     }
 
     void putSequence(long beginNo, long endNo){
         for (int i = String.valueOf(beginNo).length()-1; i <= String.valueOf(endNo).length()-1 ; i++) {
             for (int j = 1; j < 10 ; j++) {
-                long seq = (long) (j*Math.pow(10,i));
+                long seq = (long) (j* pow(10,i));
                 if (seq < beginNo) continue;
                 if (seq >= endNo) return;
                 long l = get(size() - 1 - (int)(endNo - seq));
                 var s = getDfString(seq) + "|" + l;
                 seqList.add(s);
-                if (isDebug) System.out.println("==>[No:]"+s);
+                if (mode > 1) System.out.println("==>[No:]"+s);
             }
         }
     }
@@ -63,14 +69,15 @@ class Prime{
     }
 
     void printTable(){
-        System.out.println("## 素数区间表");
-        System.out.println("区间|个数|最大值");
-        System.out.println("---|---|---");
-        interList.forEach(System.out::println);
+        if (mode < 1) return;
         System.out.println("## 素数序列表");
         System.out.println("序号|数值");
         System.out.println("---|---");
         seqList.forEach(System.out::println);
+        System.out.println("## 素数区间表");
+        System.out.println("区间|个数|最大值");
+        System.out.println("---|---|---");
+        interList.forEach(System.out::println);
     }
 
     static String getDfString(long l) {

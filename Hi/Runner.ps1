@@ -2,26 +2,11 @@ param ([string]$lang,[string]$limit,[string]$page="M",[int]$loop=1,[bool]$build)
 
 
 switch ($page) {
-    "H" {
-        $page = "10000000"
-        break
-        }
-    "L" {
-        $page = "1000000"
-        break
-        }
-    "M" {
-        $page = "100000"
-        break
-        }
-    "S" {
-        $page = "10000"
-        break
-        } 
-    "T" {
-        $page = "1000"
-        break
-        }         
+    "H" {$page = "10000000"}
+    "L" {$page = "1000000"}
+    "M" {$page = "100000"}
+    "S" {$page = "10000"} 
+    "T" {$page = "1000"}         
     Default {}
 }
 
@@ -39,33 +24,28 @@ Write-Host "$lang 开始计算 $ssum 以内" -ForegroundColor Green
 switch ($lang) {
     "c#" {        
         for ($i = 0; $i -lt $loop; $i++) {
-            dotnet csbin\hi.dll $page $repeat    
-        }        
-        break
+            dotnet csbin\hi.dll $limit $page    
+        }
       }
       "java" {
         for ($i = 0; $i -lt $loop; $i++) {
             java -cp .\jbin JHiPrime $limit $page   
-        }        
-        break
+        }
       }
       "c++" {
         for ($i = 0; $i -lt $loop; $i++) {
-            .\cmake-build-release\CppHiPrime.exe $page $repeat 
-        }        
-        break
+            .\cmake-build-release\CppHiPrime.exe $limit $page  
+        }
       }
       "c" {
         for ($i = 0; $i -lt $loop; $i++) {
-            .\cmake-build-release\CHiPrime.exe $page $repeat   
-        }        
-        break
+            .\cmake-build-release\CHiPrime.exe $limit $page   
+        } 
       }
       "go" {
         for ($i = 0; $i -lt $loop; $i++) {
-            .\out\go_hello_prime.exe $limit $page  
-        }        
-        break
+            .\out\GoHiPrime.exe $limit $page  
+        } 
       }
 
     Default {
@@ -74,4 +54,4 @@ switch ($lang) {
     } 
 }
 
-Write-Host "$lang $ssum 以内。计算完毕" -ForegroundColor Yellow
+Write-Host "$lang $ssum 以内。计算完毕" -ForegroundColor Green

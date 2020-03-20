@@ -10,9 +10,8 @@ import (
 
 const cache uint64 = 80000
 
-var thread int
-var page, repeat uint64
-var isDebug bool
+var thread, mode int
+var page, limit uint64
 var prime Prime
 
 func primeByEuler(limit uint64, prime *Prime) uint64 {
@@ -53,14 +52,11 @@ func primeByEratosthenesInterval(pos uint64, limit uint64, prime *Prime) uint64 
 
 func main() {
 	fmt.Println("Hello Mr.Prime! I'm Go :-)")
-	iPage, _ := strconv.Atoi(os.Args[1])
-	page = uint64(iPage)
-	irepeat, _ := strconv.Atoi(os.Args[2])
-	repeat = uint64(irepeat)
-	isDebug, _ = strconv.ParseBool(os.Args[3])
+	limit, _ = strconv.ParseUint(os.Args[1], 10, 64)
+	page, _ = strconv.ParseUint(os.Args[2], 10, 64)
+	mode, _ = strconv.Atoi(os.Args[3])
 	thread, _ = strconv.Atoi(os.Args[4])
-	var limit = page * repeat
-	prime = *newPrime(page, repeat)
+	prime = *newPrime()
 	var top uint64 = 0
 	var startTime time.Time
 
@@ -71,7 +67,7 @@ func main() {
 
 	if thread == 1 {
 		fmt.Println("启动单线程模式")
-		for i := uint64(1); i < repeat; i++ {
+		for i := uint64(1); i < limit/page; i++ {
 			pos := page * i
 			top += primeByEratosthenesInterval(pos, page, &prime)
 			prime.generateResults(pos+page, top)
@@ -82,7 +78,8 @@ func main() {
 
 	totalTime := time.Now().Sub(startTime).Milliseconds()
 	prime.printTable()
-	fmt.Println("Go finished within", fmt.Sprintf("%g", float64(limit)), "; time cost:", totalTime, "ms")
+	fmt.Printf("Go finished within %g; the %dth prime is %d, time cost: %d ms \n",
+		float64(limit), prime._maxInd, prime._maxPrime, totalTime)
 }
 
 func runMultiple(top uint64) uint64 {
@@ -96,7 +93,6 @@ func runMultiple(top uint64) uint64 {
 	for m := uint64(0); okAll; m += uint64(thread) {
 		okAll = false
 		for i := 0; i < thread; i++ {
-			//n := uint64(1 + i )
 			var r, ok = <-chs[i]
 			if !ok {
 				break
@@ -107,10 +103,8 @@ func runMultiple(top uint64) uint64 {
 					break
 				}
 				prime.add(r[k])
-				//println("线程",i,"第",m,"次添加top: ",top,",",k," = ",r[k])
 				top++
 			}
-			//println(i," : ",page*(uint64(i) + m + 2))
 			prime.generateResults(page*(uint64(i)+m+2), top) //todo
 		}
 	}
@@ -119,7 +113,7 @@ func runMultiple(top uint64) uint64 {
 
 func runTask(tid int, result chan *[cache]uint64) {
 
-	for n := uint64(1 + tid); n < repeat; n += uint64(thread) {
+	for n := uint64(1 + tid); n < limit/page; n += uint64(thread) {
 		pos := page * n
 		num := make([]bool, page)
 		for i := 0; float64(prime.get(i)) < math.Sqrt(float64(pos+page)); i++ {
@@ -144,6 +138,7 @@ func runTask(tid int, result chan *[cache]uint64) {
 
 type Prime struct {
 	_maxInd   uint64
+	_maxPrime uint64
 	_maxKeep  int
 	seqList   *[]string
 	interList *[]string
@@ -152,9 +147,9 @@ type Prime struct {
 	_offSet   uint64
 }
 
-func newPrime(page uint64, repeat uint64) *Prime {
+func newPrime() *Prime {
 	var p Prime
-	p._maxKeep = int(math.Sqrt(float64(page*repeat)) / math.Log(math.Sqrt(float64(page*repeat))) * 1.3)
+	p._maxKeep = int(math.Sqrt(float64(limit)) / math.Log(math.Sqrt(float64(limit))) * 1.3)
 	sp := make([]uint64, p._maxKeep+800000)
 	p._prime = &sp
 	p.interList = &[]string{}
@@ -177,9 +172,12 @@ func (p *Prime) size() int {
 }
 
 func (p *Prime) generateResults(inter uint64, endNo uint64) {
-	(*p).outputSequence(p.prevNo, endNo)
-	(*p).outputInterval(inter)
-	(*p).prevNo = endNo
+	if mode > 0 {
+		(*p).outputSequence(p.prevNo, endNo)
+		(*p).outputInterval(inter)
+		(*p).prevNo = endNo
+	}
+	(*p)._maxPrime = (*p._prime)[(*p)._maxInd-(*p)._offSet-1]
 	(*p).freeUp()
 }
 
@@ -188,7 +186,7 @@ func (p Prime) outputInterval(inter uint64) {
 	if inter%uint64(math.Pow10(len(fmt.Sprintf("%d", inter))-1)) == 0 {
 		s = fmt.Sprintf("%s|%d|%d", dfString(inter), p._maxInd, (*p._prime)[p._maxInd-p._offSet-1])
 		*p.interList = append(*p.interList, s)
-		if isDebug {
+		if mode > 1 {
 			fmt.Println("[In:]", s)
 		}
 	}
@@ -207,7 +205,7 @@ func (p Prime) outputSequence(beginNo uint64, endNo uint64) {
 			}
 			s = fmt.Sprintf("%s|%d", dfString(seq), (*p._prime)[p._maxInd-p._offSet-1-(endNo-seq)])
 			*p.seqList = append(*p.seqList, s)
-			if isDebug {
+			if mode > 1 {
 				fmt.Println("==>[No:]", s)
 			}
 		}
@@ -221,6 +219,9 @@ func (p *Prime) freeUp() {
 }
 
 func (p Prime) printTable() {
+	if mode < 1 {
+		return
+	}
 	fmt.Println("## 素数序列表")
 	fmt.Println("序号|数值")
 	fmt.Println("---|---")
