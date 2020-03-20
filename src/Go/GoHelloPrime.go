@@ -92,14 +92,10 @@ func runMultiple(top uint64) uint64 {
 		okAll = false
 		for i := 0; i < thread; i++ {
 			var r, ok = <-chs[i]
-			if !ok {
-				break
-			}
+			if !ok {break}
 			okAll = true
 			for k := range r {
-				if r[k] == 0 {
-					break
-				}
+				if r[k] == 0 {break}
 				prime.add(r[k])
 				top++
 			}
