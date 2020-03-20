@@ -24,9 +24,7 @@ func primeByEuler(limit uint64, prime *Prime) uint64 {
 		}
 		for j := 0; j < prime.size() && i*prime.get(j) <= limit; j++ {
 			num[i*prime.get(j)] = true
-			if i%prime.get(j) == 0 {
-				break
-			}
+			if i%prime.get(j) == 0 {break}
 		}
 	}
 	return uint64(top)
