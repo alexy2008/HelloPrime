@@ -177,7 +177,7 @@ func (p *Prime) generateResults(inter uint64, endNo uint64) {
 		(*p).outputInterval(inter)
 		(*p).prevNo = endNo
 	}
-	(*p)._maxPrime = (*p._prime)[(*p)._maxInd-(*p)._offSet-1]
+	(*p)._maxPrime = (*p._prime)[(*p)._maxInd - (*p)._offSet - 1]
 	(*p).freeUp()
 }
 
@@ -186,9 +186,7 @@ func (p Prime) outputInterval(inter uint64) {
 	if inter%uint64(math.Pow10(len(fmt.Sprintf("%d", inter))-1)) == 0 {
 		s = fmt.Sprintf("%s|%d|%d", dfString(inter), p._maxInd, (*p._prime)[p._maxInd-p._offSet-1])
 		*p.interList = append(*p.interList, s)
-		if mode > 1 {
-			fmt.Println("[In:]", s)
-		}
+		if mode > 1 { fmt.Println("[In:]", s) }
 	}
 }
 
@@ -197,17 +195,11 @@ func (p Prime) outputSequence(beginNo uint64, endNo uint64) {
 	for i := len(fmt.Sprintf("%d", beginNo)) - 1; i <= len(fmt.Sprintf("%d", endNo))-1; i++ {
 		for j := 1; j < 10; j++ {
 			seq := uint64(j) * uint64(math.Pow10(i))
-			if seq < beginNo {
-				continue
-			}
-			if seq >= endNo {
-				break
-			}
+			if seq < beginNo { continue	}
+			if seq >= endNo { break	}
 			s = fmt.Sprintf("%s|%d", dfString(seq), (*p._prime)[p._maxInd-p._offSet-1-(endNo-seq)])
 			*p.seqList = append(*p.seqList, s)
-			if mode > 1 {
-				fmt.Println("==>[No:]", s)
-			}
+			if mode > 1 { fmt.Println("==>[No:]", s) }
 		}
 	}
 }
@@ -219,21 +211,15 @@ func (p *Prime) freeUp() {
 }
 
 func (p Prime) printTable() {
-	if mode < 1 {
-		return
-	}
+	if mode < 1 { return }
 	fmt.Println("## 素数序列表")
 	fmt.Println("序号|数值")
 	fmt.Println("---|---")
-	for _, s := range *p.seqList {
-		fmt.Println(s)
-	}
+	for _, s := range *p.seqList { fmt.Println(s) }
 	fmt.Println("## 素数区间表")
 	fmt.Println("区间|个数|最大值")
 	fmt.Println("---|---|---")
-	for _, s := range *p.interList {
-		fmt.Println(s)
-	}
+	for _, s := range *p.interList { fmt.Println(s)	}
 }
 
 func dfString(l uint64) string {
