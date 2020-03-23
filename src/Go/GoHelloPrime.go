@@ -14,38 +14,28 @@ var thread, mode int
 var page, limit uint64
 var prime Prime
 
-func primeByEuler(limit uint64, prime *Prime) uint64 {
-	top := 0
-	num := make([]bool, limit+1)
-	for i := uint64(2); i < limit; i++ {
-		if !num[i] {
-			prime.add(i)
-			top++
-		}
-		for j := 0; j < prime.size() && i*prime.get(j) <= limit; j++ {
+func primeByEuler(page uint64){
+	num := make([]bool, page+1)
+	for i := uint64(2); i < page; i++ {
+		if !num[i] { prime.add(i) }
+		for j := 0; j < prime.size() && i*prime.get(j) <= page; j++ {
 			num[i*prime.get(j)] = true
 			if i%prime.get(j) == 0 {break}
 		}
 	}
-	return uint64(top)
 }
 
-func primeByEratosthenesInterval(pos uint64, limit uint64, prime *Prime) uint64 {
-	top := 0
-	num := make([]bool, limit)
-	for i := 0; float64(prime.get(i)) < math.Sqrt(float64(pos+limit)); i++ {
+func primeByEratosthenesInterval(pos uint64, page uint64) {
+	num := make([]bool, page)
+	for i := 0; float64(prime.get(i)) < math.Sqrt(float64(pos+page)); i++ {
 		p := prime.get(i)
-		for j := uint64(math.Ceil(float64(pos)/float64(p)) * float64(p)); j < pos+limit; j += p {
+		for j := uint64(math.Ceil(float64(pos)/float64(p)) * float64(p)); j < pos+page; j += p {
 			num[j-pos] = true
 		}
 	}
 	for i := 0; i < len(num); i++ {
-		if num[i] == false {
-			prime.add(pos + uint64(i))
-			top++
-		}
+		if num[i] == false { prime.add(pos + uint64(i))	}
 	}
-	return uint64(top)
 }
 
 func main() {
@@ -55,23 +45,22 @@ func main() {
 	mode, _ = strconv.Atoi(os.Args[3])
 	thread, _ = strconv.Atoi(os.Args[4])
 	prime = *newPrime()
-	var top uint64 = 0
 	var startTime time.Time
 
 	fmt.Println("使用分区埃拉托色尼筛选法计算", dfString(limit), "以内素数：")
 	startTime = time.Now()
-	top += primeByEuler(page, &prime)
-	prime.generateResults(page, top)
+	primeByEuler(page)
+	prime.generateResults(page)
 
 	if thread == 1 {
 		fmt.Println("启动单线程模式")
 		for i := uint64(1); i < limit/page; i++ {
 			pos := page * i
-			top += primeByEratosthenesInterval(pos, page, &prime)
-			prime.generateResults(pos+page, top)
+			primeByEratosthenesInterval(pos, page)
+			prime.generateResults(pos+page)
 		}
 	} else {
-		top = runMultiple(top)
+		runMultiple()
 	}
 
 	totalTime := time.Now().Sub(startTime).Milliseconds()
@@ -80,7 +69,7 @@ func main() {
 		float64(limit), prime._maxInd, prime._maxPrime, totalTime)
 }
 
-func runMultiple(top uint64) uint64 {
+func runMultiple() {
 	fmt.Println("启动多线程模式，线程数量：", thread)
 	var chs = make([]chan *[cache]uint64, thread)
 	for i := 0; i < thread; i++ {
@@ -97,12 +86,10 @@ func runMultiple(top uint64) uint64 {
 			for k := range r {
 				if r[k] == 0 {break}
 				prime.add(r[k])
-				top++
 			}
-			prime.generateResults(page*(uint64(i)+m+2), top) //todo
+			prime.generateResults(page*(uint64(i)+m+2)) //todo
 		}
 	}
-	return top
 }
 
 func runTask(tid int, result chan *[cache]uint64) {
@@ -165,11 +152,11 @@ func (p *Prime) size() int {
 	return int((*p)._maxInd)
 }
 
-func (p *Prime) generateResults(inter uint64, endNo uint64) {
+func (p *Prime) generateResults(inter uint64) {
 	if mode > 0 {
-		(*p).outputSequence(p.prevNo, endNo)
+		(*p).outputSequence(p.prevNo)
 		(*p).outputInterval(inter)
-		(*p).prevNo = endNo
+		(*p).prevNo = (*p)._maxInd
 	}
 	(*p)._maxPrime = (*p._prime)[(*p)._maxInd - (*p)._offSet - 1]
 	(*p).freeUp()
@@ -184,14 +171,14 @@ func (p Prime) outputInterval(inter uint64) {
 	}
 }
 
-func (p Prime) outputSequence(beginNo uint64, endNo uint64) {
+func (p Prime) outputSequence(beginNo uint64) {
 	var s string
-	for i := len(fmt.Sprintf("%d", beginNo)) - 1; i <= len(fmt.Sprintf("%d", endNo))-1; i++ {
+	for i := len(fmt.Sprintf("%d", beginNo)) - 1; i <= len(fmt.Sprintf("%d", p._maxInd))-1; i++ {
 		for j := 1; j < 10; j++ {
 			seq := uint64(j) * uint64(math.Pow10(i))
 			if seq < beginNo { continue	}
-			if seq >= endNo { break	}
-			s = fmt.Sprintf("%s|%d", dfString(seq), (*p._prime)[p._maxInd-p._offSet-1-(endNo-seq)])
+			if seq >= p._maxInd { break	}
+			s = fmt.Sprintf("%s|%d", dfString(seq), (*p._prime)[p._maxInd - p._offSet-1-(p._maxInd-seq)])
 			*p.seqList = append(*p.seqList, s)
 			if mode > 1 { fmt.Println("==>[No:]", s) }
 		}

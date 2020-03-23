@@ -15,7 +15,7 @@ class Prime{
         mode = mo;
         maxKeep = (int) (sqrt(limit) / log(sqrt(limit)) * 1.3);
         var reserve = (int) ((sqrt(limit)+page) / log(sqrt(limit)+page) * 1.3);
-        System.out.println("内存分配：" + maxKeep);
+        System.out.println("Memory allocation：" + maxKeep);
         primeList = new ArrayList<>(reserve);
     }
 
@@ -32,11 +32,11 @@ class Prime{
         maxInd++;
     }
 
-    void generateResults (long inter, long endNo){
+    void generateResults (long inter){
         if (mode > 0){
-            putSequence(prevNo,endNo);
+            putSequence(prevNo);
             putInterval(inter);
-            prevNo = endNo;
+            prevNo = maxInd;
         }
         maxPrime = primeList.get(primeList.size() - 1);
         freeUp();
@@ -50,13 +50,13 @@ class Prime{
         }
     }
 
-    void putSequence(long beginNo, long endNo){
-        for (int i = String.valueOf(beginNo).length()-1; i <= String.valueOf(endNo).length()-1 ; i++) {
+    void putSequence(long beginNo){
+        for (int i = String.valueOf(beginNo).length()-1; i <= String.valueOf(maxInd).length()-1 ; i++) {
             for (int j = 1; j < 10 ; j++) {
                 long seq = (long) (j* pow(10,i));
                 if (seq < beginNo) continue;
-                if (seq >= endNo) return;
-                long l = get(size() - 1 - (int)(endNo - seq));
+                if (seq >= maxInd) return;
+                long l = get(size() - 1 - (int)(maxInd - seq));
                 var s = getDfString(seq) + "|" + l;
                 seqList.add(s);
                 if (mode > 1) System.out.println("==>[No:]"+s);
