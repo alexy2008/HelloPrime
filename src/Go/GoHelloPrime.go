@@ -63,9 +63,9 @@ func main() {
 		runMultiple()
 	}
 
-	totalTime := time.Now().Sub(startTime).Microseconds()
+	totalTime := time.Now().Sub(startTime).String()
 	prime.printTable()
-	fmt.Printf("Go finished within %g; the %dth prime is %d, time cost: %d ms \n",
+	fmt.Printf("Go finished within %g; the %dth prime is %d, time cost: %s ms \n",
 		float64(limit), prime._maxInd, prime._maxPrime, totalTime)
 }
 
