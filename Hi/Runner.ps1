@@ -1,6 +1,5 @@
 param ([string]$lang,[string]$limit,[string]$page="M",[int]$loop=1,[bool]$build)
 
-
 switch ($page) {
     "H" {$page = "10000000"}
     "L" {$page = "1000000"}
@@ -24,29 +23,34 @@ Write-Host "$lang 开始计算 $ssum 以内" -ForegroundColor Green
 switch ($lang) {
     "c#" {        
         for ($i = 0; $i -lt $loop; $i++) {
-            dotnet csbin\hi.dll $limit $page    
+            .\csbin\hi $limit $page
         }
       }
-      "java" {
+    "vb" {
         for ($i = 0; $i -lt $loop; $i++) {
-            java -cp .\jbin JHiPrime $limit $page   
+            .\vbbin\VbHi $limit $page
         }
-      }
-      "c++" {
+    }
+    "java" {
         for ($i = 0; $i -lt $loop; $i++) {
-            .\cmake-build-release\CppHiPrime.exe $limit $page  
+            java -cp .\jbin JHiPrime $limit $page
         }
-      }
-      "c" {
+    }
+    "c++" {
         for ($i = 0; $i -lt $loop; $i++) {
-            .\cmake-build-release\CHiPrime.exe $limit $page   
-        } 
-      }
-      "go" {
+            .\cmake-build-release\CppHiPrime.exe $limit $page
+        }
+    }
+    "c" {
         for ($i = 0; $i -lt $loop; $i++) {
-            .\out\GoHiPrime.exe $limit $page  
-        } 
-      }
+            .\cmake-build-release\CHiPrime.exe $limit $page
+        }
+    }
+    "go" {
+        for ($i = 0; $i -lt $loop; $i++) {
+            .\out\GoHiPrime.exe $limit $page
+        }
+    }
 
     Default {
         Write-Host "unknow language!" -ForegroundColor Red

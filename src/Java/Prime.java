@@ -15,6 +15,8 @@ class Prime{
         mode = mo;
         maxKeep = (int) (sqrt(limit) / log(sqrt(limit)) * 1.3);
         var reserve = (int) ((sqrt(limit)+page) / log(sqrt(limit)+page) * 1.3);
+//        maxKeep = 80000;
+//        var reserve = 150000;
         System.out.println("Memory allocation：" + maxKeep);
         primeList = new ArrayList<>(reserve);
     }

@@ -1,0 +1,1 @@
+@.\cmake-build-release\CppHelloPrime.exe %1 %2 %3 %4

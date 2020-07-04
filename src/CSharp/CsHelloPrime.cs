@@ -5,35 +5,31 @@ using static System.Math;
 class CsHelloPrime
 {
     private static Prime prime;
-    static long PrimeByEuler(long limit)
+    static void PrimeByEuler(long page)
     {
-        long top = 0;
-        var num = new bool[limit + 1];
-        for (var i = 2; i <= limit; i++)
+        var num = new bool[page + 1];
+        for (var i = 2; i <= page; i++)
         {
-            if (!num[i]) { prime.Add(i); top++; }
-            for (var j = 0; j < prime.MaxInd && (long) i * prime[j] <= limit; j++)
+            if (!num[i]) prime.Add(i);
+            for (var j = 0; j < prime.MaxInd && (long) i * prime[j] <= page; j++)
             {
                 num[i * prime[j]] = true;
                 if (i % prime[j] == 0) break;
             }
         }
-        return top;
     }
 
-    static long PrimeByEratosthenes(long pos, long limit)
+    static void PrimeByEratosthenes(long pos, long page)
     {
-        long top = 0;
-        var num = new bool[limit];
-        for (var i = 0; prime[i] < Sqrt(pos + limit); i++)
+        var num = new bool[page];
+        for (var i = 0; prime[i] < Sqrt(pos + page); i++)
         {
             var p = prime[i];
-            for (var j = (long) (Ceiling((double) pos / p) * p); j < pos +  limit; j += p)
+            for (var j = (long) (Ceiling((double) pos / p) * p); j < pos +  page; j += p)
                 num[(int) (j - pos)] = true;
         }
         for (var i = 0; i < num.Length; i++)
-            if (!num[i]) { prime.Add(pos + i); top++; }
-        return top;
+            if (!num[i]) prime.Add(pos + i);
     }
 
     static void Main(string[] args)
@@ -43,19 +39,18 @@ class CsHelloPrime
         long page = long.Parse(args[1]);
         int mode = int.Parse(args[2]);
         prime = new Prime(limit, page, mode);
-        long top = 0;
 
         Console.WriteLine("Calculate prime numbers up to {0} using partitioned Eratosthenic sieve", Prime.DfString(limit));
         var startTime = DateTime.Now;
         //首先使用欧拉法得到种子素数组
-        top += PrimeByEuler(page);
-        prime.GenerateResults(page, top);
+        PrimeByEuler(page);
+        prime.GenerateResults(page);
         //循环使用埃拉托色尼法计算分区
         for (var i = 1; i < limit/page; i++)
         {
             var pos = page * i;
-            top += PrimeByEratosthenes(pos, page);
-            prime.GenerateResults(pos + page, top);
+            PrimeByEratosthenes(pos, page);
+            prime.GenerateResults(pos + page);
         }
         var totalTime = (long) DateTime.Now.Subtract(startTime).TotalMilliseconds;
         prime.PrintTable();
@@ -91,24 +86,24 @@ class Prime
             _primeArray[MaxInd++ - _offSet] = p;
         }
 
-        public void GenerateResults (long inter, long endNo){
+        public void GenerateResults (long inter){
             if (_mode > 0)
             {
-                PutSequence(_prevNo,endNo);
+                PutSequence(_prevNo);
                 PutInterval(inter);
-                _prevNo = endNo;
+                _prevNo = MaxInd;
             }
             MaxPrime = this[(int)(MaxInd - _offSet - 1)];
             FreeUp();
         }
 
-        private void PutSequence(long beginNo, long endNo){
-            for (var i = beginNo.ToString().Length - 1; i <= endNo.ToString().Length - 1 ; i++) {
+        private void PutSequence(long beginNo){
+            for (var i = beginNo.ToString().Length - 1; i <= MaxInd.ToString().Length - 1 ; i++) {
                 for (var j = 1; j < 10 ; j++) {
                     var seq =  (long)(j * Pow(10, i) + 0.5);
                     if (seq < beginNo) continue;
-                    if (seq >= endNo) return;
-                    var l = this[(int)(MaxInd - _offSet - 1 - (endNo - seq))];
+                    if (seq >= MaxInd) return;
+                    var l = this[(int)(MaxInd - _offSet - 1 - (MaxInd - seq))];
                     var s = CDfString(seq) + "|" + l;
                     seqList.Add(s);
                     if (_mode > 1) Console.WriteLine("==>[No:] "+s);

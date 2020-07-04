@@ -1,0 +1,1 @@
+go.exe build -o .\out\GoHelloPrime.exe GoHelloPrime.go

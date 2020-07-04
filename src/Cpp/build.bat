@@ -1,0 +1,1 @@
+cmake.exe --build cmake-build-release --target CppHelloPrime -- -j 4

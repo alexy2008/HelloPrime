@@ -1,0 +1,1 @@
+javac.exe JHelloPrime.java -d jbin -encoding UTF-8

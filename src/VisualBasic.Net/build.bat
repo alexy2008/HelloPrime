@@ -1,0 +1,1 @@
+dotnet build VbHelloPrime.vbproj -o vbbin -c Release

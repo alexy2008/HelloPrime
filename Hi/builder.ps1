@@ -4,6 +4,7 @@ Write-Host "¿ªÊ¼±àÒë $lang" -ForegroundColor Green
 
 switch ($lang) {
     "c#"    {dotnet.exe build Hi.csproj -o csbin -c Release}
+    "vb"    {dotnet.exe build VbHi.vbproj -o vbbin -c Release}
     "java"  {javac.exe JHiPrime.java -d jbin}
     "c++"   {cmake.exe --build cmake-build-release --target CppHiPrime -- -j 4}
     "c"     {cmake.exe --build cmake-build-release --target CHiPrime -- -j 4}

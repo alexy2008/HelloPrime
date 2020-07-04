@@ -1,0 +1,1 @@
+dotnet build CsHelloPrime.csproj -o csbin -c Release
