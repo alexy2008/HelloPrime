@@ -1,6 +1,6 @@
 public class JHiPrime {
-    private static int maxKeep = 80000;
-    private static long[] primeArray = new long[maxKeep +70000];
+    private static final int maxKeep = 80000;
+    private static final long[] primeArray = new long[maxKeep +70000];
     private static long offSet, maxInd, maxPrime ;
 
     private static void primeByEuler(int page) {
@@ -31,17 +31,21 @@ public class JHiPrime {
             }
     }
 
+    public static void sieve(Long limit, int page){
+        primeByEuler(page);
+        for (int i = 1; i < limit/page; i++) {
+            primeByEratosthenes(page * (long) i, page);
+            if (maxInd > maxKeep) offSet = maxInd - maxKeep;
+        }
+    }
+
     public static void main(String[] args) {
         System.out.println("Hi Prime! I'm Java :-)");
         long limit = Long.parseLong(args[0]);
         int page = Integer.parseInt(args[1]);
         System.out.println("Calculate prime numbers up to "+ limit +" using partitioned Eratosthenic sieve");
         var startTime = System.currentTimeMillis();
-        primeByEuler(page);
-        for (int i = 1; i < limit/page; i++) {
-            primeByEratosthenes(page * (long) i, page);
-            if (maxInd > maxKeep) offSet = maxInd - maxKeep;
-        }
+        sieve(limit, page);
         var totalTime = System.currentTimeMillis() - startTime;
         System.out.printf("Java finished within %.0e the %dth prime is %d, time cost: %d ms \n" ,
                             (double) limit, maxInd, maxPrime, totalTime);

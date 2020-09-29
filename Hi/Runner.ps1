@@ -38,12 +38,12 @@ switch ($lang) {
     }
     "c++" {
         for ($i = 0; $i -lt $loop; $i++) {
-            .\cmake-build-release\CppHiPrime.exe $limit $page
+            .\out\CppHiPrime.exe $limit $page
         }
     }
     "c" {
         for ($i = 0; $i -lt $loop; $i++) {
-            .\cmake-build-release\CHiPrime.exe $limit $page
+            .\out\CHiPrime.exe $limit $page
         }
     }
     "go" {
