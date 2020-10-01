@@ -12,7 +12,8 @@ llong _prime[150000];
 llong _maxPrime;
 
 void primeByEuler(int page) {
-    bool num[page];
+//    bool num[page];
+    bool* num = new bool[page] ;
     for (int i = 0; i < page; i++) num[i] = false;
     for (int i = 2; i < page; i++) {
         if (!num[i]) {
@@ -27,7 +28,8 @@ void primeByEuler(int page) {
 }
 
 void PrimeByEratosthenes(llong pos, int page) {
-    bool num[page];
+//    bool num[page];
+    bool* num = new bool[page] ;
     for (int i = 0; i < page; i++) num[i] = false;
     for (int i = 0; _prime[i] < sqrt(pos + page); i++) {
         llong p = _prime[i];
