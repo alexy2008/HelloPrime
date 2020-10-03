@@ -1,4 +1,4 @@
-class JHelloPrime {
+class GvHelloPrime {
 
     static int primeByEuler(int limit, Prime prime) {
         def top = 0
