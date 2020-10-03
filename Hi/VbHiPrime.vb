@@ -52,14 +52,14 @@ Sub PrimeByEuler(page As Long)
         Dim page As Long = Int64.Parse(args(1))
 
         Console.WriteLine("Calculate prime numbers up to {0} using partitioned Eratosthenic sieve", limit)
-        Dim startTime = DateTime.Now
+        Dim start_time = DateTime.Now
         PrimeByEuler(page)
         For i = 1 To limit/page - 1
             PrimeByEratosthenes(page*i, page)
             If (MaxInd > _maxKeep)  Then _offSet = MaxInd-_maxKeep
         Next
 
-        Dim totalTime = CLng((DateTime.Now.Subtract(startTime).TotalMilliseconds))
+        Dim totalTime = CLng((DateTime.Now.Subtract(start_time).TotalMilliseconds))
         Console.WriteLine("VB.net finished within {0:0.#e+00} the {1}th prime is {2}, cost time:{3}ms",
                           limit, MaxInd, MaxPrime, totalTime)
     End Sub
