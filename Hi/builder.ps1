@@ -12,6 +12,7 @@ switch ($lang) {
     "c"     {g++ CHiPrime.c -o .\out\CHiPrime}
     "go"    {go.exe build -o .\out\GohiPrime.exe GoHiPrime.go}
     "rust"  {rustc RsHelloPrime.rs  --out-dir bin -C opt-level=3 -C debuginfo=0}
+
     Default {
         Write-Host "unknow language!" -ForegroundColor Red
         return -1
