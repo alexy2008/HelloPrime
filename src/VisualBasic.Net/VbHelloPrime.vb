@@ -43,7 +43,7 @@ Module VbHelloPrime
         prm = New Prime(limit, page, mode)
 
         Console.WriteLine("使用分区埃拉托色尼筛选法计算{0}以内素数", Prime.DfString(limit))
-        Dim startTime = DateTime.Now
+        Dim start_time = DateTime.Now
         PrimeByEuler(page)
         prm.GenerateResults(page)
 
@@ -53,7 +53,7 @@ Module VbHelloPrime
             prm.GenerateResults(pos + page)
         Next
 
-        Dim totalTime = CLng((DateTime.Now.Subtract(startTime).TotalMilliseconds))
+        Dim totalTime = CLng((DateTime.Now.Subtract(start_time).TotalMilliseconds))
         prm.PrintTable()
         Console.WriteLine("VB.net finished within {0:0.#e+00} the {1}th prime is {2}, cost time:{3}ms",
                           limit, prm.MaxInd, prm.MaxPrime, totalTime)
