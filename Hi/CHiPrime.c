@@ -25,6 +25,7 @@ void primeByEuler(int page) {
             if (i % _prime[j] == 0) break;
         }
     }
+    free(num);
 }
 
 void PrimeByEratosthenes(llong pos, int page) {
@@ -40,6 +41,7 @@ void PrimeByEratosthenes(llong pos, int page) {
             _maxPrime = pos + i;
             _prime[_maxInd++ - _offSet] = _maxPrime;
         }
+    free(num);
 }
 
 int main(int argc, char *argv[]) {
