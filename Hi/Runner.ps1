@@ -33,22 +33,27 @@ switch ($lang) {
     }
     "java" {
         for ($i = 0; $i -lt $loop; $i++) {
-            java -cp .\jbin JHiPrime $limit $page
+            java -cp .\bin JHiPrime $limit $page
         }
     }
     "c++" {
         for ($i = 0; $i -lt $loop; $i++) {
-            .\out\CppHiPrime.exe $limit $page
+            .\bin\CppHiPrime $limit $page
         }
     }
     "c" {
         for ($i = 0; $i -lt $loop; $i++) {
-            .\out\CHiPrime.exe $limit $page
+            .\bin\CHiPrime $limit $page
         }
     }
     "go" {
         for ($i = 0; $i -lt $loop; $i++) {
-            .\out\GoHiPrime.exe $limit $page
+            .\bin\GoHiPrime $limit $page
+        }
+    }
+    "rust" {
+        for ($i = 0; $i -lt $loop; $i++) {
+            .\bin\RsHiPrime $limit $page
         }
     }
 
