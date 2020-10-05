@@ -10,7 +10,7 @@ switch ($lang) {
     "c++"   { g++ CppHiPrime.cpp --static -O3 -o .\bin\CppHiPrime}
 #    "c"     {cmake.exe --build cmake-build-release --target CHiPrime -- -j 4}
     "c"     {gcc CHiPrime.c -O3 -o .\bin\CHiPrime}
-    "go"    {go.exe build -o .\bin\GohiPrime.exe GoHiPrime.go}
+    "go"    {go build -o .\bin\GohiPrime.exe GoHiPrime.go}
     "rust"  {rustc RsHiPrime.rs  --out-dir bin -C opt-level=3 -C debuginfo=0}
 
     Default {
