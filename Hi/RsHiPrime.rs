@@ -65,7 +65,7 @@ fn main() {
     let start_time = SystemTime::now();
     unsafe { sieve(limit, page); }
     let total_time = SystemTime::now().duration_since(start_time).unwrap().as_millis();
-    unsafe { println!("Java finished within {:e} the {}th prime is {}, time cost: {} ms \n",
+    unsafe { println!("Rust finished within {:e} the {}th prime is {}, time cost: {} ms \n",
                       limit as f64, max_ind, max_prime, total_time)};
 }
 
