@@ -1,6 +1,6 @@
 class GvHelloPrime {
 
-    static int primeByEuler(int limit, Prime prime) {
+    static int primeByEuler(int limit, GvPrime prime) {
         def top = 0
         def num = new boolean[limit]
         for (def i = 2; i < limit; i++) {
@@ -13,7 +13,7 @@ class GvHelloPrime {
         return top
     }
 
-    static int primeByEratosthenesInterval( pos,  limit, Prime prime) {
+    static int primeByEratosthenesInterval( pos,  limit, GvPrime prime) {
         def top = 0
         boolean[] num = new boolean[limit]
         for (int i = 0; prime.get(i) < Math.sqrt(pos + limit); i++) {
@@ -31,7 +31,7 @@ class GvHelloPrime {
         int page = args[0].toInteger()
         long repeat = args[1].toLong()
         boolean isDebug = args[2].toBoolean()
-        Prime prime = new Prime(page, repeat, isDebug)
+        GvPrime prime = new GvPrime(page, repeat, isDebug)
         long top = 0
 
         println "使用分区埃拉托色尼筛选法计算${prime.getDfString(page * repeat)}以内素数："
@@ -51,7 +51,7 @@ class GvHelloPrime {
     }
 }
 
-class Prime{
+class GvPrime{
     private ArrayList<Long> primeList
     private long maxInd
     private int maxKeep
@@ -60,7 +60,7 @@ class Prime{
     private boolean isDebug
     private long prevNo
 
-    Prime(long page, long repeat, boolean isDbg){
+    GvPrime(long page, long repeat, boolean isDbg){
         isDebug = isDbg
         maxKeep = (int) (Math.sqrt(page*(repeat+1)) / Math.log(Math.sqrt(page*(repeat+1))) * 1.3)
         println "内存分配：$maxKeep"

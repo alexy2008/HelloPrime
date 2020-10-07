@@ -1,7 +1,7 @@
 import kotlin.math.ceil
 import kotlin.math.pow
 
-fun primeByEuler(page: Int, prime: Prime) {
+fun primeByEuler(page: Int, prime: KtPrime) {
     val num = BooleanArray(page)
     for (i in 2 until page) {
         if (!num[i]) prime.add(i.toLong())
@@ -13,7 +13,7 @@ fun primeByEuler(page: Int, prime: Prime) {
     }
 }
 
-fun primeByEratosthenesInterval(pos: Long, page: Int, prime: Prime) {
+fun primeByEratosthenesInterval(pos: Long, page: Int, prime: KtPrime) {
     val num = BooleanArray(page)
     for (i in 0 until prime.size()) {
         val p = prime.getitem(i)
@@ -29,7 +29,7 @@ fun main(args: Array<String>) {
     val limit = args[0].toLong()
     val page = args[1].toInt()
     val mode = args[2].toInt()
-    val prime = Prime(limit, page, mode)
+    val prime = KtPrime(limit, page, mode)
 
     println("使用分区埃拉托色尼筛选法计算${prime.getDfString(limit)}以内素数：")
     val costTime = kotlin.system.measureTimeMillis {
@@ -48,7 +48,7 @@ fun main(args: Array<String>) {
             limit.toDouble(), prime.maxInd, prime.maxPrime, costTime)
 }
 
-class Prime(limit: Long, page: Int, private val mode: Int) {
+class KtPrime(limit: Long, page: Int, private val mode: Int) {
     var maxInd: Long = 0
     var maxPrime: Long = 0
     private val maxKeep: Int = (Math.sqrt(limit.toDouble()) / Math.log(Math.sqrt(limit.toDouble())) * 1.3).toInt()

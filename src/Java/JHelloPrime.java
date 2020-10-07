@@ -1,6 +1,6 @@
 public class JHelloPrime {
 
-    public static void primeByEuler(int page, Prime prime) {
+    public static void primeByEuler(int page, JPrime prime) {
         boolean[] num = new boolean[page];
         for (int i = 2; i < page; i++) {
             if (!num[i]) prime.add(i);
@@ -11,7 +11,7 @@ public class JHelloPrime {
         }
     }
 
-    public static void primeByEratosthenes(Long pos, int page, Prime prime) {
+    public static void primeByEratosthenes(Long pos, int page, JPrime prime) {
         boolean[] num = new boolean[page];
         for (int i = 0; prime.get(i) < Math.sqrt(pos + page); i++) {
             long p = prime.get(i);
@@ -27,9 +27,9 @@ public class JHelloPrime {
         long limit = Long.parseLong(args[0]);
         int page = Integer.parseInt(args[1]);
         int mode = Integer.parseInt(args[2]);
-        Prime prime = new Prime(limit, page, mode);
+        JPrime prime = new JPrime(limit, page, mode);
 
-        System.out.println("使用分区埃拉托色尼筛选法计算" + Prime.getDfString(limit) + " 以内素数：");
+        System.out.println("使用分区埃拉托色尼筛选法计算" + JPrime.getDfString(limit) + " 以内素数：");
         long startTime = System.currentTimeMillis();
         //首先使用欧拉法得到种子素数组
         primeByEuler(page, prime);

@@ -56,6 +56,11 @@ switch ($lang) {
             .\bin\RsHiPrime $limit $page
         }
     }
+    "kt" {
+        for ($i = 0; $i -lt $loop; $i++) {
+            kotlin -cp .\bin KtHiPrimeKt $limit $page
+        }
+    }
 
     Default {
         Write-Host "unknow language!" -ForegroundColor Red

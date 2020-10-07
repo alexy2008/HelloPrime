@@ -1,7 +1,7 @@
 import java.util.ArrayList;
 import static java.lang.Math.*;
 
-class Prime{
+class JPrime{
     private ArrayList<Long> primeList;
     public long maxInd; //用来存储当前计算的最大素数的序号
     public long maxPrime;
@@ -11,7 +11,7 @@ class Prime{
     private long prevNo;
     private int mode;
 
-    Prime(long limit, long page, int mo){
+    JPrime(long limit, long page, int mo){
         mode = mo;
         maxKeep = (int) (sqrt(limit) / log(sqrt(limit)) * 1.3);
         var reserve = (int) ((sqrt(limit)+page) / log(sqrt(limit)+page) * 1.3);

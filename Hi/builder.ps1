@@ -6,6 +6,7 @@ switch ($lang) {
     "c#"    {dotnet.exe build Hi.csproj -o csbin -c Release}
     "vb"    {dotnet.exe build VbHi.vbproj -o vbbin -c Release}
     "java"  {javac JHiPrime.java -d bin}
+    "kt"    {kotlinc KtHiPrime.kt -d bin}
 #    "c++"   {cmake.exe --build cmake-build-release --target CppHiPrime -- -j 4}
     "c++"   { g++ CppHiPrime.cpp --static -O3 -o .\bin\CppHiPrime}
 #    "c"     {cmake.exe --build cmake-build-release --target CHiPrime -- -j 4}
