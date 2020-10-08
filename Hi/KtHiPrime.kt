@@ -26,7 +26,7 @@ fun primeByEratosthenesInterval(pos: Long, page: Int) {
     for (i in 0 until primeArry.size) {
         val p = primeArry[i]
         if (p * p >= pos + page) break
-        for (j in ceil(pos * 1.0 / p).toLong() until ((pos + page - 1) / p) + 1)
+        for (j in ceil(pos * 1.0 / p).toLong() until ((pos + page - 1) / p).toLong() + 1)
             num[(j * p - pos).toInt()] = true
     }
     for (i in num.indices) if (!num[i]){

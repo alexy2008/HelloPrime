@@ -24,7 +24,7 @@ public class JHiPrime {
             for (var j = ((long) (Math.ceil(pos * 1.0 / p))) * p; j < pos + (long) page; j += p)
                 num[(int) (j - pos)] = true;
         }
-        for (var i = 0; i < num.length; i++)
+        for (var i = 0; i < page; i++)
             if (!num[i])  {
                 maxPrime =  pos + i;
                 primeArray[(int) (maxInd++ - offSet)] = maxPrime;

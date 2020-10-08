@@ -7,12 +7,14 @@ switch ($lang) {
     "vb"    {dotnet.exe build VbHi.vbproj -o vbbin -c Release}
     "java"  {javac JHiPrime.java -d bin}
     "kt"    {kotlinc KtHiPrime.kt -d bin}
+    "ktjar" {kotlinc KtHiPrime.kt -include-runtime -d bin/KtHiPrime.jar}
 #    "c++"   {cmake.exe --build cmake-build-release --target CppHiPrime -- -j 4}
     "c++"   { g++ CppHiPrime.cpp --static -O3 -o .\bin\CppHiPrime}
 #    "c"     {cmake.exe --build cmake-build-release --target CHiPrime -- -j 4}
     "c"     {gcc CHiPrime.c -O3 -o .\bin\CHiPrime}
     "go"    {go build -o .\bin\GohiPrime.exe GoHiPrime.go}
     "rust"  {rustc RsHiPrime.rs  --out-dir bin -C opt-level=3 -C debuginfo=0}
+    "dart"  {dart compile exe DHiPrime.dart -o bin\DHiPrime.exe}
 
     Default {
         Write-Host "unknow language!" -ForegroundColor Red

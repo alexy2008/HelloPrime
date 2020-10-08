@@ -21,7 +21,7 @@ def prime_by_eratosthenes_interval(pos, limit, prime)
     p = prime.get(i)
     break if p*p >= pos + limit
     for j in ((pos*1.0/p).ceil*p...pos+limit).step(p)
-      num[pos - j] = false
+      num[j - pos] = false
     end
   end
   for i in 0...num.length

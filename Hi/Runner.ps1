@@ -33,7 +33,17 @@ switch ($lang) {
     }
     "java" {
         for ($i = 0; $i -lt $loop; $i++) {
-            java -cp .\bin JHiPrime $limit $page
+            java -cp ./bin JHiPrime $limit $page
+        }
+    }
+	"java_gra" {
+        for ($i = 0; $i -lt $loop; $i++) {
+            D:\graalvm11\bin\java -cp ./bin JHiPrime $limit $page
+        }
+    }
+	"java_14" {
+        for ($i = 0; $i -lt $loop; $i++) {
+            D:\jdk14\bin\java -cp ./bin JHiPrime $limit $page
         }
     }
     "c++" {
@@ -59,6 +69,26 @@ switch ($lang) {
     "kt" {
         for ($i = 0; $i -lt $loop; $i++) {
             kotlin -cp .\bin KtHiPrimeKt $limit $page
+        }
+    }
+    "ktjar" {
+        for ($i = 0; $i -lt $loop; $i++) {
+            D:\jdk14\bin\java -jar ./bin/KtHiPrime.jar $limit $page
+        }
+    }
+    "python"{
+        for ($i = 0; $i -lt $loop; $i++) {
+            Python PyHiPrime.py $limit $page
+        }
+    }
+    "ruby"{
+        for ($i = 0; $i -lt $loop; $i++) {
+            Ruby RbHiPrime.rb $limit $page
+        }
+    }
+    "dart"{
+        for ($i = 0; $i -lt $loop; $i++) {
+            .\bin\DHiPrime $limit $page
         }
     }
 

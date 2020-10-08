@@ -6,7 +6,7 @@ Module VbHiPrime
     Private  _offSet As Long
     Private MaxInd As Long
     Private MaxPrime As Long
-Sub PrimeByEuler(page As Long)
+    Sub PrimeByEuler(page As Long)
         Dim num = New Boolean(page + 1 - 1) {}
         For i = 2 To page
             If Not num(i) Then
