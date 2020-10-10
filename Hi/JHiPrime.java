@@ -1,14 +1,14 @@
 public class JHiPrime {
     private static final int maxKeep = 80000;
-    private static final long[] primeArray = new long[maxKeep +70000];
-    private static long offSet, maxInd, maxPrime ;
+    private static final long[] primeArray = new long[maxKeep];
+    private static long maxInd, maxPrime ;
 
     private static void primeByEuler(int page) {
         var num = new boolean[page];
         for (var i = 2; i < page; i++) {
             if (!num[i]) {
                 maxPrime = i;
-                primeArray[(int) (maxInd++ - offSet)] = maxPrime;
+                primeArray[(int) (maxInd++)] = maxPrime;
             }
             for (var j = 0; j < maxInd && (long) i * primeArray[j] < page; j++) {
                 num[(int) (i * primeArray[j])] = true;
@@ -27,16 +27,13 @@ public class JHiPrime {
         for (var i = 0; i < page; i++)
             if (!num[i])  {
                 maxPrime =  pos + i;
-                primeArray[(int) (maxInd++ - offSet)] = maxPrime;
+                maxInd ++;
             }
     }
 
     public static void sieve(Long limit, int page){
         primeByEuler(page);
-        for (int i = 1; i < limit/page; i++) {
-            primeByEratosthenes(page * (long) i, page);
-            if (maxInd > maxKeep) offSet = maxInd - maxKeep;
-        }
+        for (int i = 1; i < limit/page; i++) primeByEratosthenes(page * (long) i, page);
     }
 
     public static void main(String[] args) {
