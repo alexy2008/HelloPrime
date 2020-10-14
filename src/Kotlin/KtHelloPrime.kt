@@ -137,6 +137,6 @@ class KtPrime(limit: Long, page: Int, private val mode: Int) {
     }
 
     init {
-        println("内存分配：$maxKeep")
+        println("内存分配：$reserve")
     }
 }
