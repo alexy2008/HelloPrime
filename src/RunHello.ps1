@@ -5,7 +5,7 @@ if ($lang.Equals("vb")) {$lang = "VisualBasic.Net"}
 if ($lang.Equals("c++")) {$lang = "Cpp"}
 
 switch ($page) {
-    "H" {$page = "10000000"}
+    "H" {$page = "5000000"}
     "L" {$page = "1000000"}
     "M" {$page = "100000"}
     "S" {$page = "10000"}

@@ -20,7 +20,7 @@ public class JHiPrime {
 
     protected void primeByEratosthenes(Long pos, Integer page) {
         var num = new boolean[page];
-        for (var i = 0; primeList.get(i) * primeList.get(i) < pos + (long)page; i++) {
+        for (var i = 0;  i < primeList.size() && primeList.get(i) * primeList.get(i) < pos + (long)page; i++) {
             var p = primeList.get(i);
             for (var j = ((long) (Math.ceil((double) pos / p))) * p; j < pos + page; j += p)
                 num[(int) (j - pos)] = true;
@@ -39,7 +39,7 @@ public class JHiPrime {
         for (var i = 1; i < limit / page; i++) primeByEratosthenes(page * (long) i, page);
     }
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
         System.out.println("Hi Prime! I'm Java :-)");
         long limit = Long.parseLong(args[0]);
         int page = Integer.parseInt(args[1]);

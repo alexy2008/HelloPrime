@@ -55,7 +55,7 @@ int main(int argc, char *argv[]) {
     cout << "Calculate prime numbers up to " << LIMIT << " using partitioned Eratosthenic sieve" << endl;
     llong startTime = clock();
     sieve(LIMIT, PAGE);
-    llong totalTime = clock() - startTime;
+    llong totalTime = double(clock() - startTime) / CLOCKS_PER_SEC * 1000 ;
     printf("C++ finished within %.0e; the %lldth prime is %lld, time cost: %lld ms \n",
            (double) LIMIT, _maxInd, _maxPrime, totalTime);
     return 0;

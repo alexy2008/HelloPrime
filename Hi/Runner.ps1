@@ -23,12 +23,22 @@ Write-Host "$lang 开始计算 $ssum 以内" -ForegroundColor Green
 switch ($lang) {
     "c#" {        
         for ($i = 0; $i -lt $loop; $i++) {
-            .\csbin\hi $limit $page
+            .\bin\CsHiPrime $limit $page
         }
       }
     "vb" {
         for ($i = 0; $i -lt $loop; $i++) {
-            .\vbbin\VbHi $limit $page
+            .\bin\VbHiPrime $limit $page
+        }
+    }
+	"csco" {        
+        for ($i = 0; $i -lt $loop; $i++) {
+            .\bin\CscoHiPrime $limit $page
+        }
+      }
+    "vbco" {
+        for ($i = 0; $i -lt $loop; $i++) {
+            .\bin\VbcoHiPrime $limit $page
         }
     }
     "java" {
@@ -36,7 +46,7 @@ switch ($lang) {
             java -cp ./bin JHiPrime $limit $page
         }
     }
-	"java_gra" {
+	"java-g" {
         for ($i = 0; $i -lt $loop; $i++) {
             D:\graalvm11\bin\java -cp ./bin JHiPrime $limit $page
         }
@@ -48,12 +58,12 @@ switch ($lang) {
     }
     "c++" {
         for ($i = 0; $i -lt $loop; $i++) {
-            .\bin\CppHiPrime $limit $page
+            ./bin/CppHiPrime $limit $page
         }
     }
     "c" {
         for ($i = 0; $i -lt $loop; $i++) {
-            .\bin\CHiPrime $limit $page
+            ./bin/CHiPrime $limit $page
         }
     }
     "go" {
@@ -68,12 +78,27 @@ switch ($lang) {
     }
     "kt" {
         for ($i = 0; $i -lt $loop; $i++) {
-            kotlin -cp .\bin KtHiPrimeKt $limit $page
+            kotlin -cp .\bin KtHiPrime $limit $page
         }
     }
     "ktjar" {
         for ($i = 0; $i -lt $loop; $i++) {
             D:\jdk14\bin\java -jar ./bin/KtHiPrime.jar $limit $page
+        }
+    }
+	"gv" {
+        for ($i = 0; $i -lt $loop; $i++) {
+            groovy GvHiPrime $limit $page
+        }
+    }
+	"ts" {
+        for ($i = 0; $i -lt $loop; $i++) {
+            deno run TsHiPrime.ts $limit $page
+        }
+    }
+	"js" {
+        for ($i = 0; $i -lt $loop; $i++) {
+            node JsHiPrime.js $limit $page
         }
     }
     "python"{

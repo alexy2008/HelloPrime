@@ -1,12 +1,11 @@
 import java.util.ArrayList;
-import java.util.concurrent.*;
 import static java.lang.Math.pow;
 
 public class JHelloPrimeSeq extends JHelloPrime {
     private final ArrayList<Long> primeExt = new ArrayList<>(maxKeep);
-
+    private static volatile int curTid = 1;
     private static final ArrayList<String> seqList = new ArrayList<>();
-    private long prevNo, curPos;
+    private static long prevNo;
 
     public void primeByEratosthenes(Long pos, Integer page) {
         var num = new boolean[page];
@@ -23,57 +22,37 @@ public class JHelloPrimeSeq extends JHelloPrime {
     }
 
     @Override
-    public long[] call() {
-        primeByEratosthenes(curPos, page);
-        return null;
+    public void run() {
+        if (threadCount == 1) curTid = 0;
+        for (int i = tid ; i < limit/page ; i+= threadCount) {
+            maxInd = 0;
+            if (i==0) continue;
+            primeByEratosthenes(page * (long) i, page);
+            for(;;)  if (curTid == tid) break;
+            baseInd += maxInd;
+            maxInd = baseInd;
+            generateResults(page * (long) i + page);
+            var cTid = curTid + 1;
+            curTid = (cTid == threadCount)?0:cTid;
+            primeExt.clear();
+        }
+        cd.countDown();
     }
 
-    public void sieve() throws Exception {
-        primeByEuler(page);
-        maxInd = primeList.size();
-        generateResults(page);
-
-        var fts = new Future[threadCount];
-        ExecutorService es = Executors.newFixedThreadPool(threadCount);
-        JHelloPrimeSeq[] tasks = new JHelloPrimeSeq[threadCount];
-        for (int i = 0; i < threadCount; i++) {
-            tasks[i] = new JHelloPrimeSeq();
-            tasks[i].tid = i;
-        }
-
-        for (int i = 1; i < limit / page; i += threadCount) {
-            for (int n = 0; n < threadCount; n++) {
-                tasks[n].maxInd = 0;
-                tasks[n].primeExt.clear();
-                tasks[n].curPos = page * (long) i + n * page;
-                fts[n] = es.submit(tasks[n]);
-            }
-            for (int n = 0; n < threadCount; n++) {
-                fts[n].get();
-                if (page * (long) i + (n + 1) * page > limit) break;
-                maxInd += tasks[n].maxInd;
-                primeList.addAll(tasks[n].primeExt);
-                generateResults(page * (long) i + (n + 1) * page);
-            }
-        }
-        es.shutdown();
-    }
-
-    private void generateResults(long inter) {
+    protected void generateResults(long inter) {
         maxPrime = primeList.get(primeList.size() - 1);
-        putSequence(prevNo);
+        putSequence(prevNo, (prevNo == 0)?primeList:primeExt);
         putInterval(inter);
         prevNo = maxInd;
-        if (maxInd > maxKeep) primeList.subList(maxKeep, primeList.size() - 1).clear();
     }
 
-    private void putSequence(long beginNo) {
+    private void putSequence(long beginNo, ArrayList<Long> prList) {
         for (int i = String.valueOf(beginNo).length() - 1; i <= String.valueOf(maxInd).length() - 1; i++) {
             for (int j = 1; j < 10; j++) {
                 long seq = (long) (j * pow(10, i));
                 if (seq < beginNo) continue;
                 if (seq >= maxInd) return;
-                long l = primeList.get(primeList.size() - 1 - (int) (maxInd - seq));
+                long l = prList.get(prList.size() - 1 - (int) (maxInd - seq));
                 var s = getDfString(seq) + "|" + l;
                 seqList.add(s);
                 if (mode > 1) System.out.println("==>[No:]" + s);

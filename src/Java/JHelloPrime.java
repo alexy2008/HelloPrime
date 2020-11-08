@@ -2,47 +2,57 @@ import java.util.ArrayList;
 import java.util.concurrent.*;
 import static java.lang.Math.*;
 
-public class JHelloPrime extends JHiPrime implements Callable<long[]> {
+public class JHelloPrime extends JHiPrime implements Runnable {
     protected static ArrayList<String> interList = new ArrayList<>();
     protected static int mode,threadCount,page;
     protected static long limit, baseInd;
+    protected static CountDownLatch cd;
     protected int tid;
 
     @Override
-    public long[] call() {
+    public void run() {
         for (int i = tid ; i < limit/page ; i+= threadCount) {
             if (i==0) continue;
             primeByEratosthenes(page * (long) i, page);
             if (mode > 0)  putInterval(page * (long) i + page);
         }
-        return new long[]{maxInd,maxPrime};
+        cd.countDown();
     }
 
-    public void sieve() throws Exception {
+    public void sieve() throws InterruptedException {
+        cd = new CountDownLatch(threadCount);
         primeByEuler(page);
         maxInd = primeList.size();
-
         maxPrime = primeList.get((int) maxInd - 1);
-        if (mode > 0)  putInterval(page);
+        if (mode > 0)  generateResults(page);
         baseInd = maxInd;
-
-        var fts = new FutureTask[threadCount];
+        var ths = new JHelloPrime[threadCount];
 
         for (int i = 0; i < threadCount; i++) {
-            var task = new JHelloPrime();
-            task.tid = i;
-            fts[i] = new FutureTask<>(task);
-            new Thread(fts[i]).start();
+            if (mode == 3){
+                ths[i] = new JHelloPrimeSeq();
+            }else {
+                ths[i] = new JHelloPrime();
+            }
+            ths[i].tid = i;
+            new Thread(ths[i]).start();
         }
-
+        cd.await();
         for (int i = 0; i < threadCount; i++) {
-            var l = (long[]) fts[i].get();
-            if (l[1] > maxPrime) maxPrime = l[1];
-            maxInd += l[0];
+            if (ths[i].maxPrime > maxPrime) maxPrime = ths[i].maxPrime;
+            if (mode == 3){
+                if (ths[i].maxInd > maxInd) maxInd = ths[i].maxInd;
+            }else {
+                maxInd += ths[i].maxInd;
+            }
         }
     }
 
-    public static void main(String[] args) throws Exception {
+    protected void generateResults(long inter) {
+        putInterval(inter);
+    }
+
+    public static void main(String[] args) {
         System.out.println("Hello Prime! I'm Java :-)");
         limit = Long.parseLong(args[0]);
         page = Integer.parseInt(args[1]);
@@ -57,18 +67,27 @@ public class JHelloPrime extends JHiPrime implements Callable<long[]> {
         else hello = new JHelloPrime();
         System.out.println("使用分区埃拉托色尼筛选法计算" + getDfString(limit) + " 以内素数：");
         long startTime = System.currentTimeMillis();
-        hello.sieve();
+        try { hello.sieve();} catch (InterruptedException e) { e.printStackTrace();}
         long totalTime = System.currentTimeMillis() - startTime;
         if (mode == 1 || mode == 3) hello.printTable();
-        System.out.printf("Java finished within %.0e the %dth prime is %d; time cost: %d ms \n" ,
-                (double) limit, hello.maxInd, hello.maxPrime, totalTime);
+        System.out.printf("Java used %d thread to finished within %.0e the %dth prime is %d; time cost: %d ms \n" ,
+                threadCount, (double) limit, hello.maxInd, hello.maxPrime, totalTime);
+        System.out.printf("【语言】Java;【模式】%d;【线程】%d;【页面】%.0e;【耗时】%s\n【范围】%s;【素数数量】%d;【最大素数】%d;\n",
+                mode,threadCount,(double)page,getFmTime(totalTime),getDfString(limit),hello.maxInd,hello.maxPrime);
+        hello.printInfo(totalTime);
     }
 
     protected void putInterval(long inter) {
-        long m = (long) pow(10, min(9,String.valueOf(inter).length() - 1));
+        long m = (long) pow(10, min(11,String.valueOf(inter).length() - 1));
         if (inter % m == 0) {
-            var s =  (threadCount == 1 || mode == 3)? String.format("%s|%s|%d",getDfString(inter),maxInd + baseInd,maxPrime)
-                    :String.format("%s|%d",getDfString(inter), maxPrime);
+            String s;
+            if (mode == 3)
+                s = String.format("%s|%s|%d",getDfString(inter),maxInd,maxPrime);
+            else if (threadCount == 1) {
+                s = String.format("%s|%s|%d",getDfString(inter),maxInd + baseInd,maxPrime);
+            }else {
+                s = String.format("%s|%d",getDfString(inter), maxPrime);
+            }
             if (mode == 1|| mode == 3)interList.add(s);
             if (mode >= 2) System.out.println(s);
         }
@@ -81,6 +100,42 @@ public class JHelloPrime extends JHiPrime implements Callable<long[]> {
         interList.forEach(System.out::println);
     }
 
+    void  printInfo(long cost){
+        System.out.println("-".repeat(80));
+        System.out.printf("|  语言：Java  |  模式：%d  |  线程：%d  |  页面：%.0e  |  耗时：%s  |\n",
+                mode,threadCount,(double)page,getFmTime(cost));
+        System.out.println("├" + "-".repeat(80) + "┤");
+        System.out.printf("|  范围：%s  |  素数个数：%d  |  最大素数：%d  |\n",
+                getDfString(limit),maxInd,maxPrime);
+        System.out.println("└" + "-".repeat(80) + "┘");
+    }
+
+    static String getFmTime(long l){
+
+        if (l< 1000) return ""+l+"毫秒";
+        if (l < 1000*60) return String.format("%.1f秒",(double)l/1000);
+
+        StringBuilder strBuilder = new StringBuilder();
+        long temp = l;
+        long hper = 60 * 60 * 1000;
+        long mper = 60 * 1000;
+        long sper = 1000;
+        if (temp / hper > 0) {
+            strBuilder.append(temp / hper).append("时");
+        }
+        temp = temp % hper;
+
+        if (temp / mper > 0) {
+            strBuilder.append(temp / mper).append("分");
+        }
+        temp = temp % mper;
+        if (temp / sper > 0) {
+            strBuilder.append(temp / sper).append("秒");
+        }
+
+        return strBuilder.toString();
+    }
+
     static String getDfString(long l) {
         var s = String.valueOf(l);
         if(l % 10000_0000_0000L == 0) {
@@ -90,6 +145,6 @@ public class JHelloPrime extends JHiPrime implements Callable<long[]> {
         }else if(l%10000 == 0){
             s = s.substring(0,s.length() - 4 ) + "万";
         }
-        return s;
+        return String.format("%.0e(%s)",(double)l,s);
     }
 }
