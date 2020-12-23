@@ -1,26 +1,27 @@
-public class JHiPrime {
-    private static final int maxKeep = 350000;
-    private static final long[] primeArray = new long[maxKeep];
-    private long maxInd, maxPrime;
+import java.util.ArrayList;
 
-    private void primeByEuler(Integer page) {
+public class JHiPrime {
+    protected static final int maxKeep = 670000;
+    protected static ArrayList<Long> primeList = new ArrayList<>(maxKeep);
+    protected long maxInd, maxPrime;
+
+    protected static void primeByEuler(Integer page) {
         var num = new boolean[page];
         for (var i = 2; i < page; i++) {
             if (!num[i]) {
-                maxPrime = i;
-                primeArray[(int) (maxInd++)] = maxPrime;
+                primeList.add((long) i);
             }
-            for (var j = 0; (long) i * primeArray[j] < page; j++) {
-                num[(int) (i * primeArray[j])] = true;
-                if (i % primeArray[j] == 0) break;
+            for (var j = 0; (long) i * primeList.get(j) < page; j++) {
+                num[(int) (i * primeList.get(j))] = true;
+                if (i % primeList.get(j) == 0) break;
             }
         }
     }
 
-    private void primeByEratosthenes(Long pos, Integer page) {
+    protected void primeByEratosthenes(Long pos, Integer page) {
         var num = new boolean[page];
-        for (var i = 0; primeArray[i] * primeArray[i] < pos + page; i++) {
-            var p = primeArray[i];
+        for (var i = 0;  i < primeList.size() && primeList.get(i) * primeList.get(i) < pos + (long)page; i++) {
+            var p = primeList.get(i);
             for (var j = ((long) (Math.ceil((double) pos / p))) * p; j < pos + page; j += p)
                 num[(int) (j - pos)] = true;
         }
@@ -33,6 +34,8 @@ public class JHiPrime {
 
     public void sieve(long limit, int page) {
         primeByEuler(page);
+        maxInd = primeList.size();
+        maxPrime = primeList.get((int) maxInd - 1);
         for (var i = 1; i < limit / page; i++) primeByEratosthenes(page * (long) i, page);
     }
 

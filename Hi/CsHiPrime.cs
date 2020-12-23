@@ -1,5 +1,5 @@
 ﻿using System;
-using static System.Math;
+//using static System.Math;
 
 class CsHiPrime
 {
@@ -29,10 +29,10 @@ class CsHiPrime
     static void PrimeByEratosthenes(long pos, long page)
     {
         var num = new bool[page];
-        for (var i = 0; _primeArray[i] < Sqrt(pos + page); i++)
+        for (var i = 0; _primeArray[i] < Math.Sqrt(pos + page); i++)
         {
             var p = _primeArray[i];
-            for (var j = (long) (Ceiling((double) pos / p) * p); j < pos +  page; j += p)
+            for (var j = (long) (Math.Ceiling((double) pos / p) * p); j < pos +  page; j += p)
                 num[(int) (j - pos)] = true;
         }
         for (var i = 0; i < num.Length; i++)

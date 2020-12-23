@@ -12,7 +12,6 @@ llong _prime[150000];
 llong _maxPrime;
 
 void primeByEuler(int page) {
-//    bool num[page];
     bool* num = new bool[page] ;
     for (int i = 0; i < page; i++) num[i] = false;
     for (int i = 2; i < page; i++) {
@@ -28,8 +27,7 @@ void primeByEuler(int page) {
     delete[] num;
 }
 
-void PrimeByEratosthenes(llong pos, int page) {
-//    bool num[page];
+void primeByEratosthenes(llong pos, int page) {
     bool* num = new bool[page] ;
     for (int i = 0; i < page; i++) num[i] = false;
     for (int i = 0; _prime[i] < sqrt(pos + page); i++) {
@@ -40,9 +38,14 @@ void PrimeByEratosthenes(llong pos, int page) {
     for (int i = 0; i < page; i++)
         if (!num[i]) {
             _maxPrime = pos + i;
-            _prime[_maxInd++ - _offSet] = _maxPrime;
+            _maxInd++;
         }
     delete[] num;
+}
+
+void sieve(llong limit, int page){
+    primeByEuler(page);
+    for (int i = 1; i < limit/page; i++) primeByEratosthenes(page * (llong) i, page);
 }
 
 int main(int argc, char *argv[]) {
@@ -51,12 +54,8 @@ int main(int argc, char *argv[]) {
     const llong PAGE = atoll(argv[2]);
     cout << "Calculate prime numbers up to " << LIMIT << " using partitioned Eratosthenic sieve" << endl;
     llong startTime = clock();
-    primeByEuler(PAGE);
-    for (int i = 1; i < LIMIT/PAGE ; i++) {
-        PrimeByEratosthenes(PAGE * (llong) i, PAGE);
-        if (_maxInd > _maxKeep) _offSet = _maxInd - _maxKeep;
-    }
-    llong totalTime = clock() - startTime;
+    sieve(LIMIT, PAGE);
+    llong totalTime = double(clock() - startTime) / CLOCKS_PER_SEC * 1000 ;
     printf("C++ finished within %.0e; the %lldth prime is %lld, time cost: %lld ms \n",
            (double) LIMIT, _maxInd, _maxPrime, totalTime);
     return 0;

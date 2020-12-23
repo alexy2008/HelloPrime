@@ -39,12 +39,13 @@ function sieve(limit :number, page :number){
 
 }
 
-// import process = require('process');
 
 console.log("Hi Prime! I'm TypeScript :-)")
-let limit: number = parseInt(process.argv[2])
-let page: number = parseInt(process.argv[3])
-console.log(`Calculate prime numbers up to ${limit} using partitioned Eratosthenic sieve`)
+// @ts-ignore
+let limit: number = parseInt(Deno.args[0])
+// @ts-ignore
+let page: number = parseInt(Deno.args[1])
+console.log(`Calculate prime numbers up to ${limit} using partitioned Eratosthenes sieve`)
 let startTime = Date.now()
 sieve(limit, page);
-console.log(`Kotlin finished within ${limit.toExponential()} the ${maxInd}th prime is ${maxPrime}; time cost: ${Date.now() - startTime} ms`)
+console.log(`TypeScript finished within ${limit.toExponential()} the ${maxInd}th prime is ${maxPrime}; time cost: ${Date.now() - startTime} ms`)

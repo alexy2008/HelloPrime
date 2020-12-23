@@ -1,8 +1,8 @@
 class KtHiPrime {
-    val maxKeep: Int = 80000
-    val primeArry: ArrayList<Long> = ArrayList(maxKeep)
     var maxInd: Long = 0
     var maxPrime: Long = 0
+    val maxKeep: Int = 80000
+    val primeArry: ArrayList<Long> = ArrayList(maxKeep)
 
     fun primeByEuler(page: Int) {
         val num = BooleanArray(page)
@@ -12,41 +12,45 @@ class KtHiPrime {
                 primeArry.add(maxPrime)
                 maxInd++
             }
-            for (j in 0 until primeArry.size) {
-                if (i.toLong() * primeArry[j] >= page) break
-                num[(i * primeArry[j]).toInt()] = true
-                if (i % primeArry[j] == 0L) break
+            for (p in primeArry) {
+                if (i * p >= page) break
+                num[i * p.toInt()] = true
+                if (i % p == 0L) break
             }
         }
     }
 
-fun primeByEratosthenes(pos: Long, page: Int) {
-    val num = BooleanArray(page)
-    for (i in 0 until primeArry.size) {
-        val p = primeArry[i]
-        if (p * p >= pos + page) break
-        for (j in kotlin.math.ceil(pos * 1.0 / p).toLong() until ((pos + page - 1) / p) + 1)
-            num[(j * p - pos).toInt()] = true
-    }
-    for (i in num.indices) if (!num[i]){
-        maxPrime = pos + i
-        maxInd ++
-    }
-}
-
-fun sieve(limit: Long, page: Int){
-    primeByEuler(page)
-    for (i in 1 until limit/page) primeByEratosthenes(page * i, page)
-}
-
-    fun main(args: Array<String>) {
-        println("Hi Prime! I'm Kotlin :-)")
-        val limit = args[0].toLong()
-        val page = args[1].toInt()
-        println("Calculate prime numbers up to $limit using partitioned Eratosthenic sieve")
-        val costTime = kotlin.system.measureTimeMillis {
-            sieve(limit, page)
+    fun primeByEratosthenes(pos: Long, page: Int) {
+        val num = BooleanArray(page)
+        for (p in primeArry){
+            if (p * p >= pos + page) break
+            for (j in kotlin.math.ceil(pos * 1.0 / p).toLong() * p until pos + page step p)
+                num[(j - pos).toInt()] = true
         }
-        println("Kotlin finished within ${String.format("%.0e", limit.toDouble())} the $maxInd th prime is $maxPrime; time cost: $costTime ms ")
+
+        for ((i, n) in num.withIndex()) if (!n) {
+            maxPrime = pos + i
+            maxInd++
+        }
+    }
+
+    fun sieve(limit: Long, page: Int) {
+        primeByEuler(page)
+        for (i in 1 until limit / page) primeByEratosthenes(page * i, page)
+    }
+
+    companion object {
+        @JvmStatic
+        fun main(args: Array<String>) {
+            println("Hi Prime! I'm Kotlin :-)")
+            val limit = args[0].toLong()
+            val page = args[1].toInt()
+            val hi = KtHiPrime()
+            println("Calculate prime numbers up to $limit using partitioned Eratosthenic sieve")
+            val costTime = kotlin.system.measureTimeMillis {
+                hi.sieve(limit, page)
+            }
+            println("Kotlin finished within ${String.format("%.0e", limit.toDouble())} the ${hi.maxInd}th prime is ${hi.maxPrime}; time cost: $costTime ms ")
+        }
     }
 }
