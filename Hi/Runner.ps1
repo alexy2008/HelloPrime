@@ -51,9 +51,14 @@ switch ($lang) {
             D:\graalvm11\bin\java -cp ./bin JHiPrime $limit $page
         }
     }
-	"java_14" {
+	"java14" {
         for ($i = 0; $i -lt $loop; $i++) {
             D:\jdk14\bin\java -cp ./bin JHiPrime $limit $page
+        }
+    }
+	"java15" {
+        for ($i = 0; $i -lt $loop; $i++) {
+            D:\jdk15\bin\java -cp ./bin JHiPrime $limit $page
         }
     }
     "c++" {

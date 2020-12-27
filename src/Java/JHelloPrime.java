@@ -101,7 +101,7 @@ public class JHelloPrime extends JHiPrime implements Runnable {
     }
 
     void  printInfo(long cost){
-        System.out.println("-".repeat(80));
+        System.out.println("┏" + "━".repeat(80) + "┓");
         System.out.printf("|  语言：Java  |  模式：%d  |  线程：%d  |  页面：%.0e  |  耗时：%s  |\n",
                 mode,threadCount,(double)page,getFmTime(cost));
         System.out.println("├" + "-".repeat(80) + "┤");
