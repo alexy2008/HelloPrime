@@ -1,2 +1,9 @@
 .idea/*
 *.iml
+bin/*
+out/*
+obj/*
+out
+bin
+obj
+.idea
