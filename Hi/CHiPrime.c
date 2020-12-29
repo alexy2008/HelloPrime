@@ -53,7 +53,7 @@ int main(int argc, char *argv[]) {
     printf("Hi Prime! I'm C :-)\n");
     const llong LIMIT = atoll(argv[1]);
     const llong PAGE = atoll(argv[2]);
-    printf("Calculate prime numbers up to %lld using partitioned Eratosthenic sieve \n", LIMIT);
+    printf("Calculate prime numbers up to %lld using partitioned Eratosthenes sieve \n", LIMIT);
     llong startTime = clock();
     sieve(LIMIT, PAGE);
     llong totalTime = (double)(clock() - startTime) / CLOCKS_PER_SEC * 1000 ;

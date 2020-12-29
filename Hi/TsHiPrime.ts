@@ -5,6 +5,7 @@ let maxPrime = 0
 
 function primeByEuler(page: number){
     let num = new Array<boolean>(page)
+    // @ts-ignore
     for (let n of num) n = false
     for (let i = 2; i < page; i++) {
         if (!num[i]) {
@@ -20,6 +21,7 @@ function primeByEuler(page: number){
 
 function primeByEratosthenes(pos: number, page: number){
     let num = new Array<boolean>(page)
+    // @ts-ignore
     for (let n of num) n = false
     for (let i = 0; primeArray[i] < Math.sqrt(pos + page); i++) {
         let p = primeArray[i];
