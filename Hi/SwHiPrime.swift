@@ -22,7 +22,7 @@ func primeByEuler(page: Int){
 
 func primeByEratosthenes(pos: Int, page: Int){
     var num = [Bool](repeating: false, count: page)
-    for i in 0..<maxKeep {å
+    for i in 0..<maxKeep {
         let p = primeArray[i]
         if p * p >= pos + page {break}
         for j in Int(ceil(Double(pos)/Double(p)))..<(((pos + page - 1) / p) + 1){
@@ -43,7 +43,6 @@ func sieve(limit: Int, page: Int) {
         primeByEratosthenes(pos: page * i, page: page)
     }
 }
-
 
 print("Hi Prime! I'm Swift :-)")
 let limit: Int = Int(CommandLine.arguments[1]) ?? 1000

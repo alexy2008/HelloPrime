@@ -121,6 +121,10 @@ switch ($lang) {
             .\bin\DHiPrime $limit $page
         }
     }
+	"swift"{
+		# $c = "for i in {1..",5};do ./out/swhiprime 100000 1000; done"
+		docker run -v ${pwd}:/usr/hi -w /usr/hi --rm -it swift bash -c """for i in {1..$loop};do ./out/swhiprime $limit $page; done"""
+    }
 
     Default {
         Write-Host "unknow language!" -ForegroundColor Red
