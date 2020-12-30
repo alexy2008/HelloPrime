@@ -3,30 +3,44 @@ import platform
 import click
 import subprocess
 import os
+from pathlib import Path
 import glob
 
 command = {'java': {'ver': 'java -version',
-                    'build': 'javac -version && javac JHiPrime.java -d bin',
-                    'run': 'java -cp ./bin JHiPrime %s %s'},
+                    'build': 'javac -version && javac *.java -d bin',
+                    'run': 'java -cp ./bin JHelloPrime %s %s %s %s'},
            'c': {'ver': 'gcc --version',
-                 'build': 'gcc CHiPrime.c -lm -O3 -o ./bin/CHiPrime',
-                 'run': './bin/CHiPrime %s %s'}}
+                 'build': 'gcc CHelloPrime.c -lm -O3 -o ./bin/CHelloPrime',
+                 'run': './bin/CHelloPrime %s %s %s %s'}}
 
 is_windows = True
 osname = 'windows'
+tag = 'Hello'
+curpath = '.'
 launch = ''
 launch_cmd = 'for /l %%i in (1,1,%s) do @%s'
 launch_sh = 'for i in $(seq %s);do %s;done'
 
-def check(lang):
-    curpath = '.'
-    if len(glob.glob(r'%s' % lang))>0 :
+
+def checklang(lang):
+    global tag, curpath
+    if Path(lang).is_dir():
         curpath = './%s' % lang
+        print('find dir ', curpath)
 
-    if len(glob.glob(r'%s/*Hello*' % lang))>0 :
-        print(glob.glob(r'%s/*Hello*' % lang))
+    if len(glob.glob(r'%s/*Hello*' % curpath)) > 0:
+        print(glob.glob(r'%s/*Hello*' % curpath))
+        tag = 'Hello'
+    elif len(glob.glob(r'%s/*Hi*' % curpath)) > 0:
+        print(glob.glob(r'%s/*Hi*' % curpath))
+        tag = 'Hi'
+        command[lang]['build'] = command[lang]['build'].replace('Hello', 'Hi')
+        command[lang]['run'] = command[lang]['run'].replace('Hello', 'Hi')
+    else:
+        print('没有找到程序文件，请在正确目录下运行此脚本')
+        return -1
 
-
+    return 0
 
 
 @click.group()
@@ -74,9 +88,9 @@ def build(lang):
 @click.option('--repeat', '-r', default=1, help='执行次数')
 @click.option('--docker', '-d', help='使用docker运行')
 def run(lang, limit, page, mode, thread, repeat, docker):
-    check(lang)
+    if checklang(lang) < 0: return -1
     click.secho('limit to: %s' % limit, fg='red', bg='black')
-    c = command[lang]['run'] % (limit, page)
+    c = command[lang]['run'] % (limit, page, mode, thread)
     if is_windows:
         c = c.replace('/', '\\')
 
