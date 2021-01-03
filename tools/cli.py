@@ -1,5 +1,8 @@
 # coding=utf-8
 import platform
+import re
+import sys
+
 import click
 import subprocess
 import os
@@ -13,7 +16,9 @@ command = {'java': {'ver': 'java -version',
                     'run': 'java -cp ./bin JHelloPrime %s %s %s %s'},
            'c': {'ver': 'gcc --version',
                  'build': 'gcc CHelloPrime.c -lm -O3 -o ./bin/CHelloPrime',
-                 'run': './bin/CHelloPrime %s %s %s %s'}}
+                 'run': './bin/CHelloPrime %s %s %s %s'},
+           'python': {'ver': 'python --version',
+                      'run': 'python PyHelloPrime.py %s %s %s %s'}}
 
 is_windows = True
 osname = 'windows'
@@ -35,7 +40,6 @@ def check_lang(lang):
         tag = 'Hello'
     elif len(glob.glob(r'%s/*Hi*' % cur_path)) > 0:
         tag = 'Hi'
-        command[lang]['build'] = command[lang]['build'].replace('Hello', 'Hi')
         command[lang]['run'] = command[lang]['run'].replace('Hello', 'Hi')
     else:
         print('没有找到程序文件，请在正确目录下运行此脚本')
@@ -72,13 +76,14 @@ def cli():
     osname = platform.system()
     print(platform.uname())
 
+    info['machine'] = platform.machine()
     is_windows = (osname == 'Windows')
 
     if is_windows:
         # import wmi
         launch = launch_cmd
         print('【操作系统】：', platform.system(), platform.win32_ver())
-        info['os'] = platform.system() + ' ' + platform.release()
+        info['os'] = platform.system() + platform.release()
         print(info['os'])
         # cpu = wmi.WMI().Win32_Processor()[0]
         # print('【CPU信息】：%s %s核%s线程' % (cpu.Name.strip(), cpu.NumberOfCores, cpu.ThreadCount))
@@ -101,6 +106,7 @@ def cli():
 @click.argument('lang')
 def build(lang):
     if check_lang(lang) < 0: return -1
+    if tag == 'Hi': command[lang]['build'] = command[lang]['build'].replace('Hello', 'Hi')
     click.echo('开始编译%s' % lang)
     p = subprocess.Popen(command[lang]['build'], shell=True, stdout=subprocess.PIPE, universal_newlines=True,
                          cwd=cur_path)
@@ -112,21 +118,25 @@ def build(lang):
 
 @cli.command(help='运行程序')
 @click.argument('langs', nargs=-1)
-@click.option('--limit', '-l', default='10000', help='计算范围')
-@click.option('--page', '-p', default='1000', help='页面大小')
+@click.option('--limit', '-l', default='1000000', help='计算范围')
+@click.option('--page', '-p', default='10000', help='页面大小')
 @click.option('--mode', '-m', default=0, help='运行模式')
 @click.option('--thread', '-t', default=1, help='线程数')
 @click.option('--repeat', '-r', default=1, help='执行次数')
 @click.option('--docker', '-d', help='使用docker运行')
 def run(langs, limit, page, mode, thread, repeat, docker):
-    global info
+    global info, launch
     info['thread'] = thread
     info['repeat'] = repeat
     info['mode'] = mode
     info['thread'] = thread
+    info['docker'] = docker
     info['costs'] = []
 
     lang = langs[0]
+    if len(langs) > 1: limit = langs[1]
+    if len(langs) > 2: page = langs[2]
+
     info['lang'] = lang.capitalize().replace('pp', '++').replace('sharp', '#')
     if check_lang(lang) < 0: return -1
     if limit.startswith('e'): limit = '1' + limit
@@ -139,33 +149,48 @@ def run(langs, limit, page, mode, thread, repeat, docker):
 
     click.secho('【计算范围】: %s（%s）；【页面大小】：%s（%s）' % (limit, n2s(nlimit), page, n2s(npage)), fg='red', bg='black')
     c = command[lang]['run'] % (nlimit, npage, mode, thread)
-    if is_windows:
+    if is_windows and docker is None:
         c = c.replace('/', '\\')
 
+    if docker is not None : launch = launch_sh
     c = launch % (repeat, c)
     c = command[lang]['ver'] + ' && ' + c
+    if docker is not None:
+        c = 'docker run -v %s:/usr/helloprime -w /usr/helloprime -it --rm %s sh -c \'%s\'' % (os.path.abspath(cur_path), docker, c)
+        if is_windows: c = c.replace('\'', '\"')
+    # c = command[lang]['ver']
     print(c)
-    p = subprocess.Popen(c, shell=True, stdout=subprocess.PIPE, universal_newlines=True, cwd=cur_path, bufsize=4096)
+    p = subprocess.Popen(c, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True,
+                         cwd=cur_path)
+    out = p.stdout.readline()
+    print(out, end="")
+    pn = re.compile(r'[0-9][0-9\.]+')
+    v = re.findall(pn, out)
+    if len(v) > 0:
+        print(v)
+        print('【版本号】：' + v[0])
+        info['version'] = v[0]
     while p.poll() is None:
-        out = p.stdout.readline()
-        print(out, end="")
-        proc_out(out)
+        try:
+            out = p.stdout.readline()
+            print(out, end="")
+            proc_out(out)
+        except Exception as ex:
+            print(str(ex))
 
     print_result()
 
 
 def proc_out(line):
     global info
-    i1 = line.find('the')
-    i2 = line.find('th prime')
-    i3 = line.find('time cost:')
 
+    pn = re.compile(r'(?<=the )\d+?(?=th)|(?<=prime is )\d+|(?<=time cost: )\d+')
+    r = re.findall(pn, str(line))
 
-    if i1 >= 0 and i2 >= 0 and i3 >= 0:
-        info['maxind'] = line[i1 + 4: i2]
-        info['maxprime'] = line[i2 + 12: i3 - 2]
-        info['costs'].append(int(line[i3 + 11: -4]))
-
+    if len(r) > 0:
+        info['maxind'] = r[0]
+        info['maxprime'] = r[1]
+        info['costs'].append(int(r[2]))
 
 def print_result():
     global info
@@ -182,9 +207,10 @@ def print_result():
     info['mincost'] = fmtime(min(info['costs']))
     info['avgcost'] = fmtime(sum(info['costs']) / info['repeat'])
 
-    table.add_row('【语言】', info['lang'], '【操作系统】', info['os'], '【运行程序】', info['tag'])
+    table.add_row('【语言】', info['lang'], '【版本】', info['version'], '【运行程序】', info['tag'])
+    table.add_row('【机器架构】', info['machine'], '【操作系统】', info['os'], '【Docker镜像】', info['docker'])
     table.add_row('【页面大小】', n2s(info['page']), '【运行模式】', str(info['mode']), '【线程数】', str(info['thread']))
-    table.add_row('【计算范围】', n2s(info['limit']), '【素数数量】', info['maxind'], '【最大素数】', str(info['maxprime']))
+    table.add_row('【计算范围】', '%.0e(%s)' % (info['limit'],n2s(info['limit'])), '【素数数量】', info['maxind'], '【最大素数】', str(info['maxprime']))
     table.add_row('【计算次数】', str(info['repeat']), '【最好成绩】', '[bold magenta][red]' + info['mincost'], '【平均成绩】',
                   info['avgcost'])
 
@@ -203,18 +229,19 @@ def fmtime(l):
     if l < sper: return str(int(l)) + '毫秒'
     if l < mper: return '%.2f秒' % (l / 1000)
 
-    if int(temp/hper) > 0 :
-        s = s + str(int(temp/hper)) + '时'
+    if int(temp / hper) > 0:
+        s = s + str(int(temp / hper)) + '时'
 
     temp = temp % hper
-    if int(temp/mper) > 0 :
+    if int(temp / mper) > 0:
         s = s + str(int(temp / mper)) + '分'
 
     temp = temp % mper
-    if int(temp / sper) > 0 :
-        s= s + str(int(temp / sper)) + '秒'
+    if int(temp / sper) > 0:
+        s = s + str(int(temp / sper)) + '秒'
 
     return s
+
 
 if __name__ == '__main__':
     cli()
