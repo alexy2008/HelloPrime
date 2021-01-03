@@ -1,8 +1,6 @@
 # coding=utf-8
 import platform
 import re
-import sys
-
 import click
 import subprocess
 import os
@@ -17,6 +15,12 @@ command = {'java': {'ver': 'java -version',
            'c': {'ver': 'gcc --version',
                  'build': 'gcc CHelloPrime.c -lm -O3 -o ./bin/CHelloPrime',
                  'run': './bin/CHelloPrime %s %s %s %s'},
+           'cpp': {'ver': 'g++ --version',
+                 'build': 'g++ CppHelloPrime.cpp -lm -O3 -o ./bin/CppHelloPrime',
+                 'run': './bin/CppHelloPrime %s %s %s %s'},
+           'csharp': {'ver': 'dotnet --version',
+                   'build': 'dotnet build CsHelloPrime.csproj -o bin -c Release',
+                   'run': './bin/CsHelloPrime %s %s %s %s'},
            'python': {'ver': 'python --version',
                       'run': 'python PyHelloPrime.py %s %s %s %s'}}
 
@@ -27,7 +31,6 @@ cur_path = '.'
 launch = ''
 launch_cmd = 'for /l %%i in (1,1,%s) do @%s'
 launch_sh = 'for i in $(seq %s);do %s;done'
-
 info = {}
 
 
@@ -73,8 +76,8 @@ def n2s(num):
 @click.group()
 def cli():
     global is_windows, osname, launch, info
+    console = Console()
     osname = platform.system()
-    print(platform.uname())
 
     info['machine'] = platform.machine()
     is_windows = (osname == 'Windows')
@@ -82,23 +85,23 @@ def cli():
     if is_windows:
         # import wmi
         launch = launch_cmd
-        print('【操作系统】：', platform.system(), platform.win32_ver())
+        # print('【操作系统】：', platform.system(), platform.win32_ver())
         info['os'] = platform.system() + platform.release()
-        print(info['os'])
+        # print(info['os'])
         # cpu = wmi.WMI().Win32_Processor()[0]
         # print('【CPU信息】：%s %s核%s线程' % (cpu.Name.strip(), cpu.NumberOfCores, cpu.ThreadCount))
     else:
         launch = launch_sh
         if osname == 'Linux':
             import distro
-            print('【操作系统】：', platform.system(), distro.linux_distribution())
+            # print('【操作系统】：', platform.system(), distro.linux_distribution())
             info['os'] = distro.name() + ' ' + distro.version()
-            print(info['os'])
+            # print(info['os'])
         elif osname == 'MacOS':
             print()
 
-    click.secho('欢迎HiPrime CLI for %s' % osname, fg='blue', bg='black')
-    click.secho('https://www.deepinjava.com', fg='yellow', underline=True)
+    console.print('[green]欢迎使用[red]HelloPrime[/red] CLI for %s [green]' % osname)
+    console.print('项目地址：[yellow underline]https://www.deepinjava.com[/yellow underline]')
     pass
 
 
@@ -147,16 +150,16 @@ def run(langs, limit, page, mode, thread, repeat, docker):
     npage = e2n(page)
     info['page'] = npage
 
-    click.secho('【计算范围】: %s（%s）；【页面大小】：%s（%s）' % (limit, n2s(nlimit), page, n2s(npage)), fg='red', bg='black')
     c = command[lang]['run'] % (nlimit, npage, mode, thread)
     if is_windows and docker is None:
         c = c.replace('/', '\\')
 
-    if docker is not None : launch = launch_sh
+    if docker is not None: launch = launch_sh
     c = launch % (repeat, c)
     c = command[lang]['ver'] + ' && ' + c
     if docker is not None:
-        c = 'docker run -v %s:/usr/helloprime -w /usr/helloprime -it --rm %s sh -c \'%s\'' % (os.path.abspath(cur_path), docker, c)
+        c = 'docker run -v %s:/usr/helloprime -w /usr/helloprime -it --rm %s sh -c \'%s\'' % (
+        os.path.abspath(cur_path), docker, c)
         if is_windows: c = c.replace('\'', '\"')
     # c = command[lang]['ver']
     print(c)
@@ -167,8 +170,8 @@ def run(langs, limit, page, mode, thread, repeat, docker):
     pn = re.compile(r'[0-9][0-9\.]+')
     v = re.findall(pn, out)
     if len(v) > 0:
-        print(v)
-        print('【版本号】：' + v[0])
+        # print(v)
+        # print('【版本号】：' + v[0])
         info['version'] = v[0]
     while p.poll() is None:
         try:
@@ -184,7 +187,7 @@ def run(langs, limit, page, mode, thread, repeat, docker):
 def proc_out(line):
     global info
 
-    pn = re.compile(r'(?<=the )\d+?(?=th)|(?<=prime is )\d+|(?<=time cost: )\d+')
+    pn = re.compile(r'(?<=the )[\d ]+?(?=th)|(?<=prime is )\d+|(?<=time cost: )\d+')
     r = re.findall(pn, str(line))
 
     if len(r) > 0:
@@ -192,13 +195,13 @@ def proc_out(line):
         info['maxprime'] = r[1]
         info['costs'].append(int(r[2]))
 
+
 def print_result():
     global info
 
     console = Console()
     console.print(info)
 
-    # table = Table(title="运行结果", show_lines=True, show_header=False)
     table = Table.grid(expand=True)
     for i in range(3):
         table.add_column('id%s' % i, style="cyan")
@@ -210,7 +213,8 @@ def print_result():
     table.add_row('【语言】', info['lang'], '【版本】', info['version'], '【运行程序】', info['tag'])
     table.add_row('【机器架构】', info['machine'], '【操作系统】', info['os'], '【Docker镜像】', info['docker'])
     table.add_row('【页面大小】', n2s(info['page']), '【运行模式】', str(info['mode']), '【线程数】', str(info['thread']))
-    table.add_row('【计算范围】', '%.0e(%s)' % (info['limit'],n2s(info['limit'])), '【素数数量】', info['maxind'], '【最大素数】', str(info['maxprime']))
+    table.add_row('【计算范围】', '%.0e(%s)' % (info['limit'], n2s(info['limit'])), '【素数数量】', info['maxind'], '【最大素数】',
+                  str(info['maxprime']))
     table.add_row('【计算次数】', str(info['repeat']), '【最好成绩】', '[bold magenta][red]' + info['mincost'], '【平均成绩】',
                   info['avgcost'])
 
@@ -223,8 +227,6 @@ def fmtime(l):
     mper = 60 * 1000
     sper = 1000
     s = ''
-
-    print(l / 1000)
 
     if l < sper: return str(int(l)) + '毫秒'
     if l < mper: return '%.2f秒' % (l / 1000)

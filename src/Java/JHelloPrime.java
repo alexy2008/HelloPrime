@@ -72,9 +72,9 @@ public class JHelloPrime extends JHiPrime implements Runnable {
         if (mode == 1 || mode == 3) hello.printTable();
         System.out.printf("Java used %d thread to finished within %.0e the %dth prime is %d; time cost: %d ms \n" ,
                 threadCount, (double) limit, hello.maxInd, hello.maxPrime, totalTime);
-        System.out.printf("【语言】Java;【模式】%d;【线程】%d;【页面】%.0e;【耗时】%s\n【范围】%s;【素数数量】%d;【最大素数】%d;\n",
-                mode,threadCount,(double)page,getFmTime(totalTime),getDfString(limit),hello.maxInd,hello.maxPrime);
-        hello.printInfo(totalTime);
+//        System.out.printf("【语言】Java;【模式】%d;【线程】%d;【页面】%.0e;【耗时】%s\n【范围】%s;【素数数量】%d;【最大素数】%d;\n",
+//                mode,threadCount,(double)page,getFmTime(totalTime),getDfString(limit),hello.maxInd,hello.maxPrime);
+//        hello.printInfo(totalTime);
     }
 
     protected void putInterval(long inter) {
