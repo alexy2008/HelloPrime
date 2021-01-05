@@ -16,11 +16,11 @@ command = {'java': {'ver': 'java -version',
                  'build': 'gcc CHelloPrime.c -lm -O3 -o ./bin/CHelloPrime',
                  'run': './bin/CHelloPrime %s %s %s %s'},
            'cpp': {'ver': 'g++ --version',
-                 'build': 'g++ CppHelloPrime.cpp -lm -O3 -o ./bin/CppHelloPrime',
-                 'run': './bin/CppHelloPrime %s %s %s %s'},
+                   'build': 'g++ CppHelloPrime.cpp -lm -O3 -o ./bin/CppHelloPrime',
+                   'run': './bin/CppHelloPrime %s %s %s %s'},
            'csharp': {'ver': 'dotnet --version',
-                   'build': 'dotnet build CsHelloPrime.csproj -o bin -c Release',
-                   'run': './bin/CsHelloPrime %s %s %s %s'},
+                      'build': 'dotnet build CsHelloPrime.csproj -o bin -c Release',
+                      'run': './bin/CsHelloPrime %s %s %s %s'},
            'python': {'ver': 'python --version',
                       'run': 'python PyHelloPrime.py %s %s %s %s'}}
 
@@ -32,6 +32,7 @@ launch = ''
 launch_cmd = 'for /l %%i in (1,1,%s) do @%s'
 launch_sh = 'for i in $(seq %s);do %s;done'
 info = {}
+console = Console()
 
 
 def check_lang(lang):
@@ -50,7 +51,7 @@ def check_lang(lang):
 
     info['tag'] = tag + 'Prime'
 
-    print('定位工作目录：', os.path.abspath(cur_path))
+    if info['mode']>1: print('定位工作目录：', os.path.abspath(cur_path))
     return 0
 
 
@@ -76,7 +77,7 @@ def n2s(num):
 @click.group()
 def cli():
     global is_windows, osname, launch, info
-    console = Console()
+
     osname = platform.system()
 
     info['machine'] = platform.machine()
@@ -115,7 +116,7 @@ def build(lang):
                          cwd=cur_path)
     while p.poll() is None:
         out = p.stdout.readline()
-        print(out, end="")
+        print(out.replace('\n', '').replace('\r', ''))
     click.echo('%s编译完成' % lang)
 
 
@@ -159,14 +160,16 @@ def run(langs, limit, page, mode, thread, repeat, docker):
     c = command[lang]['ver'] + ' && ' + c
     if docker is not None:
         c = 'docker run -v %s:/usr/helloprime -w /usr/helloprime -it --rm %s sh -c \'%s\'' % (
-        os.path.abspath(cur_path), docker, c)
+            os.path.abspath(cur_path), docker, c)
         if is_windows: c = c.replace('\'', '\"')
-    # c = command[lang]['ver']
-    print(c)
+    if mode > 1: print(c)
+
     p = subprocess.Popen(c, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True,
                          cwd=cur_path)
     out = p.stdout.readline()
-    print(out, end="")
+    # print("test",end='\r\n')
+    # print("test",end='\r\n')
+    if mode > 0: print(out.replace('\n', '').replace('\r', ''),end='\r\n')
     pn = re.compile(r'[0-9][0-9\.]+')
     v = re.findall(pn, out)
     if len(v) > 0:
@@ -175,11 +178,12 @@ def run(langs, limit, page, mode, thread, repeat, docker):
         info['version'] = v[0]
     while p.poll() is None:
         try:
-            out = p.stdout.readline()
-            print(out, end="")
-            proc_out(out)
+            out = p.stdout.readline().replace('\n', '').replace('\r', '')
+            k = proc_out(out)
+            if mode > 1 or (k == 0 and mode > 0): console.print(out,end='\r\n')
+
         except Exception as ex:
-            print(str(ex))
+            print('异常：' + str(ex))
 
     print_result()
 
@@ -194,13 +198,26 @@ def proc_out(line):
         info['maxind'] = r[0]
         info['maxprime'] = r[1]
         info['costs'].append(int(r[2]))
+        console.print('%.0e([yellow]%s[/yellow])以内共有[yellow]%s[/yellow]个素数，最大素数为[yellow]%s[/yellow]，[cyan]%s[/cyan]耗时[red]%d[/red]毫秒' %
+                      (info['limit'], n2s(info['limit']), info['maxind'], info['maxprime'], info['lang'], int(r[2])),end='\r\n')
+        return 2
+
+    pn = 'Hi|Hello Prime.*I.*'
+    r = re.match(pn, str(line))
+    if r is not None:
+        console.print('[green]%s[/green] [cyan]Prime[/cyan] [yellow]I\'m[/yellow] [bright_red]%s[/bright_red] :smile:' % (info['tag'][:-5], info['lang']),end='\r\n')
+        return 1
+
+
+    return 0
 
 
 def print_result():
     global info
 
-    console = Console()
-    console.print(info)
+    console.print()
+
+    if info['mode'] > 0: console.print(info)
 
     table = Table.grid(expand=True)
     for i in range(3):
