@@ -1,11 +1,12 @@
 # coding=utf-8
+import glob
+import os
 import platform
 import re
-import click
 import subprocess
-import os
 from pathlib import Path
-import glob
+
+import click
 from rich.console import Console
 from rich.table import Table
 
@@ -51,7 +52,7 @@ def check_lang(lang):
 
     info['tag'] = tag + 'Prime'
 
-    if info['mode']>1: print('定位工作目录：', os.path.abspath(cur_path))
+    print('定位工作目录：', os.path.abspath(cur_path))
     return 0
 
 
@@ -71,6 +72,7 @@ def n2s(num):
         s = s[:-8] + "亿"
     elif num % 1_0000 == 0:
         s = s[:-4] + "万"
+
     return s
 
 
@@ -167,20 +169,20 @@ def run(langs, limit, page, mode, thread, repeat, docker):
     p = subprocess.Popen(c, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True,
                          cwd=cur_path)
     out = p.stdout.readline()
-    # print("test",end='\r\n')
-    # print("test",end='\r\n')
-    if mode > 0: print(out.replace('\n', '').replace('\r', ''),end='\r\n')
-    pn = re.compile(r'[0-9][0-9\.]+')
+    if mode > 0: print(out.replace('\n', '').replace('\r', ''), end='\r\n')
+    pn = re.compile(r'[ |\"][0-9][0-9\.]+')
     v = re.findall(pn, out)
     if len(v) > 0:
         # print(v)
         # print('【版本号】：' + v[0])
         info['version'] = v[0]
-    while p.poll() is None:
+        console.print(out)
+    while p.poll() is None or out:
         try:
             out = p.stdout.readline().replace('\n', '').replace('\r', '')
+            # if p.poll() is not None and not out : break
             k = proc_out(out)
-            if mode > 1 or (k == 0 and mode > 0): console.print(out,end='\r\n')
+            if mode > 1 or (k == 0 and mode > 0): console.print(out, end='\r\n')
 
         except Exception as ex:
             print('异常：' + str(ex))
@@ -198,16 +200,22 @@ def proc_out(line):
         info['maxind'] = r[0]
         info['maxprime'] = r[1]
         info['costs'].append(int(r[2]))
-        console.print('%.0e([yellow]%s[/yellow])以内共有[yellow]%s[/yellow]个素数，最大素数为[yellow]%s[/yellow]，[cyan]%s[/cyan]耗时[red]%d[/red]毫秒' %
-                      (info['limit'], n2s(info['limit']), info['maxind'], info['maxprime'], info['lang'], int(r[2])),end='\r\n')
-        return 2
+        console.print(
+            '%.0e([yellow]%s[/yellow])以内共有[yellow]%s[/yellow]个素数，最大素数为[yellow]%s[/yellow]，[bright_red]%s[/bright_red]耗时[red]%d[/red]毫秒' %
+            (info['limit'], n2s(info['limit']), info['maxind'], info['maxprime'], info['lang'], int(r[2])), end='\r\n')
+        return 3
 
     pn = 'Hi|Hello Prime.*I.*'
     r = re.match(pn, str(line))
     if r is not None:
-        console.print('[green]%s[/green] [cyan]Prime[/cyan] [yellow]I\'m[/yellow] [bright_red]%s[/bright_red] :smile:' % (info['tag'][:-5], info['lang']),end='\r\n')
+        console.print(
+            '[green]%s[/green] [cyan]Prime[/cyan] [yellow]I\'m[/yellow] [bright_red]%s[/bright_red] :smile:' % (
+            info['tag'][:-5], info['lang']), end='')
         return 1
 
+    if line.startswith('Calculate prime') or line.startswith('使用分区埃拉托色尼筛选法'):
+        console.print(' ---- 用分区埃拉托色尼筛选法计算[cyan]%.0e[/cyan]以内素数' % info['limit'], end='\r\n')
+        return 2
 
     return 0
 
@@ -215,9 +223,8 @@ def proc_out(line):
 def print_result():
     global info
 
-    console.print()
-
-    if info['mode'] > 0: console.print(info)
+    if info['mode'] == 2: console.print(info)
+    if info['mode'] == 1: console.print('time cost:' + str(info['costs']))
 
     table = Table.grid(expand=True)
     for i in range(3):
@@ -235,6 +242,7 @@ def print_result():
     table.add_row('【计算次数】', str(info['repeat']), '【最好成绩】', '[bold magenta][red]' + info['mincost'], '【平均成绩】',
                   info['avgcost'])
 
+    console.print()
     console.print(table)
 
 
