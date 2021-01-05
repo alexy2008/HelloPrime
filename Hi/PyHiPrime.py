@@ -49,16 +49,16 @@ def sieve(limit, page):
 
 
 def main():
-    print("Hi Prime! I'm Python :-)")
+    print("Hi Prime! I'm Python :-)", flush=True)
     limit = int(sys.argv[1])
     page = int(sys.argv[2])
-    print("Calculate prime numbers up to ", limit, " using partitioned Eratosthenic sieve")
+    print("Calculate prime numbers up to ", limit, " using partitioned Eratosthenic sieve", flush=True)
 
     start_time = time.time()
     sieve(limit, page)
     total_time = round((time.time() - start_time) * 1000)
     print("Python finished within %.0e" % float(limit), "the %d" % max_ind, 'th prime is %d' % max_prime,
-          'time cost: %d' % total_time, 'ms')
+          'time cost: %d' % total_time, 'ms', flush=True)
 
 
 if __name__ == '__main__':
