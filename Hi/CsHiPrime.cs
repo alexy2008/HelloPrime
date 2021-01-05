@@ -57,7 +57,7 @@ class CsHiPrime
             if (MaxInd > _maxKeep)   _offSet = MaxInd-_maxKeep;
         }
         var totalTime = (long) DateTime.Now.Subtract(startTime).TotalMilliseconds;
-        Console.WriteLine("C# finished within {0:0.#e+00} the {1}th prime is {2}, cost time:{3}ms",
+        Console.WriteLine("C# finished within {0:0.#e+00} the {1}th prime is {2}, time cost: {3} ms",
                                                 limit, MaxInd, MaxPrime, totalTime);
    }
 }
