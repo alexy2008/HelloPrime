@@ -22,7 +22,7 @@ command = {
         'build': 'javac -version && javac *.java -d bin -encoding UTF-8',
         'run': 'java -cp ./bin JHelloPrime %s %s %s %s'},
     'kt': {
-        'ver': 'kotlin -version', 'lang': 'Kotlin',
+        'ver': 'kotlin -version', 'name': 'Kotlin',
         'build': 'kotlinc KtHelloPrime.kt -d bin',
         'run': 'kotlin -cp ./bin KtHiPrime %s %s %s %s'},
     'c': {
@@ -30,19 +30,19 @@ command = {
         'build': 'gcc CHelloPrime.c -lm -O3 -o ./bin/CHelloPrime',
         'run': './bin/CHelloPrime %s %s %s %s'},
     'cpp': {
-        'ver': 'g++ --version',
+        'ver': 'g++ --version', 'name': 'C++', 'dir': 'Cpp',
         'build': 'g++ CppHelloPrime.cpp -lm -O3 -o ./bin/CppHelloPrime',
         'run': './bin/CppHelloPrime %s %s %s %s'},
     'rust': {
         'ver': 'rustc --version',
         'build': 'rustc RsHelloPrime.rs  --out-dir bin -C opt-level=3 -C debuginfo=0',
         'run': './bin/RsHelloPrime %s %s %s %s'},
-    'csharp': {
-        'ver': 'dotnet --version',
+    'cs': {
+        'ver': 'dotnet --version', 'name': 'C#', 'dir': 'CSharp',
         'build': 'dotnet build CsHelloPrime.csproj -o bin -c Release',
         'run': './bin/CsHelloPrime %s %s %s %s'},
     'vb': {
-        'ver': 'dotnet --version',
+        'ver': 'dotnet --version', 'name': 'VisualBasic',
         'build': 'dotnet build VbHelloPrime.vbproj -o bin -c Release',
         'run': './bin/VbHelloPrime %s %s %s %s'},
     'go': {
@@ -70,10 +70,10 @@ command = {
         'ver': 'groovy --version',
         'run': 'groovy GvHelloPrime %s %s %s %s'},
     'js': {
-        'ver': 'node --version',
+        'ver': 'node --version', 'name': 'JavaScript',
         'run': 'node JsHelloPrime.js %s %s %s %s'},
     'ts': {
-        'ver': 'deno --version',
+        'ver': 'deno --version', 'name': 'TypeScript',
         'run': 'deno run TsHelloPrime.ts %s %s %s %s'},
 }
 
@@ -90,8 +90,18 @@ console = Console()
 
 def check_lang(lang):
     global tag, cur_path, info
-    if Path(lang).is_dir():
-        cur_path = './%s' % lang
+
+    if command[lang].get('name') is None:
+        command[lang]['name'] = lang.capitalize()
+
+    info['lang'] = command[lang]['name']
+
+    dr = command[lang].get('dir')
+    if dr is None:
+        dr = command[lang]['name']
+
+    if Path(dr).is_dir():
+        cur_path = './%s' % dr
 
     if len(glob.glob(r'%s/*Hello*' % cur_path)) > 0:
         tag = 'Hello'
@@ -167,7 +177,7 @@ def cli():
 @click.option('--docker', '-d', help='使用docker运行')
 def build(lang, docker):
     if check_lang(lang) < 0: return -1
-    if tag == 'Hi': command[lang]['build'] = command[lang]['build'].replace('Hello', 'Hi')
+    command[lang]['build'] = command[lang]['build'].replace('Hello', 'Hi')
     if not is_windows: command[lang]['build'] = command[lang]['build'].replace('.exe', '')
     c = command[lang]['build']
     if docker is not None:
@@ -205,7 +215,6 @@ def run(langs, limit, page, mode, thread, repeat, docker):
     if len(langs) > 1: limit = langs[1]
     if len(langs) > 2: page = langs[2]
 
-    info['lang'] = lang.capitalize().replace('pp', '++').replace('sharp', '#')
     if check_lang(lang) < 0: return -1
     if limit.startswith('e'): limit = '1' + limit
     if page.startswith('e'): page = '1' + page
