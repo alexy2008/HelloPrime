@@ -245,11 +245,15 @@ def run(langs, limit, page, mode, thread, repeat, docker):
     v = re.findall(pn, out)
     if len(v) > 0:
         print(v)
-        # print('【版本号】：' + v[0])
-        info['version'] = v[0]
+        for vi in v:
+            if '.' in vi:
+                info['version'] = vi
+                break
+        if info.get('version') is None:
+            info['version'] = v[0]
         console.print(out, end='\r\n')
     else:
-        info['version'] = ''
+        info['version'] = 'N/A'
 
     while p.poll() is None or out:
         try:
@@ -275,9 +279,9 @@ def proc_out(line):
         info['maxind'] = r[0]
         info['maxprime'] = r[1]
         info['costs'].append(int(r[2]))
-        console.print(
-            '%.0e([yellow]%s[/yellow])以内共有[yellow]%s[/yellow]个素数，最大素数为[yellow]%s[/yellow]，[bright_red]%s[/bright_red]耗时[red]%d[/red]毫秒' %
-            (info['limit'], n2s(info['limit']), info['maxind'], info['maxprime'], info['lang'], int(r[2])), end='\r\n')
+        console.print('%.0e([yellow]%s[/yellow])以内共有[yellow]%s[/yellow]个素数，最大素数为[yellow]%s[/yellow]，'
+                      '[bright_red]%s[/bright_red]耗时[red]%d[/red]毫秒' %
+                      (info['limit'], n2s(info['limit']), info['maxind'], info['maxprime'], info['lang'], int(r[2])), end='\r\n')
         return 3
 
     pn = 'Hi|Hello Prime.*I.*'
