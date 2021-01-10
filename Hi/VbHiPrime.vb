@@ -60,7 +60,7 @@ Module VbHiPrime
         Next
 
         Dim totalTime = CLng((DateTime.Now.Subtract(start_time).TotalMilliseconds))
-        Console.WriteLine("VB.net finished within {0:0.#e+00} the {1}th prime is {2}, cost time:{3}ms",
+        Console.WriteLine("VB.net finished within {0:0.#e+00} the {1}th prime is {2}, time cost: {3} ms",
                           limit, MaxInd, MaxPrime, totalTime)
     End Sub
 End Module

@@ -1,29 +1,81 @@
 # coding=utf-8
 import glob
-import os
 import platform
-import re
-import subprocess
-from pathlib import Path
 
 import click
+import os
+import re
+import subprocess
+import time
+from pathlib import Path
 from rich.console import Console
 from rich.table import Table
+from rich.traceback import install
 
-command = {'java': {'ver': 'java -version',
-                    'build': 'javac -version && javac *.java -d bin -encoding UTF-8',
-                    'run': 'java -cp ./bin JHelloPrime %s %s %s %s'},
-           'c': {'ver': 'gcc --version',
-                 'build': 'gcc CHelloPrime.c -lm -O3 -o ./bin/CHelloPrime',
-                 'run': './bin/CHelloPrime %s %s %s %s'},
-           'cpp': {'ver': 'g++ --version',
-                   'build': 'g++ CppHelloPrime.cpp -lm -O3 -o ./bin/CppHelloPrime',
-                   'run': './bin/CppHelloPrime %s %s %s %s'},
-           'csharp': {'ver': 'dotnet --version',
-                      'build': 'dotnet build CsHelloPrime.csproj -o bin -c Release',
-                      'run': './bin/CsHelloPrime %s %s %s %s'},
-           'python': {'ver': 'python --version',
-                      'run': 'python PyHelloPrime.py %s %s %s %s'}}
+# from rich.syntax import Syntax
+
+install()
+
+command = {
+    'java': {
+        'ver': 'java -version',
+        'build': 'javac -version && javac *.java -d bin -encoding UTF-8',
+        'run': 'java -cp ./bin JHelloPrime %s %s %s %s'},
+    'kt': {
+        'ver': 'kotlin -version', 'lang': 'Kotlin',
+        'build': 'kotlinc KtHelloPrime.kt -d bin',
+        'run': 'kotlin -cp ./bin KtHiPrime %s %s %s %s'},
+    'c': {
+        'ver': 'gcc --version',
+        'build': 'gcc CHelloPrime.c -lm -O3 -o ./bin/CHelloPrime',
+        'run': './bin/CHelloPrime %s %s %s %s'},
+    'cpp': {
+        'ver': 'g++ --version',
+        'build': 'g++ CppHelloPrime.cpp -lm -O3 -o ./bin/CppHelloPrime',
+        'run': './bin/CppHelloPrime %s %s %s %s'},
+    'rust': {
+        'ver': 'rustc --version',
+        'build': 'rustc RsHelloPrime.rs  --out-dir bin -C opt-level=3 -C debuginfo=0',
+        'run': './bin/RsHelloPrime %s %s %s %s'},
+    'csharp': {
+        'ver': 'dotnet --version',
+        'build': 'dotnet build CsHelloPrime.csproj -o bin -c Release',
+        'run': './bin/CsHelloPrime %s %s %s %s'},
+    'vb': {
+        'ver': 'dotnet --version',
+        'build': 'dotnet build VbHelloPrime.vbproj -o bin -c Release',
+        'run': './bin/VbHelloPrime %s %s %s %s'},
+    'go': {
+        'ver': 'go version',
+        'build': 'go build -o ./bin/GoHelloPrime.exe GoHelloPrime.go',
+        'run': './bin/GoHelloPrime %s %s %s %s'},
+    'swift': {
+        'ver': 'swiftc --version',
+        'build': 'swiftc -O SwHelloPrime.swift -o bin/SwHelloPrime',
+        'run': './bin/SwHelloPrime %s %s %s %s'},
+    'dart': {
+        'ver': 'dart --version',
+        'build': 'dart compile exe DHelloPrime.dart -o bin/DHelloPrime.exe',
+        'run': './bin/DHelloPrime %s %s %s %s'},
+    'python': {
+        'ver': 'python --version',
+        'run': 'python PyHelloPrime.py %s %s %s %s'},
+    'ruby': {
+        'ver': 'ruby --version',
+        'run': 'ruby RbHelloPrime.rb %s %s %s %s'},
+    'php': {
+        'ver': 'php --version',
+        'run': 'php PhpHelloPrime.php %s %s %s %s'},
+    'groovy': {
+        'ver': 'groovy --version',
+        'run': 'groovy GvHelloPrime %s %s %s %s'},
+    'js': {
+        'ver': 'node --version',
+        'run': 'node JsHelloPrime.js %s %s %s %s'},
+    'ts': {
+        'ver': 'deno --version',
+        'run': 'deno run TsHelloPrime.ts %s %s %s %s'},
+}
 
 is_windows = True
 osname = 'windows'
@@ -53,6 +105,8 @@ def check_lang(lang):
     info['tag'] = tag + 'Prime'
 
     print('定位工作目录：', os.path.abspath(cur_path))
+    # syntax = Syntax.from_path("syntax.py", line_numbers=True)
+
     return 0
 
 
@@ -104,17 +158,25 @@ def cli():
             print()
 
     console.print('[green]欢迎使用[red]HelloPrime[/red] CLI for %s [green]' % osname)
-    console.print('项目地址：[yellow underline]https://www.deepinjava.com[/yellow underline]')
+    console.print('项目地址：[link=https://www.deepinjava.com]https://www.deepinjava.com[/link]')
     pass
 
 
 @cli.command(help='编译源代码')
 @click.argument('lang')
-def build(lang):
+@click.option('--docker', '-d', help='使用docker运行')
+def build(lang, docker):
     if check_lang(lang) < 0: return -1
     if tag == 'Hi': command[lang]['build'] = command[lang]['build'].replace('Hello', 'Hi')
+    if not is_windows: command[lang]['build'] = command[lang]['build'].replace('.exe', '')
+    c = command[lang]['build']
+    if docker is not None:
+        c = 'docker run -v %s:/usr/helloprime -w /usr/helloprime -it --rm %s sh -c \'%s\'' % (
+            os.path.abspath(cur_path), docker, c)
+        if is_windows: c = c.replace('\'', '\"')
+    print(c)
     click.echo('开始编译%s' % lang)
-    p = subprocess.Popen(command[lang]['build'], shell=True, stdout=subprocess.PIPE, universal_newlines=True,
+    p = subprocess.Popen(c, shell=True, stdout=subprocess.PIPE, universal_newlines=True,
                          cwd=cur_path)
     while p.poll() is None:
         out = p.stdout.readline()
@@ -168,15 +230,18 @@ def run(langs, limit, page, mode, thread, repeat, docker):
 
     p = subprocess.Popen(c, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True,
                          cwd=cur_path)
-    out = p.stdout.readline()
-    if mode > 0: print(out.replace('\n', '').replace('\r', ''), end='\r\n')
-    pn = re.compile(r'[ |\"][0-9][0-9\.]+')
+    out = p.stdout.readline().replace('\n', '').replace('\r', '')
+    if mode > 1: print(out.replace('\n', '').replace('\r', ''), end='\r\n')
+    pn = r'[0-9][0-9\.]+'
     v = re.findall(pn, out)
     if len(v) > 0:
-        # print(v)
+        print(v)
         # print('【版本号】：' + v[0])
         info['version'] = v[0]
-        console.print(out)
+        console.print(out, end='\r\n')
+    else:
+        info['version'] = ''
+
     while p.poll() is None or out:
         try:
             out = p.stdout.readline().replace('\n', '').replace('\r', '')
@@ -197,6 +262,7 @@ def proc_out(line):
     r = re.findall(pn, str(line))
 
     if len(r) > 0:
+        # console.print(r)
         info['maxind'] = r[0]
         info['maxprime'] = r[1]
         info['costs'].append(int(r[2]))
@@ -210,7 +276,7 @@ def proc_out(line):
     if r is not None:
         console.print(
             '[green]%s[/green] [cyan]Prime[/cyan] [yellow]I\'m[/yellow] [bright_red]%s[/bright_red] :smile:' % (
-            info['tag'][:-5], info['lang']), end='')
+                info['tag'][:-5], info['lang']), end='')
         return 1
 
     if line.startswith('Calculate prime') or line.startswith('使用分区埃拉托色尼筛选法'):
@@ -231,8 +297,8 @@ def print_result():
         table.add_column('id%s' % i, style="cyan")
         table.add_column('ct%s' % i, style="yellow")
 
-    info['mincost'] = fmtime(min(info['costs']))
-    info['avgcost'] = fmtime(sum(info['costs']) / info['repeat'])
+    info['mincost'] = fm_time(min(info.get('costs')))
+    info['avgcost'] = fm_time(sum(info.get('costs')) / info['repeat'])
 
     table.add_row('【语言】', info['lang'], '【版本】', info['version'], '【运行程序】', info['tag'])
     table.add_row('【机器架构】', info['machine'], '【操作系统】', info['os'], '【Docker镜像】', info['docker'])
@@ -242,30 +308,32 @@ def print_result():
     table.add_row('【计算次数】', str(info['repeat']), '【最好成绩】', '[bold magenta][red]' + info['mincost'], '【平均成绩】',
                   info['avgcost'])
 
-    console.print()
+    console.rule('[green]运行结果[/] ' + time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
     console.print(table)
 
 
-def fmtime(l):
-    temp = l
-    hper = 60 * 60 * 1000
-    mper = 60 * 1000
-    sper = 1000
+def fm_time(lt):
+    temp = lt
+    h_per = 60 * 60 * 1000
+    m_per = 60 * 1000
+    s_per = 1000
     s = ''
 
-    if l < sper: return str(int(l)) + '毫秒'
-    if l < mper: return '%.2f秒' % (l / 1000)
+    if lt < s_per:
+        return str(int(lt)) + '毫秒'
+    if lt < m_per:
+        return '%.2f秒' % (lt / 1000)
 
-    if int(temp / hper) > 0:
-        s = s + str(int(temp / hper)) + '时'
+    if int(temp / h_per) > 0:
+        s = s + str(int(temp / h_per)) + '时'
 
-    temp = temp % hper
-    if int(temp / mper) > 0:
-        s = s + str(int(temp / mper)) + '分'
+    temp = temp % h_per
+    if int(temp / m_per) > 0:
+        s = s + str(int(temp / m_per)) + '分'
 
-    temp = temp % mper
-    if int(temp / sper) > 0:
-        s = s + str(int(temp / sper)) + '秒'
+    temp = temp % m_per
+    if int(temp / s_per) > 0:
+        s = s + str(int(temp / s_per)) + '秒'
 
     return s
 

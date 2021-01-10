@@ -50,10 +50,12 @@ def sieve(limit, page)
 end
 
 puts "Hi Prime! I'm Ruby :-)"
+STDOUT.flush
 limit = ARGV[0].to_i
 page = ARGV[1].to_i
 
 puts "Calculate prime numbers up to #{limit} using partitioned Eratosthenic sieve"
+STDOUT.flush
 
 start_time = Time.now
 sieve(limit, page)

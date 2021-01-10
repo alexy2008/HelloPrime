@@ -72,9 +72,6 @@ public class JHelloPrime extends JHiPrime implements Runnable {
         if (mode == 1 || mode == 3) hello.printTable();
         System.out.printf("Java used %d thread to finished within %.0e the %dth prime is %d; time cost: %d ms \n" ,
                 threadCount, (double) limit, hello.maxInd, hello.maxPrime, totalTime);
-//        System.out.printf("【语言】Java;【模式】%d;【线程】%d;【页面】%.0e;【耗时】%s\n【范围】%s;【素数数量】%d;【最大素数】%d;\n",
-//                mode,threadCount,(double)page,getFmTime(totalTime),getDfString(limit),hello.maxInd,hello.maxPrime);
-//        hello.printInfo(totalTime);
     }
 
     protected void putInterval(long inter) {
@@ -98,16 +95,6 @@ public class JHelloPrime extends JHiPrime implements Runnable {
         System.out.println("区间|个数|最大值");
         System.out.println("---|---|---");
         interList.forEach(System.out::println);
-    }
-
-    void  printInfo(long cost){
-        System.out.println("┏" + "━".repeat(80) + "┓");
-        System.out.printf("|  语言：Java  |  模式：%d  |  线程：%d  |  页面：%.0e  |  耗时：%s  |\n",
-                mode,threadCount,(double)page,getFmTime(cost));
-        System.out.println("├" + "-".repeat(80) + "┤");
-        System.out.printf("|  范围：%s  |  素数个数：%d  |  最大素数：%d  |\n",
-                getDfString(limit),maxInd,maxPrime);
-        System.out.println("└" + "-".repeat(80) + "┘");
     }
 
     static String getFmTime(long l){
