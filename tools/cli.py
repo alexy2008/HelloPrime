@@ -21,6 +21,10 @@ command = {
         'ver': 'java -version',
         'build': 'javac -version && javac *.java -d bin -encoding UTF-8',
         'run': 'java -cp ./bin JHelloPrime %s %s %s %s'},
+    'java15': {
+        'ver': 'java -version',
+        'build': 'javac -version && javac --enable-preview --release 15 *.java -d bin -encoding UTF-8',
+        'run': 'java --enable-preview -cp ./bin JHelloPrime %s %s %s %s'},
     'kt': {
         'ver': 'kotlin -version', 'name': 'Kotlin',
         'build': 'kotlinc KtHelloPrime.kt -d bin',
