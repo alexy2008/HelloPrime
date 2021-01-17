@@ -5,8 +5,6 @@ let maxPrime = 0
 
 function primeByEuler(page: number){
     let num = new Array<boolean>(page)
-    // @ts-ignore
-    for (let n of num) n = false
     for (let i = 2; i < page; i++) {
         if (!num[i]) {
             maxPrime = i
@@ -21,8 +19,6 @@ function primeByEuler(page: number){
 
 function primeByEratosthenes(pos: number, page: number){
     let num = new Array<boolean>(page)
-    // @ts-ignore
-    for (let n of num) n = false
     for (let i = 0; primeArray[i] < Math.sqrt(pos + page); i++) {
         let p = primeArray[i];
         for (let j =  Math.ceil(pos / p) * p; j < pos + page; j += p)
@@ -38,14 +34,10 @@ function primeByEratosthenes(pos: number, page: number){
 function sieve(limit :number, page :number){
     primeByEuler(page);
     for (let i = 1; i < limit/page; i++) primeByEratosthenes(page * i, page);
-
 }
 
-
 console.log("Hi Prime! I'm TypeScript :-)")
-// @ts-ignore
 let limit: number = parseInt(Deno.args[0])
-// @ts-ignore
 let page: number = parseInt(Deno.args[1])
 console.log(`Calculate prime numbers up to ${limit} using partitioned Eratosthenes sieve`)
 let startTime = Date.now()

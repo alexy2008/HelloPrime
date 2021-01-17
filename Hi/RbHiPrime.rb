@@ -33,7 +33,7 @@ def prime_by_eratosthenes_interval(pos, page)
     if not num[i] then
       $max_prime = i + pos
       # puts $max_ind+1 ,'--', $max_prime
-      $prime_array.push($max_prime)
+      # $prime_array.push($max_prime)
       $max_ind += 1
     end
   end
@@ -43,9 +43,9 @@ def sieve(limit, page)
   prime_by_euler(page)
   for i in 1..limit / page - 1
     prime_by_eratosthenes_interval(page * i, page)
-    if $max_ind > $max_keep
+    # if $max_ind > $max_keep
       # $prime_array = $prime_array[0, $max_keep - 1]
-    end
+    # end
   end
 end
 
@@ -54,7 +54,7 @@ STDOUT.flush
 limit = ARGV[0].to_i
 page = ARGV[1].to_i
 
-puts "Calculate prime numbers up to #{limit} using partitioned Eratosthenic sieve"
+puts "Calculate prime numbers up to #{limit} using partitioned Eratosthenes sieve"
 STDOUT.flush
 
 start_time = Time.now

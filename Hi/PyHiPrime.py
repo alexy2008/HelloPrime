@@ -36,7 +36,7 @@ def prime_by_eratosthenes_interval(pos, page):
     for i in range(0, page):
         if not num[i]:
             max_prime = pos + i
-            prime_array.append(max_prime)
+            # prime_array.append(max_prime)
             max_ind = max_ind + 1
 
 
@@ -44,15 +44,15 @@ def sieve(limit, page):
     prime_by_euler(page)
     for i in range(1, int(limit / page)):
         prime_by_eratosthenes_interval(page * i, page)
-        if max_ind > max_keep:
-            del prime_array[max_keep:len(prime_array)]
+        # if max_ind > max_keep:
+        #     del prime_array[max_keep:len(prime_array)]
 
 
 def main():
     print("Hi Prime! I'm Python :-)", flush=True)
     limit = int(sys.argv[1])
     page = int(sys.argv[2])
-    print("Calculate prime numbers up to ", limit, " using partitioned Eratosthenic sieve", flush=True)
+    print("Calculate prime numbers up to ", limit, " using partitioned Eratosthenes sieve", flush=True)
 
     start_time = time.time()
     sieve(limit, page)

@@ -40,7 +40,7 @@ Module VbHiPrime
         For i = 0 To num.Length - 1
             If Not num(i) Then
                 MaxPrime = pos + i
-                _prime(MaxInd - _offSet) = MaxPrime
+'                 _prime(MaxInd - _offSet) = MaxPrime
                 MaxInd += 1
             End If
         Next
@@ -56,7 +56,7 @@ Module VbHiPrime
         PrimeByEuler(page)
         For i = 1 To limit/page - 1
             PrimeByEratosthenes(page*i, page)
-            If (MaxInd > _maxKeep)  Then _offSet = MaxInd-_maxKeep
+'             If (MaxInd > _maxKeep)  Then _offSet = MaxInd-_maxKeep
         Next
 
         Dim totalTime = CLng((DateTime.Now.Subtract(start_time).TotalMilliseconds))

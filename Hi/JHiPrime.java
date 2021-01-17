@@ -19,7 +19,7 @@ public class JHiPrime {
 
     private void primeByEratosthenes(Long pos, Integer page) {
         var num = new boolean[page];
-        for (var i = 0; primeArray[i] * primeArray[i] < pos + page; i++) {
+        for (var i = 0;primeArray[i] != 0 && primeArray[i] * primeArray[i] < pos + page; i++) {
             var p = primeArray[i];
             for (var j = ((long) (Math.ceil((double) pos / p))) * p; j < pos + page; j += p)
                 num[(int) (j - pos)] = true;
