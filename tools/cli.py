@@ -18,11 +18,11 @@ install()
 
 command = {
     'java': {
-        'ver': 'java -version',
+        'ver': 'java -version', 'pre': 'J',
         'build': 'javac -version && javac *.java -d bin -encoding UTF-8',
         'run': 'java -cp ./bin JHelloPrime %s %s %s %s'},
     'java15': {
-        'ver': 'java -version',
+        'ver': 'java -version', 'pre': 'J', 'ext': 'java',
         'build': 'javac -version && javac --enable-preview --release 15 *.java -d bin -encoding UTF-8',
         'run': 'java --enable-preview -cp ./bin JHelloPrime %s %s %s %s'},
     'kt': {
@@ -37,8 +37,8 @@ command = {
         'ver': 'g++ --version', 'name': 'C++', 'dir': 'Cpp',
         'build': 'g++ CppHelloPrime.cpp -lm -O3 -o ./bin/CppHelloPrime',
         'run': './bin/CppHelloPrime %s %s %s %s'},
-    'rust': {
-        'ver': 'rustc --version',
+    'rs': {
+        'ver': 'rustc --version', 'name': 'Rust',
         'build': 'rustc RsHelloPrime.rs  --out-dir bin -C opt-level=3 -C debuginfo=0',
         'run': './bin/RsHelloPrime %s %s %s %s'},
     'cs': {
@@ -54,24 +54,24 @@ command = {
         'build': 'go build -o ./bin/GoHelloPrime.exe GoHelloPrime.go',
         'run': './bin/GoHelloPrime %s %s %s %s'},
     'swift': {
-        'ver': 'swiftc --version',
+        'ver': 'swiftc --version', 'pre': 'Sw',
         'build': 'swiftc -O SwHelloPrime.swift -o bin/SwHelloPrime',
         'run': './bin/SwHelloPrime %s %s %s %s'},
     'dart': {
-        'ver': 'dart --version',
-        'build': 'dart compile exe DHelloPrime.dart -o bin/DHelloPrime.exe',
-        'run': './bin/DHelloPrime %s %s %s %s'},
-    'python': {
-        'ver': 'python --version',
+        'ver': 'dart --version', 'pre': 'Da',
+        'build': 'dart compile exe DaHelloPrime.dart -o bin/DaHelloPrime.exe',
+        'run': './bin/DaHelloPrime %s %s %s %s'},
+    'py': {
+        'ver': 'python --version', 'name': 'Python',
         'run': 'python PyHelloPrime.py %s %s %s %s'},
-    'ruby': {
-        'ver': 'ruby --version',
+    'rb': {
+        'ver': 'ruby --version', 'name': 'Ruby',
         'run': 'ruby RbHelloPrime.rb %s %s %s %s'},
     'php': {
         'ver': 'php --version',
         'run': 'php PhpHelloPrime.php %s %s %s %s'},
     'groovy': {
-        'ver': 'groovy --version',
+        'ver': 'groovy --version', 'pre': 'Gv',
         'run': 'groovy GvHelloPrime %s %s %s %s'},
     'js': {
         'ver': 'node --version', 'name': 'JavaScript',
@@ -154,13 +154,20 @@ def cli():
     is_windows = (osname == 'Windows')
 
     if is_windows:
-        # import wmi
         launch = launch_cmd
-        # print('【操作系统】：', platform.system(), platform.win32_ver())
         info['os'] = platform.system() + platform.release()
-        # print(info['os'])
-        # cpu = wmi.WMI().Win32_Processor()[0]
-        # print('【CPU信息】：%s %s核%s线程' % (cpu.Name.strip(), cpu.NumberOfCores, cpu.ThreadCount))
+        p = subprocess.Popen('wmic cpu get /value', shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True)
+        lns = p.stdout.readlines()
+        for ln in lns:
+            if ln.startswith('Name='):
+                info['cpu'] = ln.split('=')[1].strip()
+            if ln.startswith('NumberOfCores='):
+                info['core'] = ln.split('=')[1].strip()
+            if ln.startswith('NumberOfLogicalProcessors='):
+                info['lcore'] = ln.split('=')[1].strip()
+            if ln.startswith('MaxClockSpeed='):
+                info['clock'] = ln.split('=')[1].strip()
+
     else:
         launch = launch_sh
         if osname == 'Linux':
@@ -168,6 +175,17 @@ def cli():
             # print('【操作系统】：', platform.system(), distro.linux_distribution())
             info['os'] = distro.name() + ' ' + distro.version()
             # print(info['os'])
+            p = subprocess.Popen('cat /proc/cpuinfo', shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True)
+            lns = p.stdout.readlines()
+            for ln in lns:
+                if ln.startswith('model name'):
+                    info['cpu'] = ln.split(':')[1].strip()
+                if ln.startswith('cpu cores'):
+                    info['core'] = ln.split(':')[1].strip()
+                if ln.startswith('siblings'):
+                    info['lcore'] = ln.split(':')[1].strip()
+                if ln.startswith('cpu MHz'):
+                    info['clock'] = ln.split(':')[1].strip()
         elif osname == 'MacOS':
             print()
 
@@ -218,6 +236,18 @@ def run(langs, limit, page, mode, thread, repeat, docker):
     lang = langs[0]
     if len(langs) > 1: limit = langs[1]
     if len(langs) > 2: page = langs[2]
+
+    if docker is not None:
+        c = 'docker run -it --rm %s  cat /etc/os-release' % docker
+        p = subprocess.Popen(c, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True)
+        lns = p.stdout.readlines()
+        if mode > 1: console.print(lns)
+        for ln in lns:
+            if ln.startswith('NAME='):
+                info['os'] = ln[5:-1]
+            if ln.startswith('VERSION_ID='):
+                info['os'] = info['os'] + " " + ln[11:-1]
+        info['os'] = info['os'].replace('"', '')
 
     if check_lang(lang) < 0: return -1
     if limit.startswith('e'): limit = '1' + limit
@@ -285,7 +315,8 @@ def proc_out(line):
         info['costs'].append(int(r[2]))
         console.print('%.0e([yellow]%s[/yellow])以内共有[yellow]%s[/yellow]个素数，最大素数为[yellow]%s[/yellow]，'
                       '[bright_red]%s[/bright_red]耗时[red]%d[/red]毫秒' %
-                      (info['limit'], n2s(info['limit']), info['maxind'], info['maxprime'], info['lang'], int(r[2])), end='\r\n')
+                      (info['limit'], n2s(info['limit']), info['maxind'], info['maxprime'], info['lang'], int(r[2])),
+                      end='\r\n')
         return 3
 
     pn = 'Hi|Hello Prime.*I.*'
@@ -326,7 +357,9 @@ def print_result():
                   info['avgcost'])
 
     console.rule('[green]运行结果[/] ' + time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
+    console.rule('[cyan]【CPU】[/cyan][yellow]' + info['cpu'] + ' (' + info['core'] +' 核心 '+ info['lcore']+' 线程 ' + info['clock']+' MHz)[/yellow]')
     console.print(table)
+    console.print(info['cpu'] + '-' + info['core'])
 
 
 def fm_time(lt):

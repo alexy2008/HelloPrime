@@ -11,7 +11,7 @@ function primeByEuler(page) {
         }
         for (var j = 0; j < maxInd && i * primeArray[j] < page; j++) {
             num[i * primeArray[j]] = true;
-            if (i % primeArray[j] == 0)
+            if (i % primeArray[j] === 0)
                 break;
         }
     }
@@ -38,7 +38,7 @@ function sieve(limit, page) {
 console.log("Hi Prime! I'm JavaScript :-)");
 var limit = parseInt(process.argv[2]);
 var page = parseInt(process.argv[3]);
-console.log("Calculate prime numbers up to " + limit + " using partitioned Eratosthenic sieve");
+console.log("Calculate prime numbers up to " + limit + " using partitioned Eratosthenes sieve");
 var startTime = Date.now();
 sieve(limit, page);
 console.log("JavaScript finished within " + limit.toExponential() + " the " + maxInd + "th prime is " + maxPrime + "; time cost: " + (Date.now() - startTime) + " ms");
