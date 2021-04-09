@@ -25,6 +25,10 @@ command = {
         'ver': 'java -version', 'pre': 'J', 'ext': 'java',
         'build': 'javac -version && javac --enable-preview --release 15 *.java -d bin -encoding UTF-8',
         'run': 'java --enable-preview -cp ./bin JHelloPrime %s %s %s %s'},
+    'java16': {
+        'ver': 'java -version', 'pre': 'J', 'ext': 'java', 'dir': 'Java15',
+        'build': 'javac -version && javac *.java -d bin -encoding UTF-8',
+        'run': 'java -cp ./bin JHelloPrime %s %s %s %s'},
     'kt': {
         'ver': 'kotlin -version', 'name': 'Kotlin',
         'build': 'kotlinc KtHelloPrime.kt -d bin',
@@ -359,7 +363,6 @@ def print_result():
     console.rule('[green]运行结果[/] ' + time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
     console.rule('[cyan]【CPU】[/cyan][yellow]' + info['cpu'] + ' (' + info['core'] +' 核心 '+ info['lcore']+' 线程 ' + info['clock']+' MHz)[/yellow]')
     console.print(table)
-    console.print(info['cpu'] + '-' + info['core'])
 
 
 def fm_time(lt):
