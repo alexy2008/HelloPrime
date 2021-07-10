@@ -23,7 +23,7 @@ public class JHiPrime {
             for (var j = ((long) (Math.ceil((double) pos / p))) * p; j < pos + page; j += p)
                 sieve[(int) (j - pos)] = true;
         }
-        for (var i = 1; i < page; i+=2)
+        for (var i = 1; i < page; i += 2)
             if (!sieve[i]) {
                 maxPrime = pos + i;
                 maxInd++;
@@ -31,32 +31,23 @@ public class JHiPrime {
         return new Result(maxInd, maxPrime);
     }
 
-    public static Result calculate(long limit, int page, int threadCount) throws InterruptedException {
-        ArrayList<Long> li = primeByEuler(page);
-        AtomicLong maxInd = new AtomicLong(li.size());
-        AtomicLong maxPrime = new AtomicLong(li.get((int) maxInd.get() - 1));
-        Thread[] task = new Thread[threadCount];
+    public static Result calculate(long limit, int page, int threadNumber) throws InterruptedException {
+        ArrayList<Long> primerList = primeByEuler(page);
+        AtomicLong maxInd = new AtomicLong(primerList.size());
+        AtomicLong maxPrime = new AtomicLong(primerList.get((int) maxInd.get() - 1));
+        Thread[] task = new Thread[threadNumber];
 
-        for (int i = 0; i < threadCount; i++) {
+        for (int i = 0; i < threadNumber; i++) {
             int tid = i;
             task[tid] = new Thread(() -> {
                 long localMaxPrime = 0, localMaxInd = 0;
-                for (int j = tid + 1; j < limit / page; j += threadCount) {
-                    var rs = primeByEratosthenes(page * (long) j, page, li);
+                for (int j = tid + 1; j < limit / page; j += threadNumber) {
+                    var rs = primeByEratosthenes(page * (long) j, page, primerList);
                     localMaxPrime = rs.maxPrime;
                     localMaxInd += rs.maxInd;
                 }
-//                System.out.println("T"+tid+": limit/page : "+ limit/page);
-//                System.out.println("T"+tid+": （limit/page）% threadCount :"+ (((limit/page)-1)%threadCount) + " , MP=" + localMaxPrime);
-//                if ((tid+1)%threadCount == ((limit/page)-1)%threadCount) System.out.println("T"+tid+":"+ localMaxPrime);
-                if ((tid+1)%threadCount == ((limit/page)-1)%threadCount) maxPrime.set(localMaxPrime);
+                if ((tid + 1) % threadNumber == ((limit / page) - 1) % threadNumber) maxPrime.set(localMaxPrime);
                 maxInd.addAndGet(localMaxInd);
-//                while (true) {
-//                    var l = maxPrime.get();
-//                    if (localMaxPrime <= l) break;
-//                    if (maxPrime.compareAndSet(l, localMaxPrime)) break;
-//                }
-
             });
             task[tid].start();
         }
@@ -64,18 +55,19 @@ public class JHiPrime {
         return new Result(maxInd.get(), maxPrime.get());
     }
 
-    public record Result(long maxInd, long maxPrime) {}
+    public record Result(long maxInd, long maxPrime) {
+    }
 
     public static void main(String[] args) throws InterruptedException {
         System.out.println("Hi Prime! I'm Java :-)");
         long limit = Long.parseLong(args[0]);
         int page = Integer.parseInt(args[1]);
-        int threadCount = Integer.parseInt(args[3]);
+        int threadNumber = Integer.parseInt(args[3]);
         System.out.println("Calculate prime numbers up to " + limit + " using partitioned Eratosthenes sieve");
         var startTime = System.currentTimeMillis();
-        Result r = calculate(limit, page, threadCount);
+        Result r = calculate(limit, page, threadNumber);
         var totalTime = System.currentTimeMillis() - startTime;
-        System.out.printf("Java finished within %.0e the %dth prime is %d, time cost: %d ms \n",
-                (double) limit, r.maxInd, r.maxPrime, totalTime);
+        System.out.printf("Java using %d thread(s) finished within %.0e the %dth prime is %d, time cost: %d ms \n",
+                threadNumber, (double) limit, r.maxInd, r.maxPrime, totalTime);
     }
 }
