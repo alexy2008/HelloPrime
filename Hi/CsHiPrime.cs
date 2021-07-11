@@ -54,7 +54,7 @@ class CsHiPrime
         for (var i = 1; i < limit/page; i++)
         {
             PrimeByEratosthenes( page * i, page);
-            if (MaxInd > _maxKeep)   _offSet = MaxInd-_maxKeep;
+            // if (MaxInd > _maxKeep)   _offSet = MaxInd-_maxKeep;
         }
         var totalTime = (long) DateTime.Now.Subtract(startTime).TotalMilliseconds;
         Console.WriteLine("C# finished within {0:0.#e+00} the {1}th prime is {2}, time cost: {3} ms",

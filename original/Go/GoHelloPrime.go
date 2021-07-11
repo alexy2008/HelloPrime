@@ -14,13 +14,17 @@ var thread, mode int
 var page, limit uint64
 var prime Prime
 
-func primeByEuler(page uint64){
+func primeByEuler(page uint64) {
 	num := make([]bool, page+1)
 	for i := uint64(2); i < page; i++ {
-		if !num[i] { prime.add(i) }
+		if !num[i] {
+			prime.add(i)
+		}
 		for j := 0; j < prime.size() && i*prime.get(j) <= page; j++ {
 			num[i*prime.get(j)] = true
-			if i%prime.get(j) == 0 {break}
+			if i%prime.get(j) == 0 {
+				break
+			}
 		}
 	}
 }
@@ -34,7 +38,9 @@ func primeByEratosthenesInterval(pos uint64, page uint64) {
 		}
 	}
 	for i := 0; i < len(num); i++ {
-		if num[i] == false { prime.add(pos + uint64(i))	}
+		if num[i] == false {
+			prime.add(pos + uint64(i))
+		}
 	}
 }
 
@@ -57,7 +63,7 @@ func main() {
 		for i := uint64(1); i < limit/page; i++ {
 			pos := page * i
 			primeByEratosthenesInterval(pos, page)
-			prime.generateResults(pos+page)
+			prime.generateResults(pos + page)
 		}
 	} else {
 		runMultiple()
@@ -81,13 +87,17 @@ func runMultiple() {
 		okAll = false
 		for i := 0; i < thread; i++ {
 			var r, ok = <-chs[i]
-			if !ok {break}
+			if !ok {
+				break
+			}
 			okAll = true
 			for k := range r {
-				if r[k] == 0 {break}
+				if r[k] == 0 {
+					break
+				}
 				prime.add(r[k])
 			}
-			prime.generateResults(page*(uint64(i)+m+2)) //todo
+			prime.generateResults(page * (uint64(i) + m + 2)) //todo
 		}
 	}
 }
@@ -158,7 +168,7 @@ func (p *Prime) generateResults(inter uint64) {
 		(*p).outputInterval(inter)
 		(*p).prevNo = (*p)._maxInd
 	}
-	(*p)._maxPrime = (*p._prime)[(*p)._maxInd - (*p)._offSet - 1]
+	(*p)._maxPrime = (*p._prime)[(*p)._maxInd-(*p)._offSet-1]
 	(*p).freeUp()
 }
 
@@ -167,7 +177,9 @@ func (p Prime) outputInterval(inter uint64) {
 	if inter%uint64(math.Pow10(len(fmt.Sprintf("%d", inter))-1)) == 0 {
 		s = fmt.Sprintf("%s|%d|%d", dfString(inter), p._maxInd, (*p._prime)[p._maxInd-p._offSet-1])
 		*p.interList = append(*p.interList, s)
-		if mode > 1 { fmt.Println("[In:]", s) }
+		if mode > 1 {
+			fmt.Println("[In:]", s)
+		}
 	}
 }
 
@@ -176,11 +188,17 @@ func (p Prime) outputSequence(beginNo uint64) {
 	for i := len(fmt.Sprintf("%d", beginNo)) - 1; i <= len(fmt.Sprintf("%d", p._maxInd))-1; i++ {
 		for j := 1; j < 10; j++ {
 			seq := uint64(j) * uint64(math.Pow10(i))
-			if seq < beginNo { continue	}
-			if seq >= p._maxInd { break	}
-			s = fmt.Sprintf("%s|%d", dfString(seq), (*p._prime)[p._maxInd - p._offSet-1-(p._maxInd-seq)])
+			if seq < beginNo {
+				continue
+			}
+			if seq >= p._maxInd {
+				break
+			}
+			s = fmt.Sprintf("%s|%d", dfString(seq), (*p._prime)[p._maxInd-p._offSet-1-(p._maxInd-seq)])
 			*p.seqList = append(*p.seqList, s)
-			if mode > 1 { fmt.Println("==>[No:]", s) }
+			if mode > 1 {
+				fmt.Println("==>[No:]", s)
+			}
 		}
 	}
 }
@@ -192,15 +210,21 @@ func (p *Prime) freeUp() {
 }
 
 func (p Prime) printTable() {
-	if mode < 1 { return }
+	if mode < 1 {
+		return
+	}
 	fmt.Println("## 素数序列表")
 	fmt.Println("序号|数值")
 	fmt.Println("---|---")
-	for _, s := range *p.seqList { fmt.Println(s) }
+	for _, s := range *p.seqList {
+		fmt.Println(s)
+	}
 	fmt.Println("## 素数区间表")
 	fmt.Println("区间|个数|最大值")
 	fmt.Println("---|---|---")
-	for _, s := range *p.interList { fmt.Println(s)	}
+	for _, s := range *p.interList {
+		fmt.Println(s)
+	}
 }
 
 func dfString(l uint64) string {

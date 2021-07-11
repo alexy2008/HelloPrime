@@ -1,7 +1,7 @@
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicLong;
 
-public class JHiPrime {
+public class JHelloPrime {
     private static ArrayList<Long> primeByEuler(Integer page) {
         var sieve = new boolean[page];
         ArrayList<Long> primeArray = new ArrayList<>(350000);
@@ -59,7 +59,7 @@ public class JHiPrime {
     }
 
     public static void main(String[] args) throws InterruptedException {
-        System.out.println("Hi Prime! I'm Java :-)");
+        System.out.println("Hello Prime! I'm Java :-)");
         long limit = Long.parseLong(args[0]);
         int page = Integer.parseInt(args[1]);
         int threadNumber = Integer.parseInt(args[3]);
