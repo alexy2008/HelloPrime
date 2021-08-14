@@ -3,9 +3,7 @@ Explore the table of prime Numbers within 1 trillion using more than 10 programm
 
 使用N（!(N<10)）种语言，探索一万亿以内的素数表
 
-已完成：Java, Python, C#, C++, C, Go, Ruby, VB.net, Kotlin, Groovy
-
-开发中：Rust, Node.js, Dart, ……
+已完成：Java, Python, C#, C++, C, Go, Ruby, VB.net, Kotlin, Groovy，Rust, Node.js, Dart, ……
 
 ## **背景**
 一直很羡慕那些通晓好几国语言的大神。作为一个码农，虽然没有能力做到英语，法语，西班牙语随时换台，谈笑风生。但不妨试一下Java，Python，CSharp随心切换，四面开花。
