@@ -203,7 +203,8 @@ def cli():
 @click.option('--docker', '-d', help='使用docker运行')
 def build(lang, docker):
     if check_lang(lang) < 0: return -1
-    command[lang]['build'] = command[lang]['build'].replace('Hello', 'Hi')
+    if info['tag'] == 'HiPrime':
+        command[lang]['build'] = command[lang]['build'].replace('Hello', 'Hi')
     if not is_windows: command[lang]['build'] = command[lang]['build'].replace('.exe', '')
     c = command[lang]['build']
     if docker is not None:

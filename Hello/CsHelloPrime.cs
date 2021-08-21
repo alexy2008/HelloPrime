@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 
 class CsHelloPrime {
-    internal struct Result { public long MaxInd { get; init; } public long MaxPrime { get; init; } }
+    internal readonly struct Result { public long MaxInd { get; init; } public long MaxPrime { get; init; } }
 
     private static List<long> PrimeByEuler(long page) {
         var sieve = new bool[page];
@@ -35,13 +35,13 @@ class CsHelloPrime {
     }
 
     public static Result Calculate(long limit, int page,  int threadNumber) {
-        List<long> primerList = PrimeByEuler(page);
+        var primerList = PrimeByEuler(page);
         long maxInd = primerList.Count;
-        long maxPrime = primerList[^1];
-        Thread[] task = new Thread[threadNumber];
+        var maxPrime = primerList[^1];
+        var task = new Thread[threadNumber];
 
-        for (int i = 0; i < threadNumber; i++) {
-            int tid = i;
+        for (var i = 0; i < threadNumber; i++) {
+            var tid = i;
             task[tid] = new Thread(() => {
                 long localMaxPrime = 0, localMaxInd = 0;
                 for (int j = tid + 1; j < limit / page; j += threadNumber) {
@@ -60,10 +60,10 @@ class CsHelloPrime {
 
     static void Main(string[] args) {
         Console.WriteLine("Hi Prime! I'm C# :-)");
-        long limit = long.Parse(args[0]);
-        int page = int.Parse(args[1]);
-        int threadNumber = int.Parse(args[3]);
-        Console.WriteLine("Calculate prime numbers up to {0} using partitioned Eratosthenic sieve", limit);
+        var limit = long.Parse(args[0]);
+        var page = int.Parse(args[1]);
+        var threadNumber = int.Parse(args[3]);
+        Console.WriteLine("Calculate prime numbers up to {0} using partitioned Eratosthenes sieve", limit);
         var startTime = DateTime.Now;
         var r = Calculate(limit, page, threadNumber);
         var totalTime = (long)DateTime.Now.Subtract(startTime).TotalMilliseconds;

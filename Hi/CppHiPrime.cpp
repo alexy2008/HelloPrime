@@ -6,7 +6,6 @@ typedef long long llong;
 using namespace std;
 
 llong _maxInd = 0;
-llong _maxKeep = 80000;
 llong _offSet = 0;;
 llong _prime[150000];
 llong _maxPrime;
@@ -52,7 +51,7 @@ int main(int argc, char *argv[]) {
     cout << "Hi Prime! I'm C++ :-)" << endl;
     const llong LIMIT = atoll(argv[1]);
     const llong PAGE = atoll(argv[2]);
-    cout << "Calculate prime numbers up to " << LIMIT << " using partitioned Eratosthenic sieve" << endl;
+    cout << "Calculate prime numbers up to " << LIMIT << " using partitioned Eratosthenes sieve" << endl;
     llong startTime = clock();
     sieve(LIMIT, PAGE);
     llong totalTime = double(clock() - startTime) / CLOCKS_PER_SEC * 1000 ;

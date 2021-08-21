@@ -55,8 +55,7 @@ public class JHelloPrime {
         return new Result(maxInd.get(), maxPrime.get());
     }
 
-    public record Result(long maxInd, long maxPrime) {
-    }
+    public record Result(long maxInd, long maxPrime) {}
 
     public static void main(String[] args) throws InterruptedException {
         System.out.println("Hello Prime! I'm Java :-)");
