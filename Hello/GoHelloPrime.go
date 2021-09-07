@@ -9,14 +9,14 @@ import (
 )
 
 func primeByEuler(page int) []int {
-	num := make([]bool, page)
+	sieve := make([]bool, page)
 	var primeArray []int
 	for i := 2; i < page; i++ {
-		if !num[i] {
+		if !sieve[i] {
 			primeArray = append(primeArray, i)
 		}
 		for j := 0; i*primeArray[j] < page; j++ {
-			num[i*primeArray[j]] = true
+			sieve[i*primeArray[j]] = true
 			if i%primeArray[j] == 0 {
 				break
 			}
@@ -26,16 +26,16 @@ func primeByEuler(page int) []int {
 }
 
 func primeByEratosthenes(pos int, page int, primeArray []int) (int, int) {
-	num := make([]bool, page)
+	sieve := make([]bool, page)
 	var maxInd, maxPrime int
-	for i := 1; i < len(primeArray) && float64(primeArray[i]) < math.Sqrt(float64(pos+page)); i++ {
+	for i := 1; i < len(primeArray) && primeArray[i]*primeArray[i] < pos+page; i++ {
 		p := primeArray[i]
 		for j := int(math.Ceil(float64(pos)/float64(p)) * float64(p)); j < pos+page; j += p {
-			num[j-pos] = true
+			sieve[j-pos] = true
 		}
 	}
-	for i := 1; i < len(num); i += 2 {
-		if num[i] == false {
+	for i := 1; i < len(sieve); i += 2 {
+		if !sieve[i] {
 			maxPrime = pos + i
 			maxInd++
 		}
@@ -64,8 +64,7 @@ func calculate(limit int, page int, threadNumber int) (int, int) {
 	}
 	for i := 0; i < threadNumber; i++ {
 		maxInd += <-chanMaxInd
-		mp := <-chanMaxPrime
-		if mp > maxPrime {
+		if mp := <-chanMaxPrime; mp > maxPrime {
 			maxPrime = mp
 		}
 	}
