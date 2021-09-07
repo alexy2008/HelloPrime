@@ -27,7 +27,6 @@ class KtHiPrime {
             for (j in kotlin.math.ceil(pos * 1.0 / p).toLong() * p until pos + page step p)
                 num[(j - pos).toInt()] = true
         }
-
         for ((i, n) in num.withIndex()) if (!n) {
             maxPrime = pos + i
             maxInd++
@@ -46,10 +45,8 @@ class KtHiPrime {
             val limit = args[0].toLong()
             val page = args[1].toInt()
             val hi = KtHiPrime()
-            println("Calculate prime numbers up to $limit using partitioned Eratosthenic sieve")
-            val costTime = kotlin.system.measureTimeMillis {
-                hi.sieve(limit, page)
-            }
+            println("Calculate prime numbers up to $limit using partitioned Eratosthenes sieve")
+            val costTime = kotlin.system.measureTimeMillis { hi.sieve(limit, page) }
             println("Kotlin finished within ${String.format("%.0e", limit.toDouble())} the ${hi.maxInd}th prime is ${hi.maxPrime}; time cost: $costTime ms ")
         }
     }
