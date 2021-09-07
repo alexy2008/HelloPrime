@@ -51,5 +51,4 @@ print("Calculate prime numbers up to \(limit) using partitioned Eratosthenic sie
 let startTime = Date.timeIntervalSinceReferenceDate * 1000
 sieve(limit: limit, page: page)
 let costTime = Int(Date.timeIntervalSinceReferenceDate * 1000 - startTime)
-
 print("Swift finished within \(String(format: "%.0e",Double(limit))) the \(maxInd)th prime is \(maxPrime); time cost: \(costTime) ms ")
