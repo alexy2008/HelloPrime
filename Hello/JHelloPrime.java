@@ -4,7 +4,7 @@ import java.util.concurrent.atomic.AtomicLong;
 public class JHelloPrime {
     private static ArrayList<Long> primeByEuler(Integer page) {
         var sieve = new boolean[page];
-        ArrayList<Long> primeArray = new ArrayList<>(350000);
+        ArrayList<Long> primeArray = new ArrayList<>();
         for (var i = 2; i < page; i++) {
             if (!sieve[i]) primeArray.add((long) i);
             for (var j = 0; (long) i * primeArray.get(j) < page; j++) {
@@ -32,21 +32,23 @@ public class JHelloPrime {
     }
 
     public static Result calculate(long limit, int page, int threadNumber) throws InterruptedException {
-        ArrayList<Long> primerList = primeByEuler(page);
+        int n = 1;
+        while (page * n < Math.sqrt(limit)) n++;
+        ArrayList<Long> primerList = primeByEuler(page * n);
         AtomicLong maxInd = new AtomicLong(primerList.size());
         AtomicLong maxPrime = new AtomicLong(primerList.get((int) maxInd.get() - 1));
         Thread[] task = new Thread[threadNumber];
 
         for (int i = 0; i < threadNumber; i++) {
-            int tid = i;
+            int tid = i, finalN = n;
             task[tid] = new Thread(() -> {
                 long localMaxPrime = 0, localMaxInd = 0;
-                for (int j = tid + 1; j < limit / page; j += threadNumber) {
+                for (int j = tid + finalN; j < limit / page; j += threadNumber) {
                     var rs = primeByEratosthenes(page * (long) j, page, primerList);
                     localMaxPrime = rs.maxPrime;
                     localMaxInd += rs.maxInd;
                 }
-                if ((tid + 1) % threadNumber == ((limit / page) - 1) % threadNumber) maxPrime.set(localMaxPrime);
+                if ((tid + 1) % threadNumber == ((limit / page) - finalN) % threadNumber) maxPrime.set(localMaxPrime);
                 maxInd.addAndGet(localMaxInd);
             });
             task[tid].start();
