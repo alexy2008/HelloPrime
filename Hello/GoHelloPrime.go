@@ -1,12 +1,6 @@
 package main
 
-import (
-	"fmt"
-	"math"
-	"os"
-	"strconv"
-	"time"
-)
+import ("fmt";"math";"os";"strconv";"time")
 
 func primeByEuler(page int) []int {
 	sieve := make([]bool, page)
@@ -17,9 +11,7 @@ func primeByEuler(page int) []int {
 		}
 		for j := 0; i*primeArray[j] < page; j++ {
 			sieve[i*primeArray[j]] = true
-			if i%primeArray[j] == 0 {
-				break
-			}
+			if i%primeArray[j] == 0 { break	}
 		}
 	}
 	return primeArray
@@ -64,9 +56,7 @@ func calculate(limit int, page int, threadNumber int) (int, int) {
 	}
 	for i := 0; i < threadNumber; i++ {
 		maxInd += <-chanMaxInd
-		if mp := <-chanMaxPrime; mp > maxPrime {
-			maxPrime = mp
-		}
+		if mp := <-chanMaxPrime; mp > maxPrime { maxPrime = mp }
 	}
 	return maxInd, maxPrime
 }
