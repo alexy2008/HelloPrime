@@ -21,14 +21,11 @@ command = {
         'ver': 'java -version', 'pre': 'J',
         'build': 'javac -version && javac *.java -d bin -encoding UTF-8',
         'run': 'java -cp ./bin JHelloPrime %s %s %s %s'},
-    'java15': {
-        'ver': 'java -version', 'pre': 'J', 'ext': 'java',
-        'build': 'javac -version && javac --enable-preview --release 15 *.java -d bin -encoding UTF-8',
-        'run': 'java --enable-preview -cp ./bin JHelloPrime %s %s %s %s'},
-    'java16': {
-        'ver': 'java -version', 'pre': 'J', 'ext': 'java', 'dir': 'Java15',
-        'build': 'javac -version && javac *.java -d bin -encoding UTF-8',
-        'run': 'java -cp ./bin JHelloPrime %s %s %s %s'},
+    'sc': {
+        'ver': 'scala -version', 'name': 'Scala',
+        'build': 'scalac ScHiPrime.scala -d bin',
+        'run': 'scala -cp ./bin ScHiPrime %s %s %s %s'},
+
     'kt': {
         'ver': 'kotlin -version', 'name': 'Kotlin',
         'build': 'kotlinc KtHelloPrime.kt -d bin',
