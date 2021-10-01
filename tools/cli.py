@@ -36,7 +36,7 @@ command = {
         'run': './bin/CHelloPrime %s %s %s %s'},
     'cpp': {
         'ver': 'g++ --version', 'name': 'C++', 'dir': 'Cpp',
-        'build': 'g++ CppHelloPrime.cpp -lm -O3 -o ./bin/CppHelloPrime',
+        'build': 'g++ CppHelloPrime.cpp -lpthread -lm -O3 -o ./bin/CppHelloPrime',
         'run': './bin/CppHelloPrime %s %s %s %s'},
     'rs': {
         'ver': 'rustc --version', 'name': 'Rust',
