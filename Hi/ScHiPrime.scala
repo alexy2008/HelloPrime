@@ -44,8 +44,8 @@ object ScHiPrime {
     val primerList = primeByEuler(page)
     var maxInd: Long = primerList.length
     var maxPrime: Long = primerList.last
-    for (i <- 1 until limit.toInt / page) {
-      var (localMaxInd, localMaxPrime) = primeByEratosthenes(page * i, page, primerList)
+    for (i <- 1 until (limit / page).toInt) {
+      var (localMaxInd, localMaxPrime) = primeByEratosthenes(page.toLong * i, page, primerList)
       maxInd += localMaxInd
       maxPrime = localMaxPrime
     }
