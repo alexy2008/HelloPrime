@@ -4,6 +4,7 @@
 #include <vector>
 #include <thread>
 #include <atomic>
+#include <chrono>
 typedef long long llong;
 using namespace std;
 
@@ -44,7 +45,6 @@ Result calculate(llong limit, int page, int threadNumber) {
     vector<llong> primerList;
     int n = 1;
     while (page*n < sqrt(limit)) n++;
-    cout << "init n page: " << n << endl;
     primeByEuler(page*n, primerList);
     atomic<llong> maxInd;
     maxInd.store(primerList.size());
@@ -73,11 +73,12 @@ int main(int argc, char *argv[]) {
     const int PAGE = atoi(argv[2]);
     const int threadNumber = atoi(argv[4]);
     cout << "Calculate prime numbers up to " << LIMIT << " using partitioned Eratosthenes calculate" << endl;
-    llong startTime = clock();
+    auto startTime = chrono::system_clock::now();
     Result r = calculate(LIMIT, PAGE, threadNumber);
-    llong totalTime = double(clock() - startTime) / CLOCKS_PER_SEC * 1000;
+    auto endTime = chrono::system_clock::now();
+    auto duration = chrono::duration_cast<chrono::milliseconds>(endTime - startTime);
     cout << "C++ on " << threadNumber << " thread(s) finished within " << scientific << setprecision(0)
-         << (double) LIMIT << " the " << r.maxInd << "th prime is " << r.maxPrime << ", time cost: " << totalTime
+         << (double) LIMIT << " the " << r.maxInd << "th prime is " << r.maxPrime << ", time cost: " << duration.count()
          << " ms" << endl;
     return 0;
 }
