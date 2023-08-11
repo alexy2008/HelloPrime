@@ -63,8 +63,8 @@ command = {
         'build': 'dart compile exe DaHelloPrime.dart -o bin/DaHelloPrime.exe',
         'run': './bin/DaHelloPrime %s %s %s %s'},
     'py': {
-        'ver': 'python --version', 'name': 'Python',
-        'run': 'python PyHelloPrime.py %s %s %s %s'},
+        'ver': 'python3 --version', 'name': 'Python',
+        'run': 'python3 PyHelloPrime.py %s %s %s %s'},
     'rb': {
         'ver': 'ruby --version', 'name': 'Ruby',
         'run': 'ruby RbHelloPrime.rb %s %s %s %s'},

@@ -8,3 +8,4 @@ bin
 obj
 .idea
 .DS_Store
+.vscode/*
