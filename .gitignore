@@ -11,3 +11,5 @@ obj
 cmake*
 target/
 .vscode
+.DS_Store
+.vscode/*

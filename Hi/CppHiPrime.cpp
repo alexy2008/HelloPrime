@@ -16,7 +16,7 @@ void primeByEuler(int page) {
     for (int i = 2; i < page; i++) {
         if (!num[i]) {
             _maxPrime = i;
-            _prime[_maxInd++ - _offSet] = _maxPrime;
+            _prime[_maxInd++] = _maxPrime;
         }
         for (int j = 0; j < _maxInd && i * _prime[j] < page; j++) {
             num[i * _prime[j]] = true;
@@ -29,7 +29,7 @@ void primeByEuler(int page) {
 void primeByEratosthenes(llong pos, int page) {
     bool* num = new bool[page] ;
     for (int i = 0; i < page; i++) num[i] = false;
-    for (int i = 0; _prime[i] < sqrt(pos + page); i++) {
+    for (int i = 0; _prime[i] != 0 && _prime[i] < sqrt(pos + page); i++) {
         llong p = _prime[i];
         for (llong j = ceil(pos * 1.0 / p) * p; j < pos + (llong) page; j += p)
             num[(int) (j - pos)] = true;

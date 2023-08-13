@@ -63,8 +63,8 @@ command = {
         'build': 'dart compile exe DaHelloPrime.dart -o bin/DaHelloPrime.exe',
         'run': './bin/DaHelloPrime %s %s %s %s'},
     'py': {
-        'ver': 'python --version', 'name': 'Python',
-        'run': 'python PyHelloPrime.py %s %s %s %s'},
+        'ver': 'python3 --version', 'name': 'Python',
+        'run': 'python3 PyHelloPrime.py %s %s %s %s'},
     'rb': {
         'ver': 'ruby --version', 'name': 'Ruby',
         'run': 'ruby RbHelloPrime.rb %s %s %s %s'},
@@ -187,8 +187,22 @@ def cli():
                     info['lcore'] = ln.split(':')[1].strip()
                 if ln.startswith('cpu MHz'):
                     info['clock'] = ln.split(':')[1].strip()
-        elif osname == 'MacOS':
-            print()
+        elif osname == 'Darwin':
+            osname == 'MacOS'
+            info['os'] = ''.join(platform.platform().split('-')[:2])
+
+            p = subprocess.Popen('sysctl machdep.cpu', shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True)
+            lns = p.stdout.readlines()
+            for ln in lns:
+                if ln.startswith('machdep.cpu.brand_string'):
+                    info['cpu'] = ln.split(':')[1].strip()
+                if ln.startswith('machdep.cpu.core_count'):
+                    info['core'] = ln.split(':')[1].strip()
+                if ln.startswith('machdep.cpu.thread_count'):
+                    info['lcore'] = ln.split(':')[1].strip()
+
+            info['clock'] = 'N/A'
+
 
     console.print('[green]欢迎使用[red]HelloPrime[/red] CLI for %s [green]' % osname)
     console.print('项目地址：[link=https://www.deepinjava.com]https://www.deepinjava.com[/link]')
