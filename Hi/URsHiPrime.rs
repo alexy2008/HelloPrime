@@ -1,25 +1,25 @@
 use std::env;
-use std::time::{Duration, SystemTime};
+use std::time::SystemTime;
 
 const MAX_KEEP: usize = 80000;
-static mut prime_array: [usize; MAX_KEEP + 70000] = [2; MAX_KEEP + 70000];
-static mut offset: usize = 0;
-static mut max_ind: usize = 0;
-static mut max_prime: usize = 0;
+static mut PRIME_ARRAY: [usize; MAX_KEEP + 70000] = [2; MAX_KEEP + 70000];
+static mut OFFSET: usize = 0;
+static mut MAX_IND: usize = 0;
+static mut MAX_PRIME: usize = 0;
 
 
 unsafe fn prime_by_euler(page: usize) {
     let mut num: Vec<bool> = vec![false; page];
     for i in 2..page - 1 {
         if !num[i] {
-            max_prime = i as usize;
-            prime_array[(max_ind - offset) as usize] = max_prime;
-            max_ind += 1;
+            MAX_PRIME = i as usize;
+            PRIME_ARRAY[(MAX_IND - OFFSET) as usize] = MAX_PRIME;
+            MAX_IND += 1;
         }
-        for j in 0..max_ind as usize {
-            if i * prime_array[j] as usize >= page { break; }
-            num[i * prime_array[j] as usize] = true;
-            if i % prime_array[j] as usize == 0 { break; }
+        for j in 0..MAX_IND as usize {
+            if i * PRIME_ARRAY[j] as usize >= page { break; }
+            num[i * PRIME_ARRAY[j] as usize] = true;
+            if i % PRIME_ARRAY[j] as usize == 0 { break; }
         }
     }
 }
@@ -28,8 +28,8 @@ unsafe fn prime_by_eratosthenes(pos :usize, page :usize){
     let mut num: Vec<bool> = vec![false; page];
     let mut i = 0;
 
-    while prime_array[i] < ((pos + page as usize) as f64).sqrt().ceil() as usize {
-        let p = prime_array[i];
+    while PRIME_ARRAY[i] < ((pos + page as usize) as f64).sqrt().ceil() as usize {
+        let p = PRIME_ARRAY[i];
         let mut j = (pos as f64 /p as f64).ceil() as usize * p;
         while j < pos + page as usize {
             num[j as usize - pos as usize] = true;
@@ -39,9 +39,9 @@ unsafe fn prime_by_eratosthenes(pos :usize, page :usize){
     }
     for i in 0..num.len() {
         if !num[i] {
-            max_prime = pos + i as usize;
-            prime_array[(max_ind - offset) as usize] = max_prime;
-            max_ind += 1;
+            MAX_PRIME = pos + i as usize;
+            PRIME_ARRAY[(MAX_IND - OFFSET) as usize] = MAX_PRIME;
+            MAX_IND += 1;
         }
     }
 }
@@ -50,8 +50,8 @@ unsafe fn sieve(limit :usize, page :usize){
     prime_by_euler(page);
     for i in 1..limit/page as usize {
         prime_by_eratosthenes(page as usize * i,page);
-        if max_ind > MAX_KEEP as usize {
-            offset = max_ind - MAX_KEEP as usize;
+        if MAX_IND > MAX_KEEP as usize {
+            OFFSET = MAX_IND - MAX_KEEP as usize;
         }
     }
 }
@@ -66,6 +66,6 @@ fn main() {
     unsafe { sieve(limit, page); }
     let total_time = SystemTime::now().duration_since(start_time).unwrap().as_millis();
     unsafe { println!("Rust finished within {:e} the {}th prime is {}, time cost: {} ms \n",
-                      limit as f64, max_ind, max_prime, total_time)};
+                      limit as f64, MAX_IND, MAX_PRIME, total_time)};
 }
 
