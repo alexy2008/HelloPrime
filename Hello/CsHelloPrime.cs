@@ -44,7 +44,7 @@ class CsHelloPrime {
             var tid = i;
             task[tid] = new Thread(() => {
                 long localMaxPrime = 0, localMaxInd = 0;
-                for (int j = tid + 1; j < limit / page; j += threadNumber) {
+                for (var j = tid + 1; j < limit / page; j += threadNumber) {
                     var rs = PrimeByEratosthenes(page * (long)j, page, primerList);
                     localMaxPrime = rs.MaxPrime;
                     localMaxInd += rs.MaxInd;

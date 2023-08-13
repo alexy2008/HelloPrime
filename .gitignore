@@ -7,3 +7,7 @@ out
 bin
 obj
 .idea
+.vs
+cmake*
+target/
+.vscode
