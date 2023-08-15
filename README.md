@@ -1,9 +1,16 @@
 # **Hello Prime !**
-Explore the table of prime Numbers within 1 trillion using more than 10 programming languages.
+Explore the table of prime Numbers within 1 trillion using more than 20 programming languages.
 
-使用N（!(N<10)）种语言，探索一万亿以内的素数表
+使用20种语言，探索一万亿以内的素数表
 
-已完成：Java, Python, C#, C++, C, Go, Ruby, VB.net, Kotlin, Groovy，Rust, Node.js, Dart, ……
+# **最新更新**
+Hi目录下是单线程实现，总共完成了 C，C++，Rust，Java，C#，Go，Python，Ruby，PHP，VB.net，Kotlin，Swift，Groovy，Dart，JavaScript，TypeScript，Scala，Lua共18种语言。计划再搞个Julia和R，凑20种。
+
+Hello目录下是多线程实现，总共完成了C++,Java,C#,Go,Rust 5种语言。
+
+tools目录下用Python写了一个cli的shell，写的很烂，打算推倒重来。
+
+这个项目的定位，几次折腾，最早是想做语言特性的展现，后来一度追求极简，多一行代码都要压缩，再后来又追求性能，越快越好。现在想想，还是回归初心，做语言特性的展示吧，性能测试方面，其实我也很感兴趣，但是打算开个新的开源项目DevBench——面向开发者的基准测试工具。
 
 ## **背景**
 一直很羡慕那些通晓好几国语言的大神。作为一个码农，虽然没有能力做到英语，法语，西班牙语随时换台，谈笑风生。但不妨试一下Java，Python，CSharp随心切换，四面开花。
@@ -89,7 +96,7 @@ Ruby这个基本上也是全新学的。比较容易，就是容易跟Python混
 
 ## **计划**
 
-接下来计划实现：Scala，Rust，Dart，Clojure……
+接下来计划实现：Julia，R，Clojure, Elixir, F#, ……
 
 你有什么感兴趣的语言，欢迎加入我的项目
 
