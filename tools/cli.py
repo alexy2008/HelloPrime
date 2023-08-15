@@ -56,7 +56,7 @@ command = {
         'run': './bin/GoHelloPrime %s %s %s %s'},
     'swift': {
         'ver': 'swiftc --version', 'pre': 'Sw',
-        'build': 'swiftc -O SwHelloPrime.swift -o bin/SwHelloPrime',
+        'build': 'swiftc -O SwHelloPrime.swift -o bin/SwHelloPrime.exe',
         'run': './bin/SwHelloPrime %s %s %s %s'},
     'dart': {
         'ver': 'dart --version', 'pre': 'Da',
