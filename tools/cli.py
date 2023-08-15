@@ -77,6 +77,9 @@ command = {
     'js': {
         'ver': 'node --version', 'name': 'JavaScript',
         'run': 'node JsHelloPrime.js %s %s %s %s'},
+    'lua': {
+        'ver': 'lua -v',
+        'run': 'lua LHelloPrime.lua %s %s %s %s'},    
     'ts': {
         'ver': 'deno --version', 'name': 'TypeScript',
         'run': 'deno run TsHelloPrime.ts %s %s %s %s'},
