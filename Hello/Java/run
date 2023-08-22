@@ -1,0 +1,45 @@
+#!/bin/bash
+command="java -cp ./bin JHelloPrime"
+
+arg1=${1:-10000}
+arg2=${2:-1000}
+shift 2
+m=0
+t=1
+r=1
+
+while getopts ":t:m:r:" opt; do
+  case $opt in
+    t)
+      t=$OPTARG
+      ;;
+    m)
+      m=$OPTARG
+      ;;
+    r)
+      r=$OPTARG
+      ;;
+    \?)
+      echo "Invalid option: -$OPTARG" >&2
+      exit 1
+      ;;
+    :)
+      echo "Option -$OPTARG requires an argument." >&2
+      exit 1
+      ;;
+  esac
+done
+
+echo $t
+
+if [[ $arg1 == e* ]]; then arg1="1$arg1"; fi
+if [[ $arg2 == e* ]]; then arg2="1$arg2"; fi
+
+limit=$(printf "%.0f" "$arg1")
+page=$(printf "%.0f" "$arg2")
+
+command="$command $limit $page $m $t"
+
+echo "Run the command : $command"
+
+for ((i=0; i<r; i++)); do eval "$command"; done
