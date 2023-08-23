@@ -1,4 +1,5 @@
 #!/bin/bash
+java --version
 command="java -cp ./bin JHelloPrime"
 
 arg1=${1:-10000}
@@ -29,8 +30,6 @@ while getopts ":t:m:r:" opt; do
       ;;
   esac
 done
-
-echo $t
 
 if [[ $arg1 == e* ]]; then arg1="1$arg1"; fi
 if [[ $arg2 == e* ]]; then arg2="1$arg2"; fi

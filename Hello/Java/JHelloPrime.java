@@ -2,7 +2,7 @@ import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class JHelloPrime {
-    private static boolean isDebug;
+    private static boolean isDebug = false;
 
     private static ArrayList<Long> primeByEuler(Integer page) {
         var sieve = new boolean[page];
@@ -22,7 +22,8 @@ public class JHelloPrime {
         long maxInd = 0, maxPrime = 0;
         for (var i = 1; i < primeArray.size() && primeArray.get(i) * primeArray.get(i) < pos + page; i++) {
             var p = primeArray.get(i);
-            for (var j = ((long) (Math.ceil((double) pos / p))) * p; j < pos + page; j += p)
+            // for (var j = ((long) (Math.ceil((double) pos / p))) * p; j < pos + page; j += p)
+            for (var j = (pos % p == 0 ? pos / p : (pos / p) + 1) * p; j < pos + page; j += p)
                 sieve[(int) (j - pos)] = true;
         }
         for (var i = 1; i < page; i += 2)
@@ -33,7 +34,7 @@ public class JHelloPrime {
             return new Result(maxInd, maxPrime);
     }
 
-    public static Result calculate(long limit, int page, int threadNumber) throws InterruptedException {
+    public static Result calculate(Long limit, Integer page, Integer threadNumber) throws InterruptedException {
         int n = 1;
         while (page * n < Math.sqrt(limit)) n++;
         ArrayList<Long> primerList = primeByEuler(page * n);
