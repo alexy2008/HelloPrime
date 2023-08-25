@@ -23,7 +23,8 @@ public class JHelloPrime {
         for (var i = 1; i < primeArray.size() && primeArray.get(i) * primeArray.get(i) < pos + page; i++) {
             var p = primeArray.get(i);
             // for (var j = ((long) (Math.ceil((double) pos / p))) * p; j < pos + page; j += p)
-            for (var j = (pos % p == 0 ? pos / p : (pos / p) + 1) * p; j < pos + page; j += p)
+            // for (var j = (pos % p == 0 ? pos / p : (pos / p) + 1) * p; j < pos + page; j += p)
+            for (var j = ((pos + p - 1) / p ) * p; j < pos + page; j += p)
                 sieve[(int) (j - pos)] = true;
         }
         for (var i = 1; i < page; i += 2)
