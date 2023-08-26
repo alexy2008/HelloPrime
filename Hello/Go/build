@@ -1,0 +1,3 @@
+#!/bin/bash
+go version
+go build -o ./bin/GoHelloPrime GoHelloPrime.go

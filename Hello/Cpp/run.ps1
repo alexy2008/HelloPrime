@@ -6,8 +6,8 @@ param(
     [int]$r = 1
 )
 
-java --version
-$command = "java -cp ./bin JHelloPrime"
+g++ --version
+$command = "./bin/CppHelloPrime"
 
 if ($arg1.StartsWith("e")) { $arg1 = "1" + $arg1 }
 if ($arg2.StartsWith("e")) { $arg2 = "1" + $arg2 }

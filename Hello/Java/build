@@ -1,1 +1,3 @@
-javac -version && javac *.java -d bin -encoding UTF-8
+#!/bin/bash
+javac -version
+javac *.java -d bin -encoding UTF-8
