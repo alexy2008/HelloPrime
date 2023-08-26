@@ -23,15 +23,17 @@ fn prime_by_eratosthenes(pos: usize, page: usize, prime_array: &Vec<usize>) -> (
     let mut sieve: Vec<bool> = vec![false; page];
     let mut max_ind = 0;
     let mut max_prime = 0;
+    let sqr_limit = ((pos + page) as f64).sqrt().ceil() as usize;
     let mut i = 0;
-    while *prime_array.get(i).unwrap_or(&(usize::max_value())) < ((pos + page) as f64).sqrt().ceil() as usize {
+    while prime_array[i] < sqr_limit {
         let p = prime_array[i];
-        let mut j = (pos as f64 / p as f64).ceil() as usize * p;
-        while j < pos + page {
-            sieve[j - pos] = true;
+        let mut j = ((pos + p -1) / p ) * p; 
+        while j  < pos + page {
+            sieve[j  - pos] = true;
             j += p;
         }
         i += 1;
+        if i >= prime_array.len() {break;}
     }
     for i in 1..=page / 2 {
         if !sieve[2 * i - 1] {

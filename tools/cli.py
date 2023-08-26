@@ -20,7 +20,7 @@ command = {
     'java': {
         'ver': 'java -version', 'pre': 'J',
         'build': 'javac -version && javac *.java -d bin -encoding UTF-8',
-        'run': 'java -cp ./bin JHelloPrime %s %s %s %s'},
+        'run': 'java -XX:AutoBoxCacheMax=20000 -Xms2048m -Xmx16000m -cp ./bin JHelloPrime %s %s %s %s'},
     'sc': {
         'ver': 'scala -version', 'name': 'Scala',
         'build': 'scalac ScHiPrime.scala -d bin',
@@ -52,7 +52,7 @@ command = {
         'run': './bin/VbHelloPrime %s %s %s %s'},
     'go': {
         'ver': 'go version',
-        'build': 'go build -o ./bin/GoHelloPrime.exe GoHelloPrime.go',
+        'build': 'go build -o ./bin/ GoHelloPrime.go',
         'run': './bin/GoHelloPrime %s %s %s %s'},
     'swift': {
         'ver': 'swiftc --version', 'pre': 'Sw',
@@ -63,8 +63,8 @@ command = {
         'build': 'dart compile exe DaHelloPrime.dart -o bin/DaHelloPrime.exe',
         'run': './bin/DaHelloPrime %s %s %s %s'},
     'py': {
-        'ver': 'python3 --version', 'name': 'Python',
-        'run': 'python3 PyHelloPrime.py %s %s %s %s'},
+        'ver': 'python --version', 'name': 'Python',
+        'run': 'python PyHelloPrime.py %s %s %s %s'},
     'rb': {
         'ver': 'ruby --version', 'name': 'Ruby',
         'run': 'ruby RbHelloPrime.rb %s %s %s %s'},
@@ -157,9 +157,11 @@ def cli():
     info['machine'] = platform.machine()
     is_windows = (osname == 'Windows')
 
+    console.print(platform.platform())
+
     if is_windows:
         launch = launch_cmd
-        info['os'] = platform.system() + platform.release()
+        info['os'] = platform.system()  + platform.release()
         p = subprocess.Popen('wmic cpu get /value', shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True)
         lns = p.stdout.readlines()
         for ln in lns:
@@ -177,7 +179,7 @@ def cli():
         if osname == 'Linux':
             import distro
             # print('【操作系统】：', platform.system(), distro.linux_distribution())
-            info['os'] = distro.name() + ' ' + distro.version()
+            info['os'] = distro.name()  + distro.version()
             # print(info['os'])
             p = subprocess.Popen('cat /proc/cpuinfo', shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True)
             lns = p.stdout.readlines()
@@ -227,10 +229,10 @@ def build(lang, docker):
         if is_windows: c = c.replace('\'', '\"')
     print(c)
     click.echo('开始编译%s' % lang)
-    p = subprocess.Popen(c, shell=True, stdout=subprocess.PIPE, universal_newlines=True,
+    p = subprocess.Popen(c, shell=True, stdout=subprocess.PIPE,
                          cwd=cur_path)
     while p.poll() is None:
-        out = p.stdout.readline()
+        out = p.stdout.readline().decode("utf8",  "ignore")
         print(out.replace('\n', '').replace('\r', ''))
     click.echo('%s编译完成' % lang)
 

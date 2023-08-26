@@ -1,2 +1,2 @@
 go version
-go build -o ./bin/GoHelloPrime.exe GoHelloPrime.go
+go build -o ./bin/ GoHelloPrime.go

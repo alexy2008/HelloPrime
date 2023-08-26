@@ -20,10 +20,10 @@ class CsHelloPrime {
 
     private static Result PrimeByEratosthenes(long pos, int page, List<long> primeArray) {
         var sieve = new bool[page];
-        long maxInd = 0, maxPrime = 0;
-        for (var i = 1; i < primeArray.Count && primeArray[i] < Math.Sqrt(pos + page); i++) {
+        long maxInd = 0, maxPrime = 0, sqrLimit = (long)Math.Ceiling(Math.Sqrt(pos + page));
+        for (var i = 1; i < primeArray.Count && primeArray[i] < sqrLimit; i++) {
             var p = primeArray[i];
-            for (var j = (long)(Math.Ceiling((double)pos / p) * p); j < pos + page; j += p)
+            for (var j = ((pos + p - 1) / p ) * p; j < pos + page; j += p)
                 sieve[(int)(j - pos)] = true;
         }
         for (var i = 1; i < sieve.Length; i += 2)
