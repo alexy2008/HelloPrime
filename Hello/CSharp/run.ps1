@@ -6,8 +6,8 @@ param(
     [int]$r = 1
 )
 
-$ver = "go version"
-$command="./bin/GoHelloPrime"
+$ver = "dotnet --version"
+$command = "./bin/CsHelloPrime"
 
 if ($arg1.StartsWith("e")) { $arg1 = "1" + $arg1 }
 if ($arg2.StartsWith("e")) { $arg2 = "1" + $arg2 }

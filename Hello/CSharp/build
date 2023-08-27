@@ -1,0 +1,4 @@
+#!/bin/bash
+if [ ! -d "./bin" ]; then mkdir ./bin; fi
+dotnet --version
+dotnet build CsHelloPrime.csproj -o bin -c Release

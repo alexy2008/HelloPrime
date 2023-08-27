@@ -1,6 +1,6 @@
 #!/bin/bash
-ver="java --version"
-command="java -cp ./bin JHelloPrime"
+ver="dotnet --version"
+command="./bin/CsHelloPrime"
 
 arg1=${1:-100000}
 arg2=${2:-1000}
