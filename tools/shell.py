@@ -11,19 +11,14 @@ from rich.console import Console
 from rich.table import Table
 from rich.traceback import install
 
-import command
-
-# from rich.syntax import Syntax
-
 install()
+
+alias = {'c++':'Cpp','c#':'CSharp','cs':'CSharp'}
 
 is_windows = True
 osname = 'windows'
 tag = 'Hello'
 cur_path = '.'
-launch = ''
-launch_cmd = 'for /l %%i in (1,1,%s) do @%s'
-launch_sh = 'for i in $(seq %s);do %s;done'
 info = {}
 console = Console()
 
@@ -31,32 +26,21 @@ console = Console()
 def check_lang(lang):
     global tag, cur_path, info
 
-    if command[lang].get('name') is None:
-        command[lang]['name'] = lang.capitalize()
+    if alias.get(lang) is not None:
+        lang = alias[lang]
+    
+    info['lang'] = lang.capitalize()
 
-    info['lang'] = command[lang]['name']
-
-    dr = command[lang].get('dir')
-    if dr is None:
-        dr = command[lang]['name']
-
-    if Path(dr).is_dir():
-        cur_path = './%s' % dr
-
-    if len(glob.glob(r'%s/*Hello*' % cur_path)) > 0:
-        tag = 'Hello'
-    elif len(glob.glob(r'%s/*Hi*' % cur_path)) > 0:
-        tag = 'Hi'
-        command[lang]['run'] = command[lang]['run'].replace('Hello', 'Hi')
+    if Path(lang).is_dir():
+        cur_path = './%s' % lang
     else:
-        print('没有找到程序文件，请在正确目录下运行此脚本')
+        console.print('没有找到程序文件，请在正确目录下运行此脚本')
         return -1
 
-    info['tag'] = tag + 'Prime'
+    if info['lang'] == 'Cpp': info['lang'] = 'C++'
+    if info['lang'] == 'Csharp': info['lang'] = 'C#'
 
-    print('定位工作目录：', os.path.abspath(cur_path))
-    # syntax = Syntax.from_path("syntax.py", line_numbers=True)
-
+    console.print('定位工作目录：', os.path.abspath(cur_path))
     return 0
 
 
@@ -87,12 +71,13 @@ def cli():
     osname = platform.system()
 
     info['machine'] = platform.machine()
+    info['platform'] = platform.platform()
     is_windows = (osname == 'Windows')
 
-    console.print(platform.platform())
+    console.print(info['platform'])
 
     if is_windows:
-        launch = launch_cmd
+        launch = 'powershell.exe'
         info['os'] = platform.system()  + platform.release()
         p = subprocess.Popen('wmic cpu get /value', shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True)
         lns = p.stdout.readlines()
@@ -107,7 +92,7 @@ def cli():
                 info['clock'] = ln.split('=')[1].strip()
 
     else:
-        launch = launch_sh
+        launch = 'bash'
         if osname == 'Linux':
             import distro
             # print('【操作系统】：', platform.system(), distro.linux_distribution())
@@ -141,28 +126,24 @@ def cli():
             info['clock'] = 'N/A'
 
 
-    console.print('[green]欢迎使用[red]HelloPrime[/red] CLI for %s [green]' % osname)
+    console.print('[green]欢迎使用[red]HelloPrime[/red] Shell CLI for %s [green]' % osname)
     console.print('项目地址：[link=https://www.deepinjava.com]https://www.deepinjava.com[/link]')
     pass
 
 
 @cli.command(help='编译源代码')
 @click.argument('lang')
-@click.option('--docker', '-d', help='使用docker运行')
-def build(lang, docker):
+def build(lang):
     if check_lang(lang) < 0: return -1
-    if info['tag'] == 'HiPrime':
-        command[lang]['build'] = command[lang]['build'].replace('Hello', 'Hi')
-    if not is_windows: command[lang]['build'] = command[lang]['build'].replace('.exe', '')
-    c = command[lang]['build']
-    if docker is not None:
-        c = 'docker run -v %s:/usr/helloprime -w /usr/helloprime -it --rm %s sh -c \'%s\'' % (
-            os.path.abspath(cur_path), docker, c)
-        if is_windows: c = c.replace('\'', '\"')
-    print(c)
+
+    if is_windows:
+        c = 'powershell ./build.ps1'
+    else:
+        c = './build'
+
+    console.print(c)
     click.echo('开始编译%s' % lang)
-    p = subprocess.Popen(c, shell=True, stdout=subprocess.PIPE,
-                         cwd=cur_path)
+    p = subprocess.Popen(c, shell=True, stdout=subprocess.PIPE, cwd=cur_path)
     while p.poll() is None:
         out = p.stdout.readline().decode("utf8",  "ignore")
         print(out.replace('\n', '').replace('\r', ''))
@@ -170,62 +151,44 @@ def build(lang, docker):
 
 
 @cli.command(help='运行程序')
-@click.argument('langs', nargs=-1)
-@click.option('--limit', '-l', default='1000000', help='计算范围')
-@click.option('--page', '-p', default='10000', help='页面大小')
+@click.argument('args', nargs=-1)
+@click.option('--limit', '-l', default='100000', help='计算范围')
+@click.option('--page', '-p', default='1000', help='页面大小')
 @click.option('--mode', '-m', default=0, help='运行模式')
 @click.option('--thread', '-t', default=1, help='线程数')
 @click.option('--repeat', '-r', default=1, help='执行次数')
-@click.option('--docker', '-d', help='使用docker运行')
-def run(langs, limit, page, mode, thread, repeat, docker):
-    global info, launch
+def run(args, limit, page, mode, thread, repeat):
+    global info
     info['thread'] = thread
     info['repeat'] = repeat
     info['mode'] = mode
     info['thread'] = thread
-    info['docker'] = docker
+    info['docker'] = ''
     info['costs'] = []
 
-    lang = langs[0]
-    if len(langs) > 1: limit = langs[1]
-    if len(langs) > 2: page = langs[2]
-
-    if docker is not None:
-        c = 'docker run -it --rm %s  cat /etc/os-release' % docker
-        p = subprocess.Popen(c, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True)
-        lns = p.stdout.readlines()
-        if mode > 1: console.print(lns)
-        for ln in lns:
-            if ln.startswith('NAME='):
-                info['os'] = ln[5:-1]
-            if ln.startswith('VERSION_ID='):
-                info['os'] = info['os'] + " " + ln[11:-1]
-        info['os'] = info['os'].replace('"', '')
+    lang = args[0]
+    if len(args) > 1: limit = args[1]
+    if len(args) > 2: page = args[2]
 
     if check_lang(lang) < 0: return -1
-    if limit.startswith('e'): limit = '1' + limit
-    if page.startswith('e'): page = '1' + page
 
     nlimit = e2n(limit)
     info['limit'] = nlimit
     npage = e2n(page)
     info['page'] = npage
 
-    c = command[lang]['run'] % (nlimit, npage, mode, thread)
-    if is_windows and docker is None:
-        c = c.replace('/', '\\')
+    if is_windows:
+        c = 'powershell ./run.ps1 %s %s -m %s -t %s -r %s'
+    else:
+        c = './run %s %s -m %s -t %s -r %s'
 
-    if docker is not None: launch = launch_sh
-    c = launch % (repeat, c)
-    c = command[lang]['ver'] + ' && ' + c
-    if docker is not None:
-        c = 'docker run -v %s:/usr/helloprime -w /usr/helloprime -it --rm %s sh -c \'%s\'' % (
-            os.path.abspath(cur_path), docker, c)
-        if is_windows: c = c.replace('\'', '\"')
-    if mode > 1: print(c)
+    c = c % (limit, page, mode, thread, repeat)
 
-    p = subprocess.Popen(c, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True,
-                         cwd=cur_path)
+    if mode > 1: console.print(c)
+
+    p = subprocess.Popen(c, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True, cwd=cur_path)
+    
+    p.stdout.readline()
     out = p.stdout.readline().replace('\n', '').replace('\r', '')
     if mode > 1: print(out.replace('\n', '').replace('\r', ''), end='\r\n')
     pn = r'[0-9][0-9\.]+'
@@ -277,7 +240,7 @@ def proc_out(line):
     if r is not None:
         console.print(
             '[green]%s[/green] [cyan]Prime[/cyan] [yellow]I\'m[/yellow] [bright_red]%s[/bright_red] :smile:' % (
-                info['tag'][:-5], info['lang']), end='')
+                tag, info['lang']), end='')
         return 1
 
     if line.startswith('Calculate prime') or line.startswith('使用分区埃拉托色尼筛选法'):
@@ -288,7 +251,7 @@ def proc_out(line):
 
 
 def print_result():
-    global info
+    global info, tag
 
     if info['mode'] == 2: console.print(info)
     if info['mode'] == 1: console.print('time cost:' + str(info['costs']))
@@ -301,8 +264,8 @@ def print_result():
     info['mincost'] = fm_time(min(info.get('costs')))
     info['avgcost'] = fm_time(sum(info.get('costs')) / info['repeat'])
 
-    table.add_row('【语言】', info['lang'], '【版本】', info['version'], '【运行程序】', info['tag'])
-    table.add_row('【机器架构】', info['machine'], '【操作系统】', info['os'], '【Docker镜像】', info['docker'])
+    table.add_row('【语言】', info['lang'], '【版本】', info['version'],  '【操作系统】', info['os'])
+    # table.add_row('【机器架构】', info['machine'], '【操作系统】', info['os'], '【Docker镜像】', info['docker'])
     table.add_row('【页面大小】', n2s(info['page']), '【运行模式】', str(info['mode']), '【线程数】', str(info['thread']))
     table.add_row('【计算范围】', '%.0e(%s)' % (info['limit'], n2s(info['limit'])), '【素数数量】', info['maxind'], '【最大素数】',
                   str(info['maxprime']))
@@ -312,7 +275,6 @@ def print_result():
     console.rule('[green]运行结果[/] ' + time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
     console.rule('[cyan]【CPU】[/cyan][yellow]' + info['cpu'] + ' (' + info['core'] +' 核心 '+ info['lcore']+' 线程 ' + info['clock']+' MHz)[/yellow]')
     console.print(table)
-
 
 def fm_time(lt):
     temp = lt
@@ -338,7 +300,6 @@ def fm_time(lt):
         s = s + str(int(temp / s_per)) + '秒'
 
     return s
-
 
 if __name__ == '__main__':
     cli()

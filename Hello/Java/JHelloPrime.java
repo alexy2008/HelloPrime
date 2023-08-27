@@ -24,8 +24,6 @@ public class JHelloPrime {
         long maxInd = 0, maxPrime = 0, sqrLimit = (long) Math.ceil(Math.sqrt((pos + page)));
         for (var i = 1; i < primeArray.size() && primeArray.get(i) < sqrLimit; i++) {
             var p = primeArray.get(i);
-            // for (var j = ((long) (Math.ceil((double) pos / p))) * p; j < pos + page; j += p)
-            // for (var j = (pos % p == 0 ? pos / p : (pos / p) + 1) * p; j < pos + page; j+= p)
             for (var j = ((pos + p - 1) / p) * p; j < pos + page; j += p)
                 sieve[(int) (j - pos)] = true;
         }
