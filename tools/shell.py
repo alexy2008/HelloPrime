@@ -18,6 +18,7 @@ alias = {'c++':'Cpp','c#':'CSharp','cs':'CSharp'}
 
 is_windows = True
 osname = 'windows'
+launch = ''
 tag = 'Hello'
 cur_path = '.'
 info = {}
@@ -70,15 +71,13 @@ def cli():
     global is_windows, osname, launch, info
 
     osname = platform.system()
-
-    info['machine'] = platform.machine()
     info['platform'] = platform.platform()
     is_windows = (osname == 'Windows')
 
     console.print(info['platform'])
 
     if is_windows:
-        launch = 'powershell.exe'
+        launch = 'powershell.exe ./%s.ps1 '
         info['os'] = platform.system()  + platform.release()
         p = subprocess.Popen('wmic cpu get /value', shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True)
         lns = p.stdout.readlines()
@@ -93,12 +92,10 @@ def cli():
                 info['clock'] = ln.split('=')[1].strip()
 
     else:
-        launch = 'bash'
+        launch = 'bash ./%s '
         if osname == 'Linux':
             import distro
-            # print('【操作系统】：', platform.system(), distro.linux_distribution())
             info['os'] = distro.name()  + distro.version()
-            # print(info['os'])
             p = subprocess.Popen('cat /proc/cpuinfo', shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True)
             lns = p.stdout.readlines()
             for ln in lns:
@@ -136,11 +133,8 @@ def cli():
 @click.argument('lang')
 def build(lang):
     if check_lang(lang) < 0: return -1
-
-    if is_windows:
-        c = 'powershell ./build.ps1'
-    else:
-        c = 'bash ./build'
+    
+    c = launch % 'build'
 
     console.print(c)
     click.echo('开始编译%s' % lang)
@@ -178,12 +172,7 @@ def run(args, limit, page, mode, thread, repeat):
     npage = e2n(page)
     info['page'] = npage
 
-    if is_windows:
-        c = 'powershell ./run.ps1 %s %s -m %s -t %s -r %s'
-    else:
-        c = 'bash ./run %s %s -m %s -t %s -r %s'
-
-    c = c % (limit, page, mode, thread, repeat)
+    c = ((launch % 'run') + '%s %s -m %s -t %s -r %s') % (limit, page, mode, thread, repeat)
 
     if mode > 1: console.print(c)
 
