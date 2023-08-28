@@ -11,9 +11,7 @@ from rich.console import Console
 from rich.table import Table
 from rich.traceback import install
 
-import command
-
-# from rich.syntax import Syntax
+from command import command
 
 install()
 
