@@ -1,0 +1,6 @@
+#!/bin/bash
+ln -s ../Cpp/CppHelloPrime.cpp CppHelloPrime.cpp
+ln -s ../Java/JHelloPrime.java JHelloPrime.java
+ln -s ../CSharp/CsHelloPrime.cs CsHelloPrime.cs  
+ln -s ../Go/GoHelloPrime.go GoHelloPrime.go
+ln -s ../Rust/RsHelloPrime.rs RsHelloPrime.rs

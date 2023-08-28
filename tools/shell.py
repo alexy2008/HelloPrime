@@ -10,6 +10,7 @@ from pathlib import Path
 from rich.console import Console
 from rich.table import Table
 from rich.traceback import install
+from primelist import primeList
 
 install()
 
@@ -139,7 +140,7 @@ def build(lang):
     if is_windows:
         c = 'powershell ./build.ps1'
     else:
-        c = './build'
+        c = 'bash ./build'
 
     console.print(c)
     click.echo('开始编译%s' % lang)
@@ -180,7 +181,7 @@ def run(args, limit, page, mode, thread, repeat):
     if is_windows:
         c = 'powershell ./run.ps1 %s %s -m %s -t %s -r %s'
     else:
-        c = './run %s %s -m %s -t %s -r %s'
+        c = 'bash ./run %s %s -m %s -t %s -r %s'
 
     c = c % (limit, page, mode, thread, repeat)
 
@@ -217,24 +218,40 @@ def run(args, limit, page, mode, thread, repeat):
 
     print_result()
 
+def showcode(lan):
+    from rich.syntax import Syntax
+    with open("./Java/JHelloPrime.java", "r") as f:
+        code = f.read()
+    syntax = Syntax(code, "java", theme="monokai", line_numbers=True)
+    console.print(syntax)
+
 
 def proc_out(line):
     global info
 
     pn = re.compile(r'(?<=the )[\d ]+?(?=th)|(?<=prime is )\d+|(?<=time cost: )\d+')
     r = re.findall(pn, str(line))
-
     if len(r) > 0:
         # console.print(r)
-        info['maxind'] = r[0]
-        info['maxprime'] = r[1]
+        info['maxind'] = int(r[0])
+        info['maxprime'] = int(r[1])
         info['costs'].append(int(r[2]))
-        console.print('%.0e([yellow]%s[/yellow])以内共有[yellow]%s[/yellow]个素数，最大素数为[yellow]%s[/yellow]，'
+        console.print('%.0e([yellow]%s[/yellow])以内共有[yellow]%d[/yellow]个素数，最大素数为[yellow]%d[/yellow]，'
                       '[bright_red]%s[/bright_red]耗时[red]%d[/red]毫秒' %
                       (info['limit'], n2s(info['limit']), info['maxind'], info['maxprime'], info['lang'], int(r[2])),
                       end='\r\n')
-        return 3
 
+        if info['limit'] in primeList:
+            ind = primeList[info['limit']]['maxind']
+            maxp = primeList[info['limit']]['maxprime']
+            # print('%d -- %d' % (ind, maxp))
+            if ind == info['maxind'] and maxp == info['maxprime']:
+                console.print('计算结果校验[green]正确！[/green]')
+            else:
+                console.print('[red]计算结果校验错误！[/red]正确结果应为：%d-%d 请检查' % (ind, maxp))
+        
+        return 3
+    
     pn = 'Hi|Hello Prime.*I.*'
     r = re.match(pn, str(line))
     if r is not None:
@@ -267,7 +284,7 @@ def print_result():
     table.add_row('【语言】', info['lang'], '【版本】', info['version'],  '【操作系统】', info['os'])
     # table.add_row('【机器架构】', info['machine'], '【操作系统】', info['os'], '【Docker镜像】', info['docker'])
     table.add_row('【页面大小】', n2s(info['page']), '【运行模式】', str(info['mode']), '【线程数】', str(info['thread']))
-    table.add_row('【计算范围】', '%.0e(%s)' % (info['limit'], n2s(info['limit'])), '【素数数量】', info['maxind'], '【最大素数】',
+    table.add_row('【计算范围】', '%.0e(%s)' % (info['limit'], n2s(info['limit'])), '【素数数量】', str(info['maxind']), '【最大素数】',
                   str(info['maxprime']))
     table.add_row('【计算次数】', str(info['repeat']), '【最好成绩】', '[bold magenta][red]' + info['mincost'], '【平均成绩】',
                   info['avgcost'])
@@ -286,8 +303,8 @@ def fm_time(lt):
     if lt < s_per:
         return str(int(lt)) + '毫秒'
     if lt < m_per:
-        return '%.2f秒' % (lt / 1000)
-
+        return '%.2f秒' % (lt / 1000)   
+        
     if int(temp / h_per) > 0:
         s = s + str(int(temp / h_per)) + '时'
 
