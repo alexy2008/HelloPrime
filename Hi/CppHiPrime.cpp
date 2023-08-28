@@ -6,7 +6,6 @@ typedef long long llong;
 using namespace std;
 
 llong _maxInd = 0;
-llong _offSet = 0;;
 llong _prime[150000];
 llong _maxPrime;
 
@@ -29,12 +28,13 @@ void primeByEuler(int page) {
 void primeByEratosthenes(llong pos, int page) {
     bool* num = new bool[page] ;
     for (int i = 0; i < page; i++) num[i] = false;
-    for (int i = 0; _prime[i] != 0 && _prime[i] < sqrt(pos + page); i++) {
+    llong sqrtLimit = (llong) ceil(sqrt(pos + page));
+    for (int i = 0; _prime[i] != 0 && _prime[i] < sqrtLimit; i++) {
         llong p = _prime[i];
-        for (llong j = ceil(pos * 1.0 / p) * p; j < pos + (llong) page; j += p)
+        for (llong j = (pos % p == 0 ? pos / p : (pos / p) + 1) * p; j < pos + page; j += p)
             num[(int) (j - pos)] = true;
     }
-    for (int i = 0; i < page; i++)
+    for (int i = 1; i < page; i+=2)
         if (!num[i]) {
             _maxPrime = pos + i;
             _maxInd++;
