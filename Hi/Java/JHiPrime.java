@@ -8,12 +8,14 @@ public class JHiPrime {
         var sieve = new boolean[page];
         primeArray = new ArrayList<>();
         for (var i = 2; i < page; i++) {
-            if (!sieve[i])
-                primeArray.add((long) i);
+            if (!sieve[i]){
+                maxPrime = i;
+                primeArray.add(maxPrime);
+                maxInd++;
+            }
             for (var j = 0; (long) i * primeArray.get(j) < page; j++) {
                 sieve[(int) (i * primeArray.get(j))] = true;
-                if (i % primeArray.get(j) == 0)
-                    break;
+                if (i % primeArray.get(j) == 0) break;
             }
         }
     }
