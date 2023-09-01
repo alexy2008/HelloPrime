@@ -1,4 +1,4 @@
 #!/bin/bash
 if [ ! -d "./bin" ]; then mkdir ./bin; fi
 g++ --version
-g++ CppHelloPrime.cpp -lpthread -lm -O3 -o ./bin/CppHelloPrime
+g++ CppHelloPrime.cpp  -std=c++11 -lpthread -lm -O3 -o ./bin/CppHelloPrime
