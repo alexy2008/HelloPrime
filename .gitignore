@@ -14,9 +14,4 @@ target/
 .DS_Store
 .vscode/*
 __pycache__/
-
-Hello/.src/CppHelloPrime.cpp
-Hello/.src/CsHelloPrime.cs
-Hello/.src/GoHelloPrime.go
-Hello/.src/JHelloPrime.java
-Hello/.src/RsHelloPrime.rs
+_src/
