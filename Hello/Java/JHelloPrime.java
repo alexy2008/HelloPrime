@@ -66,39 +66,6 @@ public class JHelloPrime {
         return new Result(maxInd.get(), maxPrime.get());
     }
 
-    public static Result SieveOfAtkin(int limit) {
-        long maxPrime = 5, maxInd = 2;
-        System.out.println("Atk");
-        boolean sieve[] = new boolean[limit + 1];
-        int up = (int)Math.sqrt(limit);
-
-        for (int x = 1; x  <= up; x++) {
-            for (int y = 1; y  <= up; y++) {
-                int n = (4 * x * x) + (y * y);
-                if (n <= limit && (n % 12 == 1 || n % 12 == 5))
-                    sieve[n] ^= true;
-                n = (3 * x * x) + (y * y);
-                if (n <= limit && n % 12 == 7)
-                    sieve[n] ^= true;
-                n = (3 * x * x) - (y * y);
-                if (x > y && n <= limit && n % 12 == 11)
-                    sieve[n] ^= true;
-            }
-        }
-        for (int r = 5; r * r <= limit; r++) {
-            if (sieve[r]) {
-                for (int i = r * r; i <= limit; i += r * r)
-                    sieve[i] = false;
-            }
-        }
-        for (int a = 0; a <= limit; a++)
-            if (sieve[a]){
-                maxInd ++;
-                maxPrime = a;
-            }
-        return new Result(maxInd, maxPrime);           
-    }
-
     public record Result(long maxInd, long maxPrime) {}
 
     public static void main(String[] args) throws InterruptedException {
@@ -109,12 +76,7 @@ public class JHelloPrime {
         int threadNumber = Integer.parseInt(args[3]);
         System.out.println("Calculate prime numbers up to " + limit + " using partitioned Eratosthenes sieve");
         var startTime = System.currentTimeMillis();
-        Result r ;
-        if (page == 0) {
-            r = SieveOfAtkin((int)limit);  
-        }else{
-            r = calculate(limit, page, threadNumber);  
-        }
+        Result r = calculate(limit, page, threadNumber);  
         
         var totalTime = System.currentTimeMillis() - startTime;
         System.out.printf("Java using %d thread(s) finished within %.0e the %dth prime is %d, time cost: %d ms \n",

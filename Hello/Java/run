@@ -1,6 +1,6 @@
 #!/bin/bash
 ver="java --version"
-command="java -cp ./bin JHelloPrime"
+command="java  -Xms2G -Xmx2G -XX:+UseParallelGC -cp ./bin JHelloPrime"
 
 arg1=${1:-100000}
 arg2=${2:-1000}
