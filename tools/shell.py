@@ -1,4 +1,5 @@
 # coding=utf-8
+from datetime import datetime
 import glob
 import platform
 import click
@@ -11,6 +12,9 @@ from rich.console import Console
 from rich.table import Table
 from rich.traceback import install
 from primelist import primeList
+import sqlite3
+from sqlite3 import Error
+import time
 
 install()
 
@@ -71,14 +75,16 @@ def cli():
     global is_windows, osname, launch, info
 
     osname = platform.system()
+    info['ostype'] = osname
     info['platform'] = platform.platform()
+    info['hostname'] = platform.node()
     is_windows = (osname == 'Windows')
 
-    console.print(info['platform'])
+    console.print('【平台信息】' + info['platform'])
 
     if is_windows:
         launch = 'powershell.exe ./%s.ps1 '
-        info['os'] = platform.system()  + platform.release()
+        info['os'] = platform.system() + ' ' + platform.release()
         p = subprocess.Popen('wmic cpu get /value', shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True)
         lns = p.stdout.readlines()
         for ln in lns:
@@ -95,7 +101,7 @@ def cli():
         launch = 'bash ./%s '
         if osname == 'Linux':
             import distro
-            info['os'] = distro.name()  + distro.version()
+            info['os'] = distro.name() + ' ' + distro.version()
             p = subprocess.Popen('cat /proc/cpuinfo', shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True)
             lns = p.stdout.readlines()
             for ln in lns:
@@ -109,7 +115,7 @@ def cli():
                     info['clock'] = ln.split(':')[1].strip()
         elif osname == 'Darwin':
             osname == 'MacOS'
-            info['os'] = ''.join(platform.platform().split('-')[:2])
+            info['os'] = info['platform'].split('-')[1]  + ' ' + info['platform'].split('-')[2] 
 
             p = subprocess.Popen('sysctl machdep.cpu', shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True)
             lns = p.stdout.readlines()
@@ -136,7 +142,6 @@ def build(lang):
     
     c = launch % 'build'
 
-    console.print(c)
     click.echo('开始编译%s' % lang)
     p = subprocess.Popen(c, shell=True, stdout=subprocess.PIPE, cwd=cur_path)
     while p.poll() is None:
@@ -173,8 +178,7 @@ def run(args, limit, page, mode, thread, repeat):
     info['page'] = npage
 
     c = ((launch % 'run') + '%s %s -m %s -t %s -r %s') % (limit, page, mode, thread, repeat)
-
-    if mode > 1: console.print(c)
+    console.print(c)
 
     p = subprocess.Popen(c, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True, cwd=cur_path)
     
@@ -184,7 +188,7 @@ def run(args, limit, page, mode, thread, repeat):
     pn = r'[0-9][0-9\.]+'
     v = re.findall(pn, out)
     if len(v) > 0:
-        print(v)
+        # print(v)
         for vi in v:
             if '.' in vi:
                 info['version'] = vi
@@ -192,6 +196,7 @@ def run(args, limit, page, mode, thread, repeat):
         if info.get('version') is None:
             info['version'] = v[0]
         console.print(out, end='\r\n')
+        info['ver_info'] = out
     else:
         info['version'] = 'N/A'
 
@@ -252,12 +257,105 @@ def proc_out(line):
     if line.startswith('Calculate prime') or line.startswith('使用分区埃拉托色尼筛选法'):
         console.print(' ---- 用分区埃拉托色尼筛选法计算[cyan]%.0e[/cyan]以内素数' % info['limit'], end='\r\n')
         return 2
+    
+    if line.startswith('Run the command'):
+        console.print(line.replace('Run the command','运行指令'), end='\r\n')
+        return 2   
 
     return 0
 
+def create_connection(db_file):
+    """ 创建一个数据库连接到SQLite数据库 """
+    conn = None
+    try:
+        conn = sqlite3.connect(db_file)
+        return conn
+    except Error as e:
+        console.print(e)
+    return conn
+
+def create_table(conn):
+    """ 创建数据库表 """
+    sql = '''
+        CREATE TABLE IF NOT EXISTS results (
+            lang TEXT NOT NULL,
+            version TEXT NOT NULL,
+            os TEXT NOT NULL,
+            ostype TEXT NOT NULL,
+            cpu TEXT NOT NULL,
+            core INTEGER NOT NULL,
+            lcore INTEGER NOT NULL,
+            clock REAL,
+            page INTEGER NOT NULL,
+            mode INTEGER NOT NULL,
+            thread INTEGER NOT NULL,
+            upto REAL NOT NULL,
+            maxind INTEGER NOT NULL,
+            maxprime INTEGER NOT NULL,
+            rep INTEGER NOT NULL,
+            mincost REAL NOT NULL,
+            avgcost REAL NOT NULL,
+            creatdt TEXT NOT NULL,
+            ver_info TEXT,
+            platform TEXT NOT NULL,
+            hostname TEXT NOT NULL,
+            PRIMARY KEY ("hostname", "creatdt")
+        );
+    '''
+    try:
+        c = conn.cursor()
+        c.execute(sql)
+    except Error as e:
+        console.print(e)
+
+def insert_info(conn, info):
+    """ 将信息插入到数据库中 """
+    sql = '''
+        INSERT INTO results (
+            lang, version, os, ostype, cpu, core, lcore, clock, page, mode, thread, upto, maxind, maxprime,
+            rep, mincost, avgcost, creatdt, ver_info, platform, hostname) VALUES (
+            ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+    '''
+    data = (
+        info['lang'],
+        info['version'],
+        info['os'],
+        info['ostype'],
+        info['cpu'],
+        info['core'],
+        info['lcore'],
+        info['clock'],
+        info['page'],
+        info['mode'],
+        info['thread'],
+        info['limit'],
+        info['maxind'],
+        info['maxprime'],
+        info['repeat'],
+        info['mincost'],
+        info['avgcost'],
+        # time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()),
+        datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")[:-3],
+        info['ver_info'],
+        info['platform'],
+        info['hostname']
+    )
+
+    try:
+        cur = conn.cursor()
+        cur.execute(sql, data)
+        conn.commit()
+    except Error as e:
+        console.print(e)
 
 def print_result():
     global info, tag
+
+    # 建立数据库连接
+    conn = create_connection("../db/result.db")
+    
+    # 创建表
+    create_table(conn)
 
     if info['mode'] == 2: console.print(info)
     if info['mode'] == 1: console.print('time cost:' + str(info['costs']))
@@ -267,20 +365,24 @@ def print_result():
         table.add_column('id%s' % i, style="cyan")
         table.add_column('ct%s' % i, style="yellow")
 
-    info['mincost'] = fm_time(min(info.get('costs')))
-    info['avgcost'] = fm_time(sum(info.get('costs')) / info['repeat'])
+    info['mincost'] = min(info.get('costs'))
+    info['avgcost'] = sum(info.get('costs')) / info['repeat']
 
     table.add_row('【语言】', info['lang'], '【版本】', info['version'],  '【操作系统】', info['os'])
     # table.add_row('【机器架构】', info['machine'], '【操作系统】', info['os'], '【Docker镜像】', info['docker'])
     table.add_row('【页面大小】', n2s(info['page']), '【运行模式】', str(info['mode']), '【线程数】', str(info['thread']))
     table.add_row('【计算范围】', '%.0e(%s)' % (info['limit'], n2s(info['limit'])), '【素数数量】', str(info['maxind']), '【最大素数】',
                   str(info['maxprime']))
-    table.add_row('【计算次数】', str(info['repeat']), '【最好成绩】', '[bold magenta][red]' + info['mincost'], '【平均成绩】',
-                  info['avgcost'])
+    # table.add_row('【计算次数】', str(info['repeat']), '【最好成绩】', '[bold magenta][red]' + info['mincost'], '【平均成绩】',
+    #               info['avgcost'])
+    table.add_row('【计算次数】', str(info['repeat']), '【最好成绩】', f'[bold magenta][red]{fm_time(info["mincost"])}', '【平均成绩】', fm_time(info['avgcost']))
 
     console.rule('[green]运行结果[/] ' + time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
     console.rule('[cyan]【CPU】[/cyan][yellow]' + info['cpu'] + ' (' + info['core'] +' 核心 '+ info['lcore']+' 线程 ' + info['clock']+' MHz)[/yellow]')
     console.print(table)
+
+    insert_info(conn, info)
+    conn.close()
 
 def fm_time(lt):
     temp = lt
