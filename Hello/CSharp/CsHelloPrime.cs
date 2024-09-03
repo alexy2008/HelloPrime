@@ -35,7 +35,9 @@ class CsHelloPrime {
     }
 
     public static Result Calculate(long limit, int page,  int threadNumber) {
-        var primerList = PrimeByEuler(page);
+        int n = 1;
+        while (page * n < Math.Sqrt(limit)) n++;    
+        var primerList = PrimeByEuler(page * n);
         long maxInd = primerList.Count;
         var maxPrime = primerList[^1];
         var task = new Thread[threadNumber];
@@ -44,12 +46,12 @@ class CsHelloPrime {
             var tid = i;
             task[tid] = new Thread(() => {
                 long localMaxPrime = 0, localMaxInd = 0;
-                for (var j = tid + 1; j < limit / page; j += threadNumber) {
+                for (var j = tid + n; j < limit / page; j += threadNumber) {
                     var rs = PrimeByEratosthenes(page * (long)j, page, primerList);
                     localMaxPrime = rs.MaxPrime;
                     localMaxInd += rs.MaxInd;
                 }
-                if ((tid + 1) % threadNumber == ((limit / page) - 1) % threadNumber) maxPrime = localMaxPrime;
+                if ((tid + 1) % threadNumber == ((limit / page) - n) % threadNumber) maxPrime = localMaxPrime;
                 Interlocked.Add(ref maxInd, localMaxInd);
             });
             task[tid].Start();

@@ -14,4 +14,4 @@ target/
 .DS_Store
 .vscode/*
 __pycache__/
-_src/
+myenv/

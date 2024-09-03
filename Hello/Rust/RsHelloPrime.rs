@@ -45,7 +45,11 @@ fn prime_by_eratosthenes(pos: usize, page: usize, prime_array: &Vec<usize>) -> (
 }
 
 fn calculate(limit: usize, page: usize, thread_number: usize) -> (usize, usize) {
-    let primer_list = prime_by_euler(page);
+    let mut n = 1;
+    while page * n < (limit as f64).sqrt() as usize {
+        n += 1;
+    }
+    let primer_list = prime_by_euler(page * n);
     let mut max_ind = primer_list.len();
     let mut max_prime = primer_list[max_ind - 1];
     let mut task: Vec<JoinHandle<()>> = Vec::new();
@@ -56,7 +60,7 @@ fn calculate(limit: usize, page: usize, thread_number: usize) -> (usize, usize) 
         task.push(thread::spawn(move || {
             let mut local_max_prime = 0;
             let mut local_max_ind = 0;
-            let mut j = i + 1;
+            let mut j = i + n;
             while j < limit / page {
                 let r = prime_by_eratosthenes(page * j, page, &pl);
                 local_max_ind += r.0;

@@ -38,7 +38,9 @@ func primeByEratosthenes(pos int, page int, primeArray []int) (int, int) {
 }
 
 func calculate(limit int, page int, threadNumber int) (int, int) {
-	primeArray := primeByEuler(page)
+	n := 1
+	for page*n < int(math.Sqrt(float64(limit))) { n++ }
+	primeArray := primeByEuler(page * n)
 	maxInd, maxPrime := len(primeArray), primeArray[(len(primeArray)-1)]
 	chanMaxInd := make(chan int, threadNumber)
 	chanMaxPrime := make(chan int, threadNumber)
@@ -47,7 +49,7 @@ func calculate(limit int, page int, threadNumber int) (int, int) {
 		tid := i
 		go func() {
 			var localMaxPrime, localMaxInd int
-			for j := tid + 1; j < limit/page; j += threadNumber {
+			for j := tid + n; j < limit/page; j += threadNumber {
 				ind, mp := primeByEratosthenes(page*j, page, primeArray)
 				localMaxPrime = mp
 				localMaxInd += ind

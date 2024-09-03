@@ -115,7 +115,7 @@ def cli():
                     info['clock'] = ln.split(':')[1].strip()
         elif osname == 'Darwin':
             osname == 'MacOS'
-            info['os'] = info['platform'].split('-')[1]  + ' ' + info['platform'].split('-')[2] 
+            info['os'] = info['platform'].split('-')[0]  + ' ' + info['platform'].split('-')[1] 
 
             p = subprocess.Popen('sysctl machdep.cpu', shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True)
             lns = p.stdout.readlines()
@@ -206,9 +206,10 @@ def run(args, limit, page, mode, thread, repeat):
             # if p.poll() is not None and not out : break
             k = proc_out(out)
             if mode > 1 or (k == 0 and mode > 0): console.print(out, end='\r\n')
-
+            if k < 0: return k
         except Exception as ex:
             print('异常：' + str(ex))
+            return -1
 
     print_result()
 
@@ -243,6 +244,7 @@ def proc_out(line):
                 console.print('计算结果校验[green]正确！[/green]')
             else:
                 console.print('[red]计算结果校验错误！[/red]正确结果应为：%d-%d 请检查' % (ind, maxp))
+                return -1
         
         return 3
     
