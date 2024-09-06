@@ -15,6 +15,8 @@ from primelist import primeList
 import sqlite3
 from sqlite3 import Error
 import time
+import psutil
+import cpuinfo
 
 install()
 
@@ -85,49 +87,52 @@ def cli():
     if is_windows:
         launch = 'powershell.exe ./%s.ps1 '
         info['os'] = platform.system() + ' ' + platform.release()
-        p = subprocess.Popen('wmic cpu get /value', shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True)
-        lns = p.stdout.readlines()
-        for ln in lns:
-            if ln.startswith('Name='):
-                info['cpu'] = ln.split('=')[1].strip()
-            if ln.startswith('NumberOfCores='):
-                info['core'] = ln.split('=')[1].strip()
-            if ln.startswith('NumberOfLogicalProcessors='):
-                info['lcore'] = ln.split('=')[1].strip()
-            if ln.startswith('MaxClockSpeed='):
-                info['clock'] = ln.split('=')[1].strip()
+        # p = subprocess.Popen('wmic cpu get /value', shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True)
+        # lns = p.stdout.readlines()
+        # for ln in lns:
+        #     if ln.startswith('Name='):
+        #         info['cpu'] = ln.split('=')[1].strip()
+        #     if ln.startswith('NumberOfCores='):
+        #         info['core'] = ln.split('=')[1].strip()
+        #     if ln.startswith('NumberOfLogicalProcessors='):
+        #         info['lcore'] = ln.split('=')[1].strip()
+        #     if ln.startswith('MaxClockSpeed='):
+        #         info['clock'] = ln.split('=')[1].strip()
 
     else:
         launch = 'bash ./%s '
         if osname == 'Linux':
             import distro
             info['os'] = distro.name() + ' ' + distro.version()
-            p = subprocess.Popen('cat /proc/cpuinfo', shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True)
-            lns = p.stdout.readlines()
-            for ln in lns:
-                if ln.startswith('model name'):
-                    info['cpu'] = ln.split(':')[1].strip()
-                if ln.startswith('cpu cores'):
-                    info['core'] = ln.split(':')[1].strip()
-                if ln.startswith('siblings'):
-                    info['lcore'] = ln.split(':')[1].strip()
-                if ln.startswith('cpu MHz'):
-                    info['clock'] = ln.split(':')[1].strip()
+            # p = subprocess.Popen('cat /proc/cpuinfo', shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True)
+            # lns = p.stdout.readlines()
+            # for ln in lns:
+            #     if ln.startswith('model name'):
+            #         info['cpu'] = ln.split(':')[1].strip()
+            #     if ln.startswith('cpu cores'):
+            #         info['core'] = ln.split(':')[1].strip()
+            #     if ln.startswith('siblings'):
+            #         info['lcore'] = ln.split(':')[1].strip()
+            #     if ln.startswith('cpu MHz'):
+            #         info['clock'] = ln.split(':')[1].strip()
         elif osname == 'Darwin':
             osname == 'MacOS'
             info['os'] = info['platform'].split('-')[0]  + ' ' + info['platform'].split('-')[1] 
 
-            p = subprocess.Popen('sysctl machdep.cpu', shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True)
-            lns = p.stdout.readlines()
-            for ln in lns:
-                if ln.startswith('machdep.cpu.brand_string'):
-                    info['cpu'] = ln.split(':')[1].strip()
-                if ln.startswith('machdep.cpu.core_count'):
-                    info['core'] = ln.split(':')[1].strip()
-                if ln.startswith('machdep.cpu.thread_count'):
-                    info['lcore'] = ln.split(':')[1].strip()
+            # p = subprocess.Popen('sysctl machdep.cpu', shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True)
+            # lns = p.stdout.readlines()
+            # for ln in lns:
+            #     if ln.startswith('machdep.cpu.brand_string'):
+            #         info['cpu'] = ln.split(':')[1].strip()
+            #     if ln.startswith('machdep.cpu.core_count'):
+            #         info['core'] = ln.split(':')[1].strip()
+            #     if ln.startswith('machdep.cpu.thread_count'):
+            #         info['lcore'] = ln.split(':')[1].strip()
 
-            info['clock'] = 'N/A'
+        info['cpu'] = cpuinfo.get_cpu_info().get('brand_raw')
+        info['core'] = str(psutil.cpu_count(logical=False))
+        info['lcore'] = str(psutil.cpu_count(logical=True))
+        info['clock'] = str(psutil.cpu_freq().current)
 
 
     console.print('[green]欢迎使用[red]HelloPrime[/red] Shell CLI for %s [green]' % osname)
