@@ -1,6 +1,8 @@
 # coding=utf-8
+import mysql.connector
+from mysql.connector import Error
+import configparser
 from datetime import datetime
-import glob
 import platform
 import click
 import os
@@ -117,7 +119,7 @@ def cli():
             #         info['clock'] = ln.split(':')[1].strip()
         elif osname == 'Darwin':
             osname == 'MacOS'
-            info['os'] = info['platform'].split('-')[0]  + ' ' + info['platform'].split('-')[1] 
+            info['os'] = f"{info['platform'].split('-')[0]} {info['platform'].split('-')[1]}"
 
             # p = subprocess.Popen('sysctl machdep.cpu', shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True)
             # lns = p.stdout.readlines()
@@ -138,7 +140,6 @@ def cli():
     console.print('[green]欢迎使用[red]HelloPrime[/red] Shell CLI for %s [green]' % osname)
     console.print('项目地址：[link=https://www.deepinjava.com]https://www.deepinjava.com[/link]')
     pass
-
 
 @cli.command(help='编译源代码')
 @click.argument('lang')
@@ -271,49 +272,27 @@ def proc_out(line):
 
     return 0
 
-def create_connection(db_file):
-    """ 创建一个数据库连接到SQLite数据库 """
+def load_db_config(config_file):
+    """ 从配置文件加载数据库连接信息 """
+    config = configparser.ConfigParser()
+    config.read(config_file)
+    db_config = {
+        'host': config.get('mysql', 'host'),
+        'user': config.get('mysql', 'user'),
+        'password': config.get('mysql', 'password'),
+        'database': config.get('mysql', 'database')
+    }
+    return db_config
+
+def create_connection(db_config):
+    """ 创建一个数据库连接到MySQL数据库 """
     conn = None
     try:
-        conn = sqlite3.connect(db_file)
+        conn = mysql.connector.connect(**db_config)
         return conn
     except Error as e:
-        console.print(e)
+        print(e)
     return conn
-
-def create_table(conn):
-    """ 创建数据库表 """
-    sql = '''
-        CREATE TABLE IF NOT EXISTS results (
-            lang TEXT NOT NULL,
-            version TEXT NOT NULL,
-            os TEXT NOT NULL,
-            ostype TEXT NOT NULL,
-            cpu TEXT NOT NULL,
-            core INTEGER NOT NULL,
-            lcore INTEGER NOT NULL,
-            clock REAL,
-            page INTEGER NOT NULL,
-            mode INTEGER NOT NULL,
-            thread INTEGER NOT NULL,
-            upto REAL NOT NULL,
-            maxind INTEGER NOT NULL,
-            maxprime INTEGER NOT NULL,
-            rep INTEGER NOT NULL,
-            mincost REAL NOT NULL,
-            avgcost REAL NOT NULL,
-            creatdt TEXT NOT NULL,
-            ver_info TEXT,
-            platform TEXT NOT NULL,
-            hostname TEXT NOT NULL,
-            PRIMARY KEY ("hostname", "creatdt")
-        );
-    '''
-    try:
-        c = conn.cursor()
-        c.execute(sql)
-    except Error as e:
-        console.print(e)
 
 def insert_info(conn, info):
     """ 将信息插入到数据库中 """
@@ -321,7 +300,7 @@ def insert_info(conn, info):
         INSERT INTO results (
             lang, version, os, ostype, cpu, core, lcore, clock, page, mode, thread, upto, maxind, maxprime,
             rep, mincost, avgcost, creatdt, ver_info, platform, hostname) VALUES (
-            ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+             %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);
     '''
     data = (
         info['lang'],
@@ -348,6 +327,10 @@ def insert_info(conn, info):
         info['hostname']
     )
 
+    # 打印SQL语句及其参数
+    # print("Executing SQL:", sql)
+    # print("With data:", data)
+
     try:
         cur = conn.cursor()
         cur.execute(sql, data)
@@ -358,11 +341,6 @@ def insert_info(conn, info):
 def print_result():
     global info, tag
 
-    # 建立数据库连接
-    conn = create_connection("../db/result.db")
-    
-    # 创建表
-    create_table(conn)
 
     if info['mode'] == 2: console.print(info)
     if info['mode'] == 1: console.print('time cost:' + str(info['costs']))
@@ -374,24 +352,30 @@ def print_result():
 
     info['mincost'] = min(info.get('costs'))
     info['avgcost'] = sum(info.get('costs')) / info['repeat']
-
+   
     table.add_row('【语言】', info['lang'], '【版本】', info['version'],  '【操作系统】', info['os'])
-    # table.add_row('【机器架构】', info['machine'], '【操作系统】', info['os'], '【Docker镜像】', info['docker'])
     table.add_row('【页面大小】', n2s(info['page']), '【运行模式】', str(info['mode']), '【线程数】', str(info['thread']))
-    table.add_row('【计算范围】', '%.0e(%s)' % (info['limit'], n2s(info['limit'])), '【素数数量】', str(info['maxind']), '【最大素数】',
-                  str(info['maxprime']))
-    # table.add_row('【计算次数】', str(info['repeat']), '【最好成绩】', '[bold magenta][red]' + info['mincost'], '【平均成绩】',
-    #               info['avgcost'])
+    table.add_row('【计算范围】', '%.0e(%s)' % (info['limit'], n2s(info['limit'])), '【素数数量】', str(info['maxind']), '【最大素数】', str(info['maxprime']))
+
     table.add_row('【计算次数】', str(info['repeat']), '【最好成绩】', f'[bold magenta][red]{fm_time(info["mincost"])}', '【平均成绩】', fm_time(info['avgcost']))
 
-    console.rule('[green]运行结果[/] ' + time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
-    console.rule('[cyan]【CPU】[/cyan][yellow]' + info['cpu'] + ' (' + info['core'] +' 核心 '+ info['lcore']+' 线程 ' + info['clock']+' MHz)[/yellow]')
+    console.rule(f'[green]运行结果[/] {time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())}')
+    console.rule(f'[cyan]【CPU】[/cyan][yellow]{info["cpu"]} ({info["core"]}核心 {info["lcore"]}线程 {info["clock"]}MHz)[/yellow]')    
+
+    # console.rule('[green]运行结果[/] ' + time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
+    # console.rule('[cyan]【CPU】[/cyan][yellow]' + info['cpu'] + ' (' + str(info['core'])+' 核心 '+ str(info['lcore'])+' 线程 ' + str(info['clock'])+' MHz)[/yellow]')
     console.print(table)
+
+    # 从配置文件加载数据库连接信息
+    db_config = load_db_config('..\\tools\\config.ini')
+    
+    # 建立数据库连接
+    conn = create_connection(db_config)
 
     insert_info(conn, info)
     conn.close()
 
-def fm_time(lt):
+def fm_time(lt):    
     temp = lt
     h_per = 60 * 60 * 1000
     m_per = 60 * 1000
