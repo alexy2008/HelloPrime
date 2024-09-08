@@ -131,10 +131,10 @@ def cli():
             #     if ln.startswith('machdep.cpu.thread_count'):
             #         info['lcore'] = ln.split(':')[1].strip()
 
-        info['cpu'] = cpuinfo.get_cpu_info().get('brand_raw')
-        info['core'] = str(psutil.cpu_count(logical=False))
-        info['lcore'] = str(psutil.cpu_count(logical=True))
-        info['clock'] = str(psutil.cpu_freq().current)
+    info['cpu'] = cpuinfo.get_cpu_info().get('brand_raw')
+    info['core'] = str(psutil.cpu_count(logical=False))
+    info['lcore'] = str(psutil.cpu_count(logical=True))
+    info['clock'] = str(psutil.cpu_freq().current)
 
 
     console.print('[green]欢迎使用[red]HelloPrime[/red] Shell CLI for %s [green]' % osname)
@@ -367,7 +367,7 @@ def print_result():
     console.print(table)
 
     # 从配置文件加载数据库连接信息
-    db_config = load_db_config('..\\tools\\config.ini')
+    db_config = load_db_config('..//tools//config.ini')
     
     # 建立数据库连接
     conn = create_connection(db_config)
