@@ -132,10 +132,9 @@ def cli():
             #         info['lcore'] = ln.split(':')[1].strip()
 
     info['cpu'] = cpuinfo.get_cpu_info().get('brand_raw')
-    info['core'] = str(psutil.cpu_count(logical=False))
-    info['lcore'] = str(psutil.cpu_count(logical=True))
-    info['clock'] = str(psutil.cpu_freq().current)
-
+    info['core'] = psutil.cpu_count(logical=False)
+    info['lcore'] = psutil.cpu_count(logical=True)
+    info['clock'] = int(psutil.cpu_freq().current)
 
     console.print('[green]欢迎使用[red]HelloPrime[/red] Shell CLI for %s [green]' % osname)
     console.print('项目地址：[link=https://www.deepinjava.com]https://www.deepinjava.com[/link]')
@@ -168,9 +167,12 @@ def run(args, limit, page, mode, thread, repeat):
     info['thread'] = thread
     info['repeat'] = repeat
     info['mode'] = mode
+    if thread < 1 and info['lcore'] > 1: thread = info['lcore']
     info['thread'] = thread
     info['docker'] = ''
     info['costs'] = []
+
+
 
     lang = args[0]
     if len(args) > 1: limit = args[1]

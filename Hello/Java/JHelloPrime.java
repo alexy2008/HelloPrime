@@ -55,8 +55,7 @@ public class JHelloPrime {
                         System.out.println("Info=>|T" + tid + "|" + ((long) page * (j + 1)) + "|" + localMaxInd + "|"
                                 + localMaxPrime + "|");
                 }
-                if (((tid + 1) % threadNumber == ((limit / page) - finalN) % threadNumber) && (localMaxPrime > maxPrime.get()))
-                    maxPrime.set(localMaxPrime);
+                if ((tid + 1) % threadNumber == ((limit / page) - finalN) % threadNumber)   maxPrime.set(localMaxPrime);
                 maxInd.addAndGet(localMaxInd);
             });
             task[tid].start();
