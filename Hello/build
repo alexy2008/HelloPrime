@@ -1,3 +1,53 @@
 #!/bin/bash
-# python3 ../tools/cli.py build $1 $2 $3 $4 $5 $6 $7 $8 $9 ${10} ${11} ${12}
-python3 ../tools/shell.py build $1 $2 $3 $4 $5 $6 $7 $8 $9 ${10} ${11} ${12}
+# 检查命令行参数
+if [ "$#" -ne 1 ]; then
+    echo "Usage: $0 <directory>"
+    exit 1
+fi
+
+# 获取第一个命令行参数
+subdir="$1"
+
+# 检查当前目录下是否存在子目录 $1
+if [ ! -d "$subdir" ]; then
+    echo "错误：当前目录下不存在 '$subdir' 子目录"
+    exit 1
+fi
+
+# 进一步检查 $1 下面是否存在 'bin' 子目录
+bin_dir="$subdir/bin"
+if [ ! -d "$bin_dir" ]; then
+    mkdir -p "$bin_dir"
+fi
+
+# 检查 $subdir 下面是否存在 command.toml 文件
+command_toml="$subdir/command.toml"
+if [ ! -f "$command_toml" ]; then
+    echo "错误：'$subdir' 下面不存在 'command.toml' 文件"
+    exit 1
+fi
+
+# 读取 command.toml 文件并解析出 ver 和 build 配置项的值
+ver=$(grep -E '^ver\s*=' "$command_toml" | cut -d'=' -f2 | xargs)
+build=$(grep -E '^build\s*=' "$command_toml" | cut -d'=' -f2 | xargs)
+
+# 设置工作目录为 subdir
+echo "工作目录: '$subdir'"
+cd "$subdir" || { echo "无法进入目录 '$subdir'"; exit 1; }
+
+# 执行 ver 和 build 变量里存储的系统指令
+if [ -n "$ver" ]; then
+    echo "执行 ver 指令: $ver"
+    eval "$ver"
+else
+    echo "错误：未配置 ver 指令"
+fi
+
+if [ -n "$build" ]; then
+    echo "执行 build 指令: $build"
+    eval "$build"
+else
+    echo "错误：未配置 build 指令"
+fi
+
+echo "操作完成"

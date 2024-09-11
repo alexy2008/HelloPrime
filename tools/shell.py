@@ -41,11 +41,11 @@ def check_lang(lang):
     
     info['lang'] = lang.capitalize()
 
-    if Path(lang).is_dir():
-        cur_path = './%s' % lang
-    else:
-        console.print('没有找到程序文件，请在正确目录下运行此脚本')
-        return -1
+    # if Path(lang).is_dir():
+    #     cur_path = './%s' % lang
+    # else:
+    #     console.print('没有找到程序文件，请在正确目录下运行此脚本')
+    #     return -1
 
     if info['lang'] == 'Cpp': info['lang'] = 'C++'
     if info['lang'] == 'Csharp': info['lang'] = 'C#'
@@ -185,7 +185,7 @@ def run(args, limit, page, mode, thread, repeat):
     npage = e2n(page)
     info['page'] = npage
 
-    c = ((launch % 'run') + '%s %s -m %s -t %s -r %s') % (limit, page, mode, thread, repeat)
+    c = ((launch % 'run') + '%s %s %s -m %s -t %s -r %s') % (lang, limit, page, mode, thread, repeat)
     console.print(c)
 
     p = subprocess.Popen(c, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True, cwd=cur_path)
@@ -196,7 +196,7 @@ def run(args, limit, page, mode, thread, repeat):
     pn = r'[0-9][0-9\.]+'
     v = re.findall(pn, out)
     if len(v) > 0:
-        # print(v)
+        print(v)
         for vi in v:
             if '.' in vi:
                 info['version'] = vi
