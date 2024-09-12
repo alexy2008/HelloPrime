@@ -1,52 +1,55 @@
-# 检查命令行参数
+# Check command line arguments
 if ($args.Count -ne 1) {
-    Write-Host "Usage: $MyInvocation.MyCommand <directory>"
-    Exit 1
+    Write-Host -ForegroundColor Red "Usage: $PSCommandPath <directory>"
+    exit 1
 }
 
-# 获取第一个命令行参数
+# Get the first command line argument
 $subdir = $args[0]
 
-# 检查当前目录下是否存在子目录 $1
-if (-Not (Test-Path -Path $subdir -PathType Container)) {
-    Write-Host "错误：当前目录下不存在 '$subdir' 子目录"
-    Exit 1
+# Check if the current directory contains the specified subdirectory
+if (!(Test-Path -Path $subdir -PathType Container)) {
+    Write-Host -ForegroundColor Red "Error: The current directory does not contain the '$subdir' subdirectory"
+    exit 1
 }
 
-# 进一步检查 $1 下面是否存在 'bin' 子目录
+# Check if the specified subdirectory contains the 'bin' subdirectory
 $bin_dir = Join-Path -Path $subdir -ChildPath "bin"
-if (-Not (Test-Path -Path $bin_dir -PathType Container)) {
-    New-Item -ItemType Directory -Path $bin_dir
+if (!(Test-Path -Path $bin_dir -PathType Container)) {
+    Write-Host -ForegroundColor Yellow "Warning: The '$subdir/bin' directory does not exist, creating it..."
+    New-Item -Path $bin_dir -ItemType Directory
 }
 
-# 检查 $subdir 下面是否存在 command.toml 文件
+# Check if the specified subdirectory contains the 'command.toml' file
 $command_toml = Join-Path -Path $subdir -ChildPath "command.toml"
-if (-Not (Test-Path -Path $command_toml -PathType Leaf)) {
-    Write-Host "错误：'$subdir' 下面不存在 'command.toml' 文件"
-    Exit 1
+if (!(Test-Path -Path $command_toml -PathType Leaf)) {
+    Write-Host -ForegroundColor Red "Error: The '$subdir' subdirectory does not contain the 'command.toml' file"
+    exit 1
 }
 
-# 读取 command.toml 文件并解析出 ver 和 build 配置项的值
-$ver = (Get-Content $command_toml | Where-Object { $_ -match '^ver\s*=' } | Select-Object -First 1 | ForEach-Object { $_.Split('=')[1].Trim() })
-$build = (Get-Content $command_toml | Where-Object { $_ -match '^build\s*=' } | Select-Object -First 1 | ForEach-Object { $_.Split('=')[1].Trim() })
+# Read the 'command.toml' file and parse the values of the 'ver' and 'build' configuration items
+$ver = (Get-Content -Path $command_toml | Where-Object { $_ -match '^ver\s*=' } | ForEach-Object { $_ -replace '^ver\s*=', '' } | Select-Object -First 1).Trim(' ','"')
+$build = (Get-Content -Path $command_toml | Where-Object { $_ -match '^build\s*=' } | ForEach-Object { $_ -replace '^build\s*=', '' } | Select-Object -First 1).Trim(' ','"')
 
-# 设置工作目录为 subdir
-Write-Host "工作目录: '$subdir'"
-Set-Location $subdir -ErrorAction Stop
+# Set the working directory to the specified subdirectory
+Write-Host -ForegroundColor Cyan "Working directory: '$subdir'"
+Push-Location -Path $subdir
 
-# 执行 ver 和 build 变量里存储的系统指令
+# Execute the system commands stRed in the 'ver' and 'build' variables
 if ($ver) {
-    Write-Host "执行 ver 指令: $ver"
+    Write-Host -ForegroundColor Green "Executing ver command: $ver"
     Invoke-Expression $ver
 } else {
-    Write-Host "错误：未配置 ver 指令"
+    Write-Host -ForegroundColor Red "Error: The ver command is not configRed"
 }
 
 if ($build) {
-    Write-Host "执行 build 指令: $build"
+    Write-Host -ForegroundColor Green "Executing build command: $build"
     Invoke-Expression $build
 } else {
-    Write-Host "错误：未配置 build 指令"
+    Write-Host -ForegroundColor Red "Error: The build command is not configRed"
 }
 
-Write-Host "操作完成"
+Pop-Location
+
+Write-Host -ForegroundColor Cyan "Operation completed"

@@ -1,18 +1,24 @@
 #!/bin/bash
+RED='\033[0;31m'
+GREEN='\033[1;32m'
+YELLOW='\033[0;33m'
+CYAN='\033[1;36m' 
+NC='\033[0m'
 
+echo -e "${GREEN}操作开始${NC}"
 # 获取第一个命令行参数
 subdir="$1"
 
 # 检查当前目录下是否存在子目录 $1
 if [ ! -d "$subdir" ]; then
-    echo "错误：当前目录下不存在 '$subdir' 子目录"
+    echo -e "${RED}错误：当前目录下不存在 '$subdir' 子目录${NC}"
     exit 1
 fi
 
 # 检查 $subdir 下面是否存在 command.toml 文件
 command_toml="$subdir/command.toml"
 if [ ! -f "$command_toml" ]; then
-    echo "错误：'$subdir' 下面不存在 'command.toml' 文件"
+    echo -e "${RED}错误：'$subdir' 下面不存在 'command.toml' 文件${NC}"
     exit 1
 fi
 
@@ -32,7 +38,8 @@ while getopts ":t:m:r:" opt; do
   esac
 done
 
-echo "m,t,r: $m,$t,$r"
+echo -e "${YELLOW}test test${NC}"
+echo -e "${YELLOW}m,t,r: $m,$t,$r${NC}"
 
 if [[ $limit == e* ]]; then limit="1$limit"; fi
 if [[ $page == e* ]]; then page="1$page"; fi
@@ -42,22 +49,22 @@ page=$(printf "%.0f" "$page")
 run="$run $limit $page $m $t" 
 
 # 设置工作目录为 subdir
-# echo "工作目录: '$subdir'"
-cd "$subdir" || { echo "无法进入目录 '$subdir'"; exit 1; }
+echo -e "${CYAN}工作目录: '$subdir'${NC}"
+cd "$subdir" || { echo "${RED}无法进入目录 '$subdir'${NC}"; exit 1; }
 
 # 执行 ver 和 build 变量里存储的系统指令
 if [ -n "$ver" ]; then
-    # echo "执行 ver 指令: $ver"
+    echo -e "${GREEN}执行 ver 指令: $ver${NC}"
     eval "$ver"
 else
-    echo "错误：未配置 ver 指令"
+    echo -e "${RED}错误：未配置 ver 指令${NC}"
 fi
 
 if [ -n "$run" ]; then
-    echo "执行 run 指令: $run"
+    echo -e "${GREEN}执行 run 指令: $run${NC}"
     for ((i=0; i<r; i++)); do eval "$run"; done
 else
-    echo "错误：未配置 run 指令"
+    echo -e "${RED}错误：未配置 run 指令${NC}"
 fi
 
-echo "操作完成"
+echo -e "${CYAN}操作完成${NC}"

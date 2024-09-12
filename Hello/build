@@ -1,7 +1,14 @@
 #!/bin/bash
+
+# ANSI escape codes for colored output
+RED='\033[0;31m'
+GREEN='\033[1;32m'
+YELLOW='\033[0;33m'
+CYAN='\033[1;36m' 
+NC='\033[0m'
 # 检查命令行参数
 if [ "$#" -ne 1 ]; then
-    echo "Usage: $0 <directory>"
+    echo -e "${RED}Usage: $0 <directory>${NC}"
     exit 1
 fi
 
@@ -10,20 +17,21 @@ subdir="$1"
 
 # 检查当前目录下是否存在子目录 $1
 if [ ! -d "$subdir" ]; then
-    echo "错误：当前目录下不存在 '$subdir' 子目录"
+    echo -e "${RED}错误：当前目录下不存在 '$subdir' 子目录${NC}"
     exit 1
 fi
 
 # 进一步检查 $1 下面是否存在 'bin' 子目录
 bin_dir="$subdir/bin"
 if [ ! -d "$bin_dir" ]; then
+    echo -e "${YELLOW}警告：'$subdir/bin' 目录不存在，正在创建...${NC}"
     mkdir -p "$bin_dir"
 fi
 
 # 检查 $subdir 下面是否存在 command.toml 文件
 command_toml="$subdir/command.toml"
 if [ ! -f "$command_toml" ]; then
-    echo "错误：'$subdir' 下面不存在 'command.toml' 文件"
+    echo -e "${RED}错误：'$subdir' 下面不存在 'command.toml' 文件${NC}"
     exit 1
 fi
 
@@ -32,22 +40,22 @@ ver=$(grep -E '^ver\s*=' "$command_toml" | cut -d'=' -f2 | xargs)
 build=$(grep -E '^build\s*=' "$command_toml" | cut -d'=' -f2 | xargs)
 
 # 设置工作目录为 subdir
-echo "工作目录: '$subdir'"
-cd "$subdir" || { echo "无法进入目录 '$subdir'"; exit 1; }
+echo -e "${GREEN}工作目录: '$subdir'${NC}"
+cd "$subdir" || { echo -e "${RED}无法进入目录 '$subdir'${NC}"; exit 1; }
 
 # 执行 ver 和 build 变量里存储的系统指令
 if [ -n "$ver" ]; then
-    echo "执行 ver 指令: $ver"
+    echo -e "${CYAN}执行 ver 指令: $ver${NC}"
     eval "$ver"
 else
-    echo "错误：未配置 ver 指令"
+    echo -e "${RED}错误：未配置 ver 指令${NC}"
 fi
 
 if [ -n "$build" ]; then
-    echo "执行 build 指令: $build"
+    echo -e "${CYAN}执行 build 指令: $build${NC}"
     eval "$build"
 else
-    echo "错误：未配置 build 指令"
+    echo -e "${RED}错误：未配置 build 指令${NC}"
 fi
 
-echo "操作完成"
+echo -e "${GREEN}操作完成${NC}"

@@ -190,23 +190,28 @@ def run(args, limit, page, mode, thread, repeat):
 
     p = subprocess.Popen(c, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True, cwd=cur_path)
     
-    p.stdout.readline()
-    out = p.stdout.readline().replace('\n', '').replace('\r', '')
-    if mode > 1: print(out.replace('\n', '').replace('\r', ''), end='\r\n')
-    pn = r'[0-9][0-9\.]+'
-    v = re.findall(pn, out)
-    if len(v) > 0:
-        print(v)
-        for vi in v:
-            if '.' in vi:
-                info['version'] = vi
+    while p.poll() is None or out:
+        try:
+            out = p.stdout.readline().replace('\n', '').replace('\r', '')
+            # if p.poll() is not None and not out : break
+            if mode > 1: print(out, end='\r\n')
+            pn = r'[0-9][0-9\.]+'
+            v = re.findall(pn, out)
+            if len(v) > 0:
+                print(v)
+                for vi in v:
+                    if '.' in vi:
+                        info['version'] = vi
+                        break
+                if info.get('version') is None:
+                    info['version'] = v[0]
+                console.print(out, end='\r\n')
+                info['ver_info'] = out
+                console.print(info['version'])
                 break
-        if info.get('version') is None:
-            info['version'] = v[0]
-        console.print(out, end='\r\n')
-        info['ver_info'] = out
-    else:
-        info['version'] = 'N/A'
+        except Exception as ex:
+            print('异常：' + str(ex))
+            return -1
 
     while p.poll() is None or out:
         try:
@@ -371,11 +376,13 @@ def print_result():
     # 从配置文件加载数据库连接信息
     db_config = load_db_config('..//tools//config.ini')
     
+    print('将计算结果存入数据库...')
     # 建立数据库连接
     conn = create_connection(db_config)
 
     insert_info(conn, info)
     conn.close()
+    print('finish!')
 
 def fm_time(lt):    
     temp = lt
