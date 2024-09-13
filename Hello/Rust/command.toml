@@ -1,0 +1,3 @@
+ver = "rustc --version"
+build = "rustc RsHelloPrime.rs  --out-dir bin -C opt-level=3 -C debuginfo=0"
+run = "./bin/RsHelloPrime"

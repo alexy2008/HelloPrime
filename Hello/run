@@ -23,8 +23,8 @@ if [ ! -f "$command_toml" ]; then
 fi
 
 # 读取 command.toml 文件并解析出 ver 和 build 配置项的值
-ver=$(grep -E '^ver\s*=' "$command_toml" | cut -d'=' -f2 | xargs)
-run=$(grep -E '^run\s*=' "$command_toml" | cut -d'=' -f2 | xargs)
+ver=$(grep -E '^ver\s*=' "$command_toml" | cut -d'=' -f2 | xargs | sed 's/[\r\n]*$//')
+run=$(grep -E '^run\s*=' "$command_toml" | cut -d'=' -f2 | xargs | sed 's/[\r\n]*$//')
 
 limit=${2:-100000}
 page=${3:-1000}

@@ -1,0 +1,3 @@
+ver = "go version"
+build = "go build -o ./bin/ GoHelloPrime.go"
+run = "./bin/GoHelloPrime"

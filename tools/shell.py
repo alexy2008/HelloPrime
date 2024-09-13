@@ -87,7 +87,7 @@ def cli():
     console.print('【平台信息】' + info['platform'])
 
     if is_windows:
-        launch = 'powershell.exe ./%s.ps1 '
+        launch = 'pwsh ./%s.ps1 '
         info['os'] = platform.system() + ' ' + platform.release()
         # p = subprocess.Popen('wmic cpu get /value', shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True)
         # lns = p.stdout.readlines()
@@ -186,16 +186,16 @@ def run(args, limit, page, mode, thread, repeat):
     info['page'] = npage
 
     c = ((launch % 'run') + '%s %s %s -m %s -t %s -r %s') % (lang, limit, page, mode, thread, repeat)
-    console.print(c)
+    console.print(c, end='\r\n')
 
     p = subprocess.Popen(c, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True, cwd=cur_path)
     
     while p.poll() is None or out:
         try:
             out = p.stdout.readline().replace('\n', '').replace('\r', '')
-            if mode > 1: print(out, end='\r\n')
+            if mode > 1: console.print(out)
             if "Executing ver command" in out: 
-                print(out, end='\r\n')
+                print(out)
                 break
         except Exception as ex:
             print('异常：' + str(ex))
@@ -378,16 +378,13 @@ def print_result():
     # console.rule('[cyan]【CPU】[/cyan][yellow]' + info['cpu'] + ' (' + str(info['core'])+' 核心 '+ str(info['lcore'])+' 线程 ' + str(info['clock'])+' MHz)[/yellow]')
     console.print(table)
 
-    # 从配置文件加载数据库连接信息
-    db_config = load_db_config('..//tools//config.ini')
-    
-    print('将计算结果存入数据库...')
-    # 建立数据库连接
-    conn = create_connection(db_config)
-
-    insert_info(conn, info)
-    conn.close()
-    print('finish!')
+    if info['mincost'] > 100:
+        db_config = load_db_config('..//tools//config.ini')
+        print('将计算结果存入数据库...', end='', flush=True)
+        conn = create_connection(db_config)
+        insert_info(conn, info)
+        conn.close()
+        print('Done!')
 
 def fm_time(lt):    
     temp = lt

@@ -61,7 +61,7 @@ class CsHelloPrime {
     }
 
     static void Main(string[] args) {
-        Console.WriteLine("Hi Prime! I'm C# :-)");
+        Console.WriteLine("Hello Prime! I'm C# :-)");
         var limit = long.Parse(args[0]);
         var page = int.Parse(args[1]);
         var threadNumber = int.Parse(args[3]);

@@ -1,0 +1,3 @@
+ver = "dotnet --version"
+build = "dotnet build CsHelloPrime.csproj -o bin -c Release"
+run = "./bin/CsHelloPrime"

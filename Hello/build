@@ -7,44 +7,44 @@ YELLOW='\033[0;33m'
 CYAN='\033[1;36m' 
 NC='\033[0m'
 
-# 检查命令行参数
+# Check command line arguments
 if [ "$#" -ne 1 ]; then
     echo -e "${RED}Usage: $0 <directory>${NC}"
     exit 1
 fi
 
-# 获取第一个命令行参数
+# Get the first command line argument
 subdir="$1"
 
-# 检查当前目录下是否存在子目录 $1
+# Check if the subdirectory $1 exists in the current directory
 if [ ! -d "$subdir" ]; then
     echo -e "${RED}Error: Directory '$subdir' does not exist in the current directory${NC}"
     exit 1
 fi
 
-# 进一步检查 $1 下面是否存在 'bin' 子目录
+# Further check if the 'bin' subdirectory exists under $1
 bin_dir="$subdir/bin"
 if [ ! -d "$bin_dir" ]; then
     echo -e "${YELLOW}Warning: Directory '$subdir/bin' does not exist, creating it...${NC}"
     mkdir -p "$bin_dir"
 fi
 
-# 检查 $subdir 下面是否存在 command.toml 文件
+# Check if the 'command.toml' file exists in $subdir
 command_toml="$subdir/command.toml"
 if [ ! -f "$command_toml" ]; then
     echo -e "${RED}Error: File 'command.toml' does not exist in '$subdir'${NC}"
     exit 1
 fi
 
-# 读取 command.toml 文件并解析出 ver 和 build 配置项的值
-ver=$(grep -E '^ver\s*=' "$command_toml" | cut -d'=' -f2 | xargs)
-build=$(grep -E '^build\s*=' "$command_toml" | cut -d'=' -f2 | xargs)
+# Read the 'command.toml' file and parse the values of the 'ver' and 'build' configuration items
+ver=$(grep -E '^ver\s*=' "$command_toml" | cut -d'=' -f2 | xargs | sed 's/[\r\n]*$//')
+build=$(grep -E '^build\s*=' "$command_toml" | cut -d'=' -f2 | xargs | sed 's/[\r\n]*$//')
 
-# 设置工作目录为 subdir
+# Set the working directory to subdir
 echo -e "${GREEN}Working directory: '$subdir'${NC}"
 cd "$subdir" || { echo -e "${RED}Failed to enter directory '$subdir'${NC}"; exit 1; }
 
-# 执行 ver 和 build 变量里存储的系统指令
+# Execute the system commands stored in the ver and build variables
 if [ -n "$ver" ]; then
     echo -e "${CYAN}Executing ver command: $ver${NC}"
     eval "$ver"
