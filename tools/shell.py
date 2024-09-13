@@ -193,30 +193,35 @@ def run(args, limit, page, mode, thread, repeat):
     while p.poll() is None or out:
         try:
             out = p.stdout.readline().replace('\n', '').replace('\r', '')
-            # if p.poll() is not None and not out : break
             if mode > 1: print(out, end='\r\n')
-            pn = r'[0-9][0-9\.]+'
-            v = re.findall(pn, out)
-            if len(v) > 0:
-                print(v)
-                for vi in v:
-                    if '.' in vi:
-                        info['version'] = vi
-                        break
-                if info.get('version') is None:
-                    info['version'] = v[0]
-                console.print(out, end='\r\n')
-                info['ver_info'] = out
-                console.print(info['version'])
+            if "Executing ver command" in out: 
+                print(out, end='\r\n')
                 break
         except Exception as ex:
             print('异常：' + str(ex))
             return -1
+    
+    out = p.stdout.readline().replace('\n', '').replace('\r', '')
+    pn = r'[0-9][0-9\.]+'
+    v = re.findall(pn, out)
+    if len(v) > 0:
+        print(v)
+        for vi in v:
+            if '.' in vi:
+                info['version'] = vi
+                break
+        if info.get('version') is None:
+            info['version'] = v[0]
+        console.print(out, end='\r\n')
+        info['ver_info'] = out
+
 
     while p.poll() is None or out:
         try:
             out = p.stdout.readline().replace('\n', '').replace('\r', '')
-            # if p.poll() is not None and not out : break
+            if "Executing run command" in out: 
+                print(out, end='\r\n')
+                continue
             k = proc_out(out)
             if mode > 1 or (k == 0 and mode > 0): console.print(out, end='\r\n')
             if k < 0: return k
