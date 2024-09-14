@@ -1,0 +1,3 @@
+ver = "swiftc -v"
+build = "swiftc -O SwHelloPrime.swift -o bin/SwHelloPrime"
+run = "./bin/SwHelloPrime"

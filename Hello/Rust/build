@@ -1,4 +1,0 @@
-#!/bin/bash
-if [ ! -d "./bin" ]; then mkdir ./bin; fi
-rustc --version
-rustc RsHelloPrime.rs  --out-dir bin -C opt-level=3 -C debuginfo=0

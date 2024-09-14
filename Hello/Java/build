@@ -1,4 +1,0 @@
-#!/bin/bash
-if [ ! -d "./bin" ]; then mkdir ./bin; fi
-javac -version
-javac *.java -d bin -encoding UTF-8

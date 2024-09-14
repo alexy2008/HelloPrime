@@ -1,4 +1,0 @@
-#!/bin/bash
-if [ ! -d "./bin" ]; then mkdir ./bin; fi
-go version
-go build -o ./bin/ GoHelloPrime.go

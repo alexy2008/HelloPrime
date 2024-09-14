@@ -2,8 +2,6 @@ import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class JHelloPrime {
-    private static boolean isDebug = false;
-
     private static ArrayList<Long> primeByEuler(Integer page) {
         var sieve = new boolean[page];
         ArrayList<Long> primeArray = new ArrayList<>();
@@ -41,7 +39,7 @@ public class JHelloPrime {
         ArrayList<Long> primerList = primeByEuler(page * n);
         AtomicLong maxInd = new AtomicLong(primerList.size());
         AtomicLong maxPrime = new AtomicLong(primerList.get((int) maxInd.get() - 1));
-        if (isDebug) System.out.println("Info=>" + "|" + (page * n) + "|" + maxInd + "|" + maxPrime + "|");
+        // System.out.println("Info=>" + "|" + (page * n) + "|" + maxInd + "|" + maxPrime + "|");
         Thread[] task = new Thread[threadNumber];
         for (int i = 0; i < threadNumber; i++) {
             int tid = i, finalN = n;
@@ -51,9 +49,8 @@ public class JHelloPrime {
                     var rs = primeByEratosthenes(page * (long) j, page, primerList);
                     localMaxPrime = rs.maxPrime;
                     localMaxInd += rs.maxInd;
-                    if (isDebug)
-                        System.out.println("Info=>|T" + tid + "|" + ((long) page * (j + 1)) + "|" + localMaxInd + "|"
-                                + localMaxPrime + "|");
+                    // System.out.println("Info=>|T" + tid + "|" + ((long) page * (j + 1)) + "|" + localMaxInd + "|"
+                    //             + localMaxPrime + "|");
                 }
                 if ((tid + 1) % threadNumber == ((limit / page) - finalN) % threadNumber)   maxPrime.set(localMaxPrime);
                 maxInd.addAndGet(localMaxInd);
@@ -71,7 +68,6 @@ public class JHelloPrime {
         System.out.println("Hello Prime! I'm Java :-)");
         long limit = Long.parseLong(args[0]);
         int page = Integer.parseInt(args[1]);
-        isDebug = Integer.parseInt(args[2]) > 0;
         int threadNumber = Integer.parseInt(args[3]);
         System.out.println("Calculate prime numbers up to " + limit + " using partitioned Eratosthenes sieve");
         var startTime = System.currentTimeMillis();
