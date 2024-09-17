@@ -23,8 +23,8 @@ if [ ! -f "$command_toml" ]; then
 fi
 
 # 读取 command.toml 文件并解析出 ver 和 build 配置项的值
-ver=$(grep -E '^ver\s*=' "$command_toml" | cut -d'=' -f2 | xargs )
-run=$(grep -E '^run\s*=' "$command_toml" | cut -d'=' -f2 | xargs )
+ver=$(grep -E '^ver\s*=' "$command_toml" | cut -d'=' -f2 | sed 's/^\s*"\(.*\)"\s*$/\1/' | sed 's/[\r\n]*$//')
+run=$(grep -E '^run\s*=' "$command_toml" | cut -d'=' -f2 | sed 's/^\s*"\(.*\)"\s*$/\1/' | sed 's/[\r\n]*$//')
 
 limit=${2:-100000}
 page=${3:-1000}
@@ -37,9 +37,6 @@ while getopts ":t:m:r:" opt; do
     r) r=$OPTARG ;;
   esac
 done
-
-echo -e "${YELLOW}Test test${NC}"
-echo -e "${YELLOW}m,t,r: $m,$t,$r${NC}"
 
 if [[ $limit == e* ]]; then limit="1$limit"; fi
 if [[ $page == e* ]]; then page="1$page"; fi

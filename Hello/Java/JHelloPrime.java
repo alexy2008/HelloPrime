@@ -19,7 +19,7 @@ public class JHelloPrime {
 
     private static Result primeByEratosthenes(Long pos, Integer page, ArrayList<Long> primeArray) {
         var sieve = new boolean[page];
-        long maxInd = 0, maxPrime = 0, sqrLimit = (long) Math.ceil(Math.sqrt((pos + page)));
+        long maxInd = 0, maxPrime = 0, sqrLimit = (long) Math.ceil(Math.sqrt(pos + page));
         for (var i = 1; i < primeArray.size() && primeArray.get(i) < sqrLimit; i++) {
             var p = primeArray.get(i);
             for (var j = ((pos + p - 1) / p) * p; j < pos + page; j += p)
@@ -72,7 +72,6 @@ public class JHelloPrime {
         System.out.println("Calculate prime numbers up to " + limit + " using partitioned Eratosthenes sieve");
         var startTime = System.currentTimeMillis();
         Result r = calculate(limit, page, threadNumber);  
-        
         var totalTime = System.currentTimeMillis() - startTime;
         System.out.printf("Java using %d thread(s) finished within %.0e the %dth prime is %d, time cost: %d ms \n",
                 threadNumber, (double) limit, r.maxInd, r.maxPrime, totalTime);

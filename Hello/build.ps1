@@ -1,11 +1,24 @@
 # Check command line arguments
-if ($args.Count -ne 1) {
-    Write-Host -ForegroundColor Red "Usage: $PSCommandPath <directory>"
+if ($args.Count -ne 1 -and $args.Count -ne 3) {
+    Write-Host -ForegroundColor Red "Usage: $PSCommandPath <directory> [-d <container_name>]"
     exit 1
 }
 
 # Get the first command line argument
 $subdir = $args[0]
+
+if ($args.Count -eq 3) {
+    if ($args[1] -ne "-d") {
+        Write-Host -ForegroundColor Red "Usage: $PSCommandPath <directory> [-d <container_name>]"
+        exit 1
+    }
+    $d = $args[2]
+    
+    $commad = "docker run -it --name hello_prime --rm -v .:/helloprime ${d} bash -c 'grep PRETTY_NAME /etc/os-release && cd /helloprime && ./build ${subdir} '"
+    Write-Host -ForegroundColor Cyan "Executing docker: $commad"
+    Invoke-Expression $commad
+    exit 0
+}
 
 # Check if the current directory contains the specified subdirectory
 if (!(Test-Path -Path $subdir -PathType Container)) {

@@ -37,8 +37,8 @@ if [ ! -f "$command_toml" ]; then
 fi
 
 # Read the 'command.toml' file and parse the values of the 'ver' and 'build' configuration items
-ver=$(grep -E '^ver\s*=' "$command_toml" | cut -d'=' -f2 | xargs | sed 's/[\r\n]*$//')
-build=$(grep -E '^build\s*=' "$command_toml" | cut -d'=' -f2 | xargs | sed 's/[\r\n]*$//')
+ver=$(grep -E '^ver\s*=' "$command_toml" | cut -d'=' -f2 | sed 's/^\s*"\(.*\)"\s*$/\1/' | sed 's/[\r\n]*$//')
+build=$(grep -E '^build\s*=' "$command_toml" | cut -d'=' -f2 | sed 's/^\s*"\(.*\)"\s*$/\1/' | sed 's/[\r\n]*$//')
 
 # Set the working directory to subdir
 echo -e "${GREEN}Working directory: '$subdir'${NC}"

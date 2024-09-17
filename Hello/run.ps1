@@ -4,8 +4,17 @@ param(
     [string]$page = 1000,
     [int]$m = 0,
     [int]$t = 1,
-    [int]$r = 1
+    [int]$r = 1,
+    [string]$d
 )
+
+if ($d -and $d -ne "None") {
+    # $parentdir = (Get-Item (Get-Location)).Parent.FullName
+    $commad = "docker run -it --rm -v .:/helloprime ${d} bash -c 'grep PRETTY_NAME /etc/os-release && cd /helloprime && ./run ${subdir} ${limit} ${page} -m ${m} -t ${t} -r ${r}'"
+    Write-Host -ForegroundColor Cyan "Executing docker: $commad"
+    Invoke-Expression $commad
+    exit 0
+}
 
 # 检查当前目录是否有子目录 $subdir
 if (-Not (Test-Path -Path $subdir -PathType Container)) {

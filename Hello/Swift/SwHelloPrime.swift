@@ -84,14 +84,14 @@ func calculate(limit: Int, page: Int, threadNumber: Int)-> (maxInd: Int, maxPrim
 }
 
 print("Hello Prime! I'm Swift :-)")
-et limit = Int(CommandLine.arguments[1]) ?? 1000
+let limit = Int(CommandLine.arguments[1]) ?? 1000
 let page = Int(CommandLine.arguments[2]) ?? 100
 let threadNumber = Int(CommandLine.arguments[4]) ?? 1
 
 print("Calculate prime numbers up to \(limit) using partitioned Eratosthenes sieve")
 
-let startTime = CFAbsoluteTimeGetCurrent()
+let startTime = Date.timeIntervalSinceReferenceDate
 let result = calculate(limit: limit, page: page, threadNumber: threadNumber)
-let totalTime = (CFAbsoluteTimeGetCurrent() - startTime) * 1000
+let totalTime = (Date.timeIntervalSinceReferenceDate - startTime) * 1000
 print(String(format: "Swift using %d thread(s) finished in %.0e the %dth prime is %d, time cost: %.f ms",
                 threadNumber, Double(limit), result.maxInd, result.maxPrime, totalTime))

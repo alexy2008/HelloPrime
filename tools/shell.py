@@ -1,4 +1,5 @@
 # coding=utf-8
+import glob
 import mysql.connector
 from mysql.connector import Error
 import configparser
@@ -14,8 +15,6 @@ from rich.console import Console
 from rich.table import Table
 from rich.traceback import install
 from primelist import primeList
-import sqlite3
-from sqlite3 import Error
 import time
 import psutil
 import cpuinfo
@@ -31,28 +30,6 @@ tag = 'Hello'
 cur_path = '.'
 info = {}
 console = Console()
-
-
-def check_lang(lang):
-    global tag, cur_path, info
-
-    if alias.get(lang) is not None:
-        lang = alias[lang]
-    
-    info['lang'] = lang.capitalize()
-
-    # if Path(lang).is_dir():
-    #     cur_path = './%s' % lang
-    # else:
-    #     console.print('没有找到程序文件，请在正确目录下运行此脚本')
-    #     return -1
-
-    if info['lang'] == 'Cpp': info['lang'] = 'C++'
-    if info['lang'] == 'Csharp': info['lang'] = 'C#'
-
-    console.print('定位工作目录：', os.path.abspath(cur_path))
-    return 0
-
 
 def e2n(s):
     if 'e' not in s: return int(s)
@@ -88,48 +65,19 @@ def cli():
 
     if is_windows:
         launch = 'pwsh ./%s.ps1 '
-        info['os'] = platform.system() + ' ' + platform.release()
-        # p = subprocess.Popen('wmic cpu get /value', shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True)
-        # lns = p.stdout.readlines()
-        # for ln in lns:
-        #     if ln.startswith('Name='):
-        #         info['cpu'] = ln.split('=')[1].strip()
-        #     if ln.startswith('NumberOfCores='):
-        #         info['core'] = ln.split('=')[1].strip()
-        #     if ln.startswith('NumberOfLogicalProcessors='):
-        #         info['lcore'] = ln.split('=')[1].strip()
-        #     if ln.startswith('MaxClockSpeed='):
-        #         info['clock'] = ln.split('=')[1].strip()
+        if platform.release() == '10' and int(platform.version().split('.')[-1]) >= 22000:
+           info['os'] = 'Windows 11'
+        else:
+           info['os'] =  platform.system() + ' ' + platform.release()
 
     else:
         launch = 'bash ./%s '
         if osname == 'Linux':
             import distro
             info['os'] = distro.name() + ' ' + distro.version()
-            # p = subprocess.Popen('cat /proc/cpuinfo', shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True)
-            # lns = p.stdout.readlines()
-            # for ln in lns:
-            #     if ln.startswith('model name'):
-            #         info['cpu'] = ln.split(':')[1].strip()
-            #     if ln.startswith('cpu cores'):
-            #         info['core'] = ln.split(':')[1].strip()
-            #     if ln.startswith('siblings'):
-            #         info['lcore'] = ln.split(':')[1].strip()
-            #     if ln.startswith('cpu MHz'):
-            #         info['clock'] = ln.split(':')[1].strip()
         elif osname == 'Darwin':
             osname == 'MacOS'
             info['os'] = f"{info['platform'].split('-')[0]} {info['platform'].split('-')[1]}"
-
-            # p = subprocess.Popen('sysctl machdep.cpu', shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True)
-            # lns = p.stdout.readlines()
-            # for ln in lns:
-            #     if ln.startswith('machdep.cpu.brand_string'):
-            #         info['cpu'] = ln.split(':')[1].strip()
-            #     if ln.startswith('machdep.cpu.core_count'):
-            #         info['core'] = ln.split(':')[1].strip()
-            #     if ln.startswith('machdep.cpu.thread_count'):
-            #         info['lcore'] = ln.split(':')[1].strip()
 
     info['cpu'] = cpuinfo.get_cpu_info().get('brand_raw')
     info['core'] = psutil.cpu_count(logical=False)
@@ -140,20 +88,6 @@ def cli():
     console.print('项目地址：[link=https://www.deepinjava.com]https://www.deepinjava.com[/link]')
     pass
 
-@cli.command(help='编译源代码')
-@click.argument('lang')
-def build(lang):
-    if check_lang(lang) < 0: return -1
-    
-    c = launch % 'build'
-
-    click.echo('开始编译%s' % lang)
-    p = subprocess.Popen(c, shell=True, stdout=subprocess.PIPE, cwd=cur_path)
-    while p.poll() is None:
-        out = p.stdout.readline().decode("utf8",  "ignore")
-        print(out.replace('\n', '').replace('\r', ''))
-    click.echo('%s编译完成' % lang)
-
 
 @cli.command(help='运行程序')
 @click.argument('args', nargs=-1)
@@ -162,30 +96,30 @@ def build(lang):
 @click.option('--mode', '-m', default=0, help='运行模式')
 @click.option('--thread', '-t', default=1, help='线程数')
 @click.option('--repeat', '-r', default=1, help='执行次数')
-def run(args, limit, page, mode, thread, repeat):
+@click.option('--docker', '-d', help='docker镜像')
+def run(args, limit, page, mode, thread, repeat, docker):
     global info
     info['thread'] = thread
     info['repeat'] = repeat
     info['mode'] = mode
     if thread < 1 and info['lcore'] > 1: thread = info['lcore']
     info['thread'] = thread
-    info['docker'] = ''
+    info['docker'] = docker
     info['costs'] = []
 
-
-
-    lang = args[0]
+    lang = args[0].capitalize()
+    info['lang'] = lang
     if len(args) > 1: limit = args[1]
     if len(args) > 2: page = args[2]
 
-    if check_lang(lang) < 0: return -1
+    # if check_lang(lang) < 0: return -1
 
     nlimit = e2n(limit)
     info['limit'] = nlimit
     npage = e2n(page)
     info['page'] = npage
 
-    c = ((launch % 'run') + '%s %s %s -m %s -t %s -r %s') % (lang, limit, page, mode, thread, repeat)
+    c = ((launch % 'run') + '%s %s %s -m %s -t %s -r %s -d %s') % (lang, limit, page, mode, thread, repeat, docker)
     console.print(c, end='\r\n')
 
     p = subprocess.Popen(c, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True, cwd=cur_path)
@@ -194,6 +128,9 @@ def run(args, limit, page, mode, thread, repeat):
         try:
             out = p.stdout.readline().replace('\n', '').replace('\r', '')
             if mode > 1: console.print(out)
+            if "PRETTY_NAME" in out: 
+                console.print(out.replace('PRETTY_NAME=', 'OS in docker is '))
+                continue
             if "Executing ver command" in out: 
                 print(out)
                 break
@@ -205,7 +142,7 @@ def run(args, limit, page, mode, thread, repeat):
     pn = r'[0-9][0-9\.]+'
     v = re.findall(pn, out)
     if len(v) > 0:
-        print(v)
+        # print(v)
         for vi in v:
             if '.' in vi:
                 info['version'] = vi
@@ -223,7 +160,7 @@ def run(args, limit, page, mode, thread, repeat):
                 print(out, end='\r\n')
                 continue
             k = proc_out(out)
-            if mode > 1 or (k == 0 and mode > 0): console.print(out, end='\r\n')
+            if mode > 0: console.print(out, end='\r\n')
             if k < 0: return k
         except Exception as ex:
             print('异常：' + str(ex))
@@ -231,12 +168,32 @@ def run(args, limit, page, mode, thread, repeat):
 
     print_result()
 
-def showcode(lan):
+@cli.command(help='显示代码')
+@click.argument('lang')
+def showcode(lang):
     from rich.syntax import Syntax
-    with open("./Java/JHelloPrime.java", "r") as f:
-        code = f.read()
-    syntax = Syntax(code, "java", theme="monokai", line_numbers=True)
-    console.print(syntax)
+    lang = lang.capitalize()
+    # 构造目标目录路径
+    target_dir = os.path.join(os.getcwd(), lang)
+    
+    # 检查目标目录是否存在
+    if not os.path.exists(target_dir):
+        print(f"目录 {target_dir} 不存在")
+        return
+    
+    # 查找目标目录下的文件
+    file_pattern = os.path.join(target_dir, "*H*Prime.*")
+    files = glob.glob(file_pattern)
+    
+    # 遍历找到的文件并用rich的Syntax输出
+    for file_path in files:
+        with open(file_path, 'r', encoding='utf-8') as file:
+            code = file.read()
+        # 确定文件的语言类型
+        file_extension = os.path.splitext(file_path)[1][1:]  # 获取文件扩展名并去除点号
+        syntax = Syntax(code, file_extension, theme="monokai", line_numbers=True)
+        console.print(f"Show the code ：{file_path}")
+        console.print(syntax)
 
 
 def proc_out(line):
@@ -264,7 +221,7 @@ def proc_out(line):
                 console.print('[red]计算结果校验错误！[/red]正确结果应为：%d-%d 请检查' % (ind, maxp))
                 return -1
         
-        return 3
+        return 1
     
     pn = 'Hi|Hello Prime.*I.*'
     r = re.match(pn, str(line))
@@ -276,11 +233,11 @@ def proc_out(line):
 
     if line.startswith('Calculate prime') or line.startswith('使用分区埃拉托色尼筛选法'):
         console.print(' ---- 用分区埃拉托色尼筛选法计算[cyan]%.0e[/cyan]以内素数' % info['limit'], end='\r\n')
-        return 2
+        return 1
     
     if line.startswith('Run the command'):
         console.print(line.replace('Run the command','运行指令'), end='\r\n')
-        return 2   
+        return 1   
 
     return 0
 
@@ -353,9 +310,16 @@ def insert_info(conn, info):
 def print_result():
     global info, tag
 
+    if info['mode'] > 0: console.print(info)
 
-    if info['mode'] == 2: console.print(info)
-    if info['mode'] == 1: console.print('time cost:' + str(info['costs']))
+    info['mode'] = 'Host' if info['docker'] is None else 'Docker'
+    if info['docker'] is None:
+        if 'WSL' in info['platform']:
+            info['mode'] = 'WSL'
+        else:
+            info['mode'] = 'Host'
+    else:
+        info['mode'] = 'Docker'
 
     table = Table.grid(expand=True)
     for i in range(3):
@@ -371,10 +335,9 @@ def print_result():
 
     table.add_row('【计算次数】', str(info['repeat']), '【最好成绩】', f'[bold magenta][red]{fm_time(info["mincost"])}', '【平均成绩】', fm_time(info['avgcost']))
 
-    console.rule(f'[green]运行结果[/] {time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())}')
+    console.rule('[green]运行结果[/] ' + time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
     console.rule(f'[cyan]【CPU】[/cyan][yellow]{info["cpu"]} ({info["core"]}核心 {info["lcore"]}线程 {info["clock"]}MHz)[/yellow]')    
 
-    # console.rule('[green]运行结果[/] ' + time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
     # console.rule('[cyan]【CPU】[/cyan][yellow]' + info['cpu'] + ' (' + str(info['core'])+' 核心 '+ str(info['lcore'])+' 线程 ' + str(info['clock'])+' MHz)[/yellow]')
     console.print(table)
 
