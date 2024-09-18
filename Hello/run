@@ -8,6 +8,25 @@ NC='\033[0m'
 echo -e "${GREEN}Operation started${NC}"
 # 获取第一个命令行参数
 subdir="$1"
+limit=${2:-100000}
+page=${3:-1000}
+shift 3
+m=0; t=1; r=1; d="None"
+while getopts ":t:m:r:d:" opt; do
+  case $opt in
+    t) t=$OPTARG ;;
+    m) m=$OPTARG ;;
+    r) r=$OPTARG ;;
+    d) d=$OPTARG ;;
+  esac
+done
+
+if [[ -n $d && $d != "None" ]]; then
+    command="docker run -it --rm -v .:/helloprime $d bash -c 'grep PRETTY_NAME /etc/os-release && cd /helloprime && ./run $subdir $limit $page -m $m -t $t -r $r'"
+    echo -e "${CYAN}Executing docker: $command${NC}"
+    eval "$command"
+    exit 0
+fi
 
 # 检查当前目录下是否存在子目录 $1
 if [ ! -d "$subdir" ]; then
@@ -23,20 +42,10 @@ if [ ! -f "$command_toml" ]; then
 fi
 
 # 读取 command.toml 文件并解析出 ver 和 build 配置项的值
-ver=$(grep -E '^ver\s*=' "$command_toml" | cut -d'=' -f2 | sed 's/^\s*"\(.*\)"\s*$/\1/' | sed 's/[\r\n]*$//')
-run=$(grep -E '^run\s*=' "$command_toml" | cut -d'=' -f2 | sed 's/^\s*"\(.*\)"\s*$/\1/' | sed 's/[\r\n]*$//')
+ver=$(grep -E '^ver\s*=' "$command_toml" | cut -d'=' -f2 | sed 's/[\r\n]*$//' | tr -d '"')
+run=$(grep -E '^run\s*=' "$command_toml" | cut -d'=' -f2 | sed 's/[\r\n]*$//' | tr -d '"')
 
-limit=${2:-100000}
-page=${3:-1000}
-shift 3
-m=0; t=1; r=1
-while getopts ":t:m:r:" opt; do
-  case $opt in
-    t) t=$OPTARG ;;
-    m) m=$OPTARG ;;
-    r) r=$OPTARG ;;
-  esac
-done
+
 
 if [[ $limit == e* ]]; then limit="1$limit"; fi
 if [[ $page == e* ]]; then page="1$page"; fi

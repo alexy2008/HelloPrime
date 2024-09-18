@@ -8,13 +8,26 @@ CYAN='\033[1;36m'
 NC='\033[0m'
 
 # Check command line arguments
-if [ "$#" -ne 1 ]; then
-    echo -e "${RED}Usage: $0 <directory>${NC}"
+if [[ "$#" -ne 1 && $# -ne 3 ]]; then
+    echo -e "${RED}Usage: $0 <directory> [-d <container_name>]${NC}"
     exit 1
 fi
 
 # Get the first command line argument
 subdir="$1"
+
+if [[ $# -eq 3 ]]; then
+    if [[ $2 != "-d" ]]; then
+        echo -e "${RED}Usage: $0 <directory> [-d <container_name>]${NC}"
+        exit 1
+    fi
+    d=$3
+    
+    command="docker run -it --name hello_prime --rm -v .:/helloprime $d bash -c 'grep PRETTY_NAME /etc/os-release && cd /helloprime && ./build $subdir'"
+    echo -e "${CYAN}Executing docker: $command${NC}"
+    eval "$command"
+    exit 0
+fi
 
 # Check if the subdirectory $1 exists in the current directory
 if [ ! -d "$subdir" ]; then
@@ -37,8 +50,9 @@ if [ ! -f "$command_toml" ]; then
 fi
 
 # Read the 'command.toml' file and parse the values of the 'ver' and 'build' configuration items
-ver=$(grep -E '^ver\s*=' "$command_toml" | cut -d'=' -f2 | sed 's/^\s*"\(.*\)"\s*$/\1/' | sed 's/[\r\n]*$//')
-build=$(grep -E '^build\s*=' "$command_toml" | cut -d'=' -f2 | sed 's/^\s*"\(.*\)"\s*$/\1/' | sed 's/[\r\n]*$//')
+# ver=$(grep -E '^ver\s*=' "$command_toml" | cut -d'=' -f2 | tr -d '[:space:]' ｜ tr -d '"')
+ver=$(grep -E '^ver\s*=' "$command_toml" | cut -d'=' -f2 | sed 's/[\r\n]*$//' | tr -d '"')
+build=$(grep -E '^build\s*=' "$command_toml" | cut -d'=' -f2 | sed 's/[\r\n]*$//' | tr -d '"')
 
 # Set the working directory to subdir
 echo -e "${GREEN}Working directory: '$subdir'${NC}"

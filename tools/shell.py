@@ -127,12 +127,12 @@ def run(args, limit, page, mode, thread, repeat, docker):
     while p.poll() is None or out:
         try:
             out = p.stdout.readline().replace('\n', '').replace('\r', '')
-            if mode > 1: console.print(out)
+            # if mode > 1: print(out, end='\r\n')
             if "PRETTY_NAME" in out: 
-                console.print(out.replace('PRETTY_NAME=', 'OS in docker is '))
+                console.print(out.replace('PRETTY_NAME=', 'OS in docker is '), end='\r\n')
                 continue
             if "Executing ver command" in out: 
-                print(out)
+                print(out, end='\r\n')
                 break
         except Exception as ex:
             print('异常：' + str(ex))
@@ -216,9 +216,9 @@ def proc_out(line):
             maxp = primeList[info['limit']]['maxprime']
             # print('%d -- %d' % (ind, maxp))
             if ind == info['maxind'] and maxp == info['maxprime']:
-                console.print('计算结果校验[green]正确！[/green]')
+                console.print('计算结果校验[green]正确！[/green]', end='\r\n')
             else:
-                console.print('[red]计算结果校验错误！[/red]正确结果应为：%d-%d 请检查' % (ind, maxp))
+                console.print('[red]计算结果校验错误！[/red]正确结果应为：%d-%d 请检查' % (ind, maxp), end='\r\n')
                 return -1
         
         return 1
