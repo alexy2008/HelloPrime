@@ -127,8 +127,11 @@ def run(args, limit, page, mode, thread, repeat, docker):
     while p.poll() is None or out:
         try:
             out = p.stdout.readline().replace('\n', '').replace('\r', '')
-            # if mode > 1: print(out, end='\r\n')
-            if "PRETTY_NAME" in out: 
+            if mode > 0: print(out, end='\r\n')
+            if "Executing docker" in out: 
+                print(out, end='\r\n')
+                continue
+            if "PRETTY_NAME=" in out: 
                 console.print(out.replace('PRETTY_NAME=', 'OS in docker is '), end='\r\n')
                 continue
             if "Executing ver command" in out: 
