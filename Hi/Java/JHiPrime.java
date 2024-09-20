@@ -36,7 +36,7 @@ public class JHiPrime {
     }
 
     public static void calculate(long limit, int page) {
-        int n = 1;
+        var n = 1;
         while (page * n < Math.sqrt(limit)) n++;
         primeByEuler(page * n);
         for (var i = n; i < limit / page; i++) primeByEratosthenes(page * (long) i, page);

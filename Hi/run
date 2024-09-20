@@ -1,2 +1,79 @@
 #!/bin/bash
-python3 ../tools/shell.py run $1 $2 $3 $4 $5 $6 $7 $8 $9 ${10} ${11} ${12}
+RED='\033[0;31m'
+GREEN='\033[1;32m'
+YELLOW='\033[0;33m'
+CYAN='\033[1;36m' 
+NC='\033[0m'
+
+echo -e "${GREEN}Operation started${NC}"
+# 获取第一个命令行参数
+subdir="$1"
+limit=${2:-100000}
+page=${3:-1000}
+shift 3
+m=0; t=1; r=1; d="None"
+while getopts ":t:m:r:d:" opt; do
+  case $opt in
+    t) t=$OPTARG ;;
+    m) m=$OPTARG ;;
+    r) r=$OPTARG ;;
+    d) d=$OPTARG ;;
+  esac
+done
+
+if [[ -n $d && $d != "None" ]]; then
+    command="docker run -it --rm -v .:/helloprime $d bash -c 'grep PRETTY_NAME /etc/os-release && cd /helloprime && ./run $subdir $limit $page -m $m -t $t -r $r'"
+    echo -e "${CYAN}Executing docker: $command${NC}"
+    eval "$command"
+    exit 0
+fi
+
+# 检查当前目录下是否存在子目录 $1
+if [ ! -d "$subdir" ]; then
+    echo -e "${RED}Error: Directory '$subdir' does not exist in the current directory${NC}"
+    exit 1
+fi
+
+# 检查 $subdir 下面是否存在 command.toml 文件
+command_toml="$subdir/command.toml"
+if [ ! -f "$command_toml" ]; then
+    echo -e "${RED}Error: File 'command.toml' does not exist in '$subdir'${NC}"
+    exit 1
+fi
+
+# 读取 command.toml 文件并解析出 ver 和 build 配置项的值
+# ver=$(grep -E '^ver\s*=' "$command_toml" | cut -d'=' -f2 | sed 's/[\r\n]*$//' | tr -d '"')
+# run=$(grep -E '^run\s*=' "$command_toml" | cut -d'=' -f2 | sed 's/[\r\n]*$//' | tr -d '"')
+ver=$(grep -E '^ver\s*=' "$command_toml" | cut -d'=' -f2- | sed 's/^[[:space:]]*"//;s/[[:space:]]*"$//')
+run=$(grep -E '^run\s*=' "$command_toml" | cut -d'=' -f2- | sed 's/^[[:space:]]*"//;s/[[:space:]]*"$//')
+
+
+
+
+if [[ $limit == e* ]]; then limit="1$limit"; fi
+if [[ $page == e* ]]; then page="1$page"; fi
+
+limit=$(printf "%.0f" "$limit")
+page=$(printf "%.0f" "$page")
+run="$run $limit $page $m $t" 
+
+# 设置工作目录为 subdir
+echo -e "${CYAN}Working directory: '$subdir'${NC}"
+cd "$subdir" || { echo "${RED}Failed to enter directory '$subdir'${NC}"; exit 1; }
+
+# 执行 ver 和 build 变量里存储的系统指令
+if [ -n "$ver" ]; then
+    echo -e "${GREEN}Executing ver command: $ver${NC}"
+    eval "$ver"
+else
+    echo -e "${RED}Error: ver command is not configured${NC}"
+fi
+
+if [ -n "$run" ]; then
+    echo -e "${GREEN}Executing run command: $run${NC}"
+    for ((i=0; i<r; i++)); do eval "$run"; done
+else
+    echo -e "${RED}Error: run command is not configured${NC}"
+fi
+
+echo -e "${CYAN}Operation completed${NC}"

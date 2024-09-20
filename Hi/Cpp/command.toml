@@ -1,0 +1,3 @@
+ver = "g++ --version "
+build = "g++ CppHiPrime.cpp -std=c++17 -lpthread -lm -O3 -o ./bin/CppHiPrime"
+run = "./bin/CppHiPrime"

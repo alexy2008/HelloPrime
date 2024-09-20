@@ -1,2 +1,77 @@
 #!/bin/bash
-python3 ../tools/shell.py build $1 $2 $3 $4 $5 $6 $7 $8 $9 ${10} ${11} ${12}
+
+# ANSI escape codes for colored output
+RED='\033[0;31m'
+GREEN='\033[1;32m'
+YELLOW='\033[0;33m'
+CYAN='\033[1;36m' 
+NC='\033[0m'
+
+# Check command line arguments
+if [[ "$#" -ne 1 && $# -ne 3 ]]; then
+    echo -e "${RED}Usage: $0 <directory> [-d <container_name>]${NC}"
+    exit 1
+fi
+
+# Get the first command line argument
+subdir="$1"
+
+if [[ $# -eq 3 ]]; then
+    if [[ $2 != "-d" ]]; then
+        echo -e "${RED}Usage: $0 <directory> [-d <container_name>]${NC}"
+        exit 1
+    fi
+    d=$3
+    
+    command="docker run -it --name hello_prime --rm -v .:/helloprime $d bash -c 'grep PRETTY_NAME /etc/os-release && cd /helloprime && ./build $subdir'"
+    echo -e "${CYAN}Executing docker: $command${NC}"
+    eval "$command"
+    exit 0
+fi
+
+# Check if the subdirectory $1 exists in the current directory
+if [ ! -d "$subdir" ]; then
+    echo -e "${RED}Error: Directory '$subdir' does not exist in the current directory${NC}"
+    exit 1
+fi
+
+# Further check if the 'bin' subdirectory exists under $1
+bin_dir="$subdir/bin"
+if [ ! -d "$bin_dir" ]; then
+    echo -e "${YELLOW}Warning: Directory '$subdir/bin' does not exist, creating it...${NC}"
+    mkdir -p "$bin_dir"
+fi
+
+# Check if the 'command.toml' file exists in $subdir
+command_toml="$subdir/command.toml"
+if [ ! -f "$command_toml" ]; then
+    echo -e "${RED}Error: File 'command.toml' does not exist in '$subdir'${NC}"
+    exit 1
+fi
+
+# Read the 'command.toml' file and parse the values of the 'ver' and 'build' configuration items
+# ver=$(grep -E '^ver\s*=' "$command_toml" | cut -d'=' -f2 | tr -d '[:space:]' ｜ tr -d '"')
+# ver=$(grep -E '^ver\s*=' "$command_toml" | cut -d'=' -f2 | sed 's/[\r\n]*$//' | tr -d '"')
+ver=$(grep -E '^ver\s*=' "$command_toml" | cut -d'=' -f2- | sed 's/^[[:space:]]*"//;s/[[:space:]]*"$//')
+build=$(grep -E '^build\s*=' "$command_toml" | cut -d'=' -f2- | sed 's/^[[:space:]]*"//;s/[[:space:]]*"$//')
+
+# Set the working directory to subdir
+echo -e "${GREEN}Working directory: '$subdir'${NC}"
+cd "$subdir" || { echo -e "${RED}Failed to enter directory '$subdir'${NC}"; exit 1; }
+
+# Execute the system commands stored in the ver and build variables
+if [ -n "$ver" ]; then
+    echo -e "${CYAN}Executing ver command: $ver${NC}"
+    eval "$ver"
+else
+    echo -e "${RED}Error: ver command is not configured${NC}"
+fi
+
+if [ -n "$build" ]; then
+    echo -e "${CYAN}Executing build command: $build${NC}"
+    eval "$build"
+else
+    echo -e "${RED}Error: build command is not configured${NC}"
+fi
+
+echo -e "${GREEN}Operation completed${NC}"
