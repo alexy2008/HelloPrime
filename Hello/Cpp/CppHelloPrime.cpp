@@ -12,7 +12,7 @@ struct Result {llong maxInd,maxPrime;};
 
 void primeByEuler(int page, vector<llong> &primeArray){
     bool *sieve = new bool[page];
-    for (int i = 0; i < page; i++) sieve[i] = false;
+    fill(sieve, sieve + page, false);
     for (int i = 2; i < page; i++) {
         if (!sieve[i]) primeArray.push_back(i);
         for (int j = 0; i * primeArray[j] < page; j++) {
@@ -25,12 +25,12 @@ void primeByEuler(int page, vector<llong> &primeArray){
 
 Result primeByEratosthenes(llong pos, int page, vector<llong> &primeArray) {
     bool *sieve = new bool[page];
-    llong maxInd = 0, maxPrime = 0, sqrLimit = ceil(sqrt(pos + page));
-    for (int i = 0; i < page; i++) sieve[i] = false;
-    for (int i = 1; i < primeArray.size() && primeArray[i] < sqrLimit; i++) {
+    llong maxInd = 0, maxPrime = 0, sqrtLimit = ceil(sqrt(pos + page));
+    fill(sieve, sieve + page, false);
+    for (int i = 0; i < primeArray.size() && primeArray[i] < sqrtLimit; i++) {
         llong p = primeArray[i];
         for (llong j = ((pos + p - 1) / p ) * p; j < pos + page; j += p)
-            sieve[(int) (j - pos)] = true;
+            sieve[(int)(j - pos)] = true;
     }
     for (int i = 1; i < page; i += 2)
         if (!sieve[i]) {
@@ -44,8 +44,8 @@ Result primeByEratosthenes(llong pos, int page, vector<llong> &primeArray) {
 Result calculate(llong limit, int page, int threadNumber) {
     vector<llong> primerList;
     int n = 1;
-    while (page*n < sqrt(limit)) n++;
-    primeByEuler(page*n, primerList);
+    while (page * n < sqrt(limit)) n++;
+    primeByEuler(page * n, primerList);
     atomic<llong> maxInd;
     maxInd.store(primerList.size());
     llong maxPrime = primerList[primerList.size() - 1];

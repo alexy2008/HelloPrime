@@ -1,0 +1,3 @@
+ver = "gcc --version "
+build = "gcc CHiPrime.c -lm -O3 -o ./bin/CHiPrime"
+run = "./bin/CHiPrime"

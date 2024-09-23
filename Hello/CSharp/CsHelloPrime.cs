@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 
 class CsHelloPrime {
-    internal readonly struct Result { public long MaxInd { get; init; } public long MaxPrime { get; init; } }
+    internal record Result ( long MaxInd ,long MaxPrime );
 
     private static List<long> PrimeByEuler(long page) {
         var sieve = new bool[page];
@@ -31,7 +31,7 @@ class CsHelloPrime {
                 maxPrime = pos + i;
                 maxInd++;
             }
-        return new Result() { MaxInd = maxInd, MaxPrime = maxPrime };
+        return new Result(maxInd, maxPrime);
     }
 
     public static Result Calculate(long limit, int page,  int threadNumber) {
@@ -57,7 +57,7 @@ class CsHelloPrime {
             task[tid].Start();
         }
         foreach (var t in task) t.Join();
-        return new Result() { MaxInd = maxInd, MaxPrime = maxPrime };
+        return new Result(maxInd, maxPrime);
     }
 
     static void Main(string[] args) {

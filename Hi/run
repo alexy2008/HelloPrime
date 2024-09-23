@@ -44,8 +44,8 @@ fi
 # 读取 command.toml 文件并解析出 ver 和 build 配置项的值
 # ver=$(grep -E '^ver\s*=' "$command_toml" | cut -d'=' -f2 | sed 's/[\r\n]*$//' | tr -d '"')
 # run=$(grep -E '^run\s*=' "$command_toml" | cut -d'=' -f2 | sed 's/[\r\n]*$//' | tr -d '"')
-ver=$(grep -E '^ver\s*=' "$command_toml" | cut -d'=' -f2- | sed 's/^[[:space:]]*"//;s/[[:space:]]*"$//')
-run=$(grep -E '^run\s*=' "$command_toml" | cut -d'=' -f2- | sed 's/^[[:space:]]*"//;s/[[:space:]]*"$//')
+ver=$(grep -E '^ver\s*=' "$command_toml" | cut -d'=' -f2- | sed 's/[\r\n]*$//' | tr -d '"')
+run=$(grep -E '^run\s*=' "$command_toml" | cut -d'=' -f2- | sed 's/[\r\n]*$//' | tr -d '"')
 
 
 

@@ -6,12 +6,10 @@ public class JHelloPrime {
         var sieve = new boolean[page];
         ArrayList<Long> primeArray = new ArrayList<>();
         for (var i = 2; i < page; i++) {
-            if (!sieve[i])
-                primeArray.add((long) i);
+            if (!sieve[i]) primeArray.add((long) i);                
             for (var j = 0; (long) i * primeArray.get(j) < page; j++) {
                 sieve[(int) (i * primeArray.get(j))] = true;
-                if (i % primeArray.get(j) == 0)
-                    break;
+                if (i % primeArray.get(j) == 0) break;
             }
         }
         return primeArray;
