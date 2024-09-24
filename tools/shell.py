@@ -229,6 +229,8 @@ def proc_out(line):
     pn = 'Hi|Hello Prime.*I.*'
     r = re.match(pn, str(line))
     if r is not None:
+        tag = line.split(' ')[0]
+        info['lang'] = line.split(' ')[3]
         console.print(
             '[green]%s[/green] [cyan]Prime[/cyan] [yellow]I\'m[/yellow] [bright_red]%s[/bright_red] :smile:' % (
                 tag, info['lang']), end='')
