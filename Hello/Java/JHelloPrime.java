@@ -2,12 +2,14 @@ import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class JHelloPrime {
-    private static Long[] generatePrimesUpTo(int page) {
-        var sieve = new boolean[page];
+    private record Result(long maxInd, long maxPrime) {}
+
+    private static Long[] generatePrimesUpTo(int upTo) {
+        var sieve = new boolean[upTo];
         var primeArray = new ArrayList<Long>();
-        for (var i = 2; i < page; i++) {
+        for (var i = 2; i < upTo; i++) {
             if (!sieve[i]) primeArray.add((long) i);                
-            for (var j = 0; (long) i * primeArray.get(j) < page; j++) {
+            for (var j = 0; (long) i * primeArray.get(j) < upTo; j++) {
                 sieve[(int) (i * primeArray.get(j))] = true;
                 if (i % primeArray.get(j) == 0) break;
             }
@@ -32,8 +34,7 @@ public class JHelloPrime {
     }
 
     public static Result calculate(long limit, int page) {
-        int n = 1;
-        while (page * n < Math.sqrt(limit)) n++;
+        int n = (int) Math.ceil(Math.sqrt(limit) / page);
         Long[] primerList = generatePrimesUpTo(page * n);
         long maxInd = primerList.length, maxPrime = primerList[(int)(maxInd - 1)];
         for (var i = n; i < limit / page; i++) {
@@ -45,35 +46,28 @@ public class JHelloPrime {
     }
 
     public static Result calculate(long limit, int page, int threadNumber) throws InterruptedException {
-        int n = 1;
-        while (page * n < Math.sqrt(limit)) n++;
+        final int n = (int) Math.ceil(Math.sqrt(limit) / page);
         Long[] primerList = generatePrimesUpTo(page * n);
         AtomicLong maxInd = new AtomicLong(primerList.length);
         AtomicLong maxPrime = new AtomicLong(primerList[(int) (maxInd.get() - 1)]);
-        // System.out.println("Info=>" + "|" + (page * n) + "|" + maxInd + "|" + maxPrime + "|");
         Thread[] task = new Thread[threadNumber];
         for (int i = 0; i < threadNumber; i++) {
-            int tid = i, finalN = n;
+            final int tid = i;
             task[tid] = new Thread(() -> {
                 long localMaxPrime = 0, localMaxInd = 0;
-                for (int j = tid + finalN; j < limit / page; j += threadNumber) {
+                for (int j = tid + n; j < limit / page; j += threadNumber) {
                     var rs = findPrimesInRange(page * (long) j, page, primerList);
                     localMaxPrime = rs.maxPrime;
                     localMaxInd += rs.maxInd;
-                    // System.out.println("Info=>|T" + tid + "|" + ((long) page * (j + 1)) + "|" + localMaxInd + "|"
-                    //             + localMaxPrime + "|");
                 }
-                if ((tid + 1) % threadNumber == ((limit / page) - finalN) % threadNumber)   maxPrime.set(localMaxPrime);
+                if ((tid + 1) % threadNumber == ((limit / page) - n) % threadNumber)   maxPrime.set(localMaxPrime);
                 maxInd.addAndGet(localMaxInd);
             });
             task[tid].start();
         }
-        for (Thread t : task)
-            t.join();
+        for (var t : task) t.join();
         return new Result(maxInd.get(), maxPrime.get());
     }
-
-    public record Result(long maxInd, long maxPrime) {}
 
     public static void main(String[] args) throws InterruptedException {
         System.out.println("Hello Prime! I'm Java :-)");

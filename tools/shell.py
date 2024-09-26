@@ -352,7 +352,7 @@ def print_result():
         conn = create_connection(db_config)
         insert_info(conn, info)
         conn.close()
-        print('Done!')
+        console.print('[green]完成！[/green]')
 
 def fm_time(lt):    
     temp = lt
