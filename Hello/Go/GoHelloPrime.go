@@ -37,9 +37,21 @@ func primeByEratosthenes(pos int, page int, primeArray []int) (int, int) {
 	return maxInd, maxPrime
 }
 
-func calculate(limit int, page int, threadNumber int) (int, int) {
-	n := 1
-	for page*n < int(math.Sqrt(float64(limit))) { n++ }
+func calculate(limit int, page int) (int, int) {
+	n := int(math.Ceil(math.Sqrt(float64(limit)) / float64(page)))
+	primeArray := primeByEuler(page * n)
+	maxInd, maxPrime := len(primeArray), primeArray[(len(primeArray)-1)]
+
+	for i := n; i < limit/page; i ++ {
+		ind, mp := primeByEratosthenes(page*i, page, primeArray)
+		maxPrime = mp
+		maxInd += ind
+	}
+	return maxInd, maxPrime
+}
+
+func calculateMulti(limit int, page int, threadNumber int) (int, int) {
+	n := int(math.Ceil(math.Sqrt(float64(limit)) / float64(page)))
 	primeArray := primeByEuler(page * n)
 	maxInd, maxPrime := len(primeArray), primeArray[(len(primeArray)-1)]
 	chanMaxInd := make(chan int, threadNumber)
@@ -71,8 +83,13 @@ func main() {
 	page, _ := strconv.ParseInt(os.Args[2], 10, 64)
 	threadNumber, _ := strconv.ParseInt(os.Args[4], 10, 64)
 	fmt.Println("Calculate prime numbers up to", limit, "using partitioned Eratosthenes sieve")
+	var maxInd, maxPrime int
 	startTime := time.Now()
-	maxInd, maxPrime := calculate(int(limit), int(page), int(threadNumber))
+	if threadNumber == 1 {
+		maxInd, maxPrime = calculate(int(limit), int(page))
+	} else {
+		maxInd, maxPrime = calculateMulti(int(limit), int(page), int(threadNumber))
+	}
 	totalTime := time.Now().Sub(startTime).Milliseconds()
 	fmt.Printf("Go using %d thread(s) finished within %g; the %dth prime is %d, time cost: %d ms \n",
 		threadNumber, float64(limit), maxInd, maxPrime, totalTime)

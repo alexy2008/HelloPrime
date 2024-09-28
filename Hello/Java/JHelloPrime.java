@@ -48,9 +48,9 @@ public class JHelloPrime {
     public static Result calculate(long limit, int page, int threadNumber) throws InterruptedException {
         final int n = (int) Math.ceil(Math.sqrt(limit) / page);
         Long[] primerList = generatePrimesUpTo(page * n);
-        AtomicLong maxInd = new AtomicLong(primerList.length);
-        AtomicLong maxPrime = new AtomicLong(primerList[(int) (maxInd.get() - 1)]);
-        Thread[] task = new Thread[threadNumber];
+        var maxInd = new AtomicLong(primerList.length);
+        var maxPrime = new AtomicLong(primerList[(int) (maxInd.get() - 1)]);
+        var task = new Thread[threadNumber];
         for (int i = 0; i < threadNumber; i++) {
             final int tid = i;
             task[tid] = new Thread(() -> {
@@ -71,12 +71,12 @@ public class JHelloPrime {
 
     public static void main(String[] args) throws InterruptedException {
         System.out.println("Hello Prime! I'm Java :-)");
-        long limit = Long.parseLong(args[0]);
-        int page = Integer.parseInt(args[1]);
-        int threadNumber = Integer.parseInt(args[3]);
+        var limit = Long.parseLong(args[0]);
+        var page = Integer.parseInt(args[1]);
+        var threadNumber = Integer.parseInt(args[3]);
         System.out.println("Calculate prime numbers up to " + limit + " using partitioned Eratosthenes sieve");
         var startTime = System.currentTimeMillis();
-        Result r = threadNumber == 1 ? calculate(limit, page) : calculate(limit, page, threadNumber);
+        var r = threadNumber == 1 ? calculate(limit, page) : calculate(limit, page, threadNumber);
         var totalTime = System.currentTimeMillis() - startTime;
         System.out.printf("Java using %d thread(s) finished within %.0e the %dth prime is %d, time cost: %d ms \n",
                 threadNumber, (double) limit, r.maxInd, r.maxPrime, totalTime);
