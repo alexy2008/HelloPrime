@@ -35,10 +35,10 @@ public class JHelloPrime {
 
     public static Result calculate(long limit, int page) {
         int n = (int) Math.ceil(Math.sqrt(limit) / page);
-        Long[] primerList = generatePrimesUpTo(page * n);
-        long maxInd = primerList.length, maxPrime = primerList[(int)(maxInd - 1)];
+        Long[] primeList = generatePrimesUpTo(page * n);
+        long maxInd = primeList.length, maxPrime = primeList[(int)(maxInd - 1)];
         for (var i = n; i < limit / page; i++) {
-            var rs = findPrimesInRange(page * (long) i, page, primerList);
+            var rs = findPrimesInRange(page * (long) i, page, primeList);
             maxPrime = rs.maxPrime;
             maxInd += rs.maxInd;
         }
@@ -47,16 +47,16 @@ public class JHelloPrime {
 
     public static Result calculate(long limit, int page, int threadNumber) throws InterruptedException {
         final int n = (int) Math.ceil(Math.sqrt(limit) / page);
-        Long[] primerList = generatePrimesUpTo(page * n);
-        var maxInd = new AtomicLong(primerList.length);
-        var maxPrime = new AtomicLong(primerList[(int) (maxInd.get() - 1)]);
+        Long[] primeList = generatePrimesUpTo(page * n);
+        var maxInd = new AtomicLong(primeList.length);
+        var maxPrime = new AtomicLong(primeList[(int) (maxInd.get() - 1)]);
         var task = new Thread[threadNumber];
         for (int i = 0; i < threadNumber; i++) {
             final int tid = i;
             task[tid] = new Thread(() -> {
                 long localMaxPrime = 0, localMaxInd = 0;
                 for (int j = tid + n; j < limit / page; j += threadNumber) {
-                    var rs = findPrimesInRange(page * (long) j, page, primerList);
+                    var rs = findPrimesInRange(page * (long) j, page, primeList);
                     localMaxPrime = rs.maxPrime;
                     localMaxInd += rs.maxInd;
                 }
