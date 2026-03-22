@@ -1,0 +1,3 @@
+ver = "kotlinc -version"
+build = "kotlinc KtHelloPrime.kt -d bin"
+run = "kotlin -cp ./bin KtHelloPrime"

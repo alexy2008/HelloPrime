@@ -58,35 +58,38 @@ def calculate(limit: int, page: int) -> Result:
     return Result(max_ind, max_prime)
 
 
-def thread_task(i, limit, page, thread_number, prime_list, max_ind, max_prime, n):
+def process_task(i: int, limit: int, page: int, thread_number: int, prime_list: List[int], n: int, queue):
     local_max_prime, local_max_ind = 0, 0
     for j in range(i + n, limit // page, thread_number):
         rs = find_primes_in_range(page * j, page, prime_list)
         local_max_prime = rs.max_prime
         local_max_ind += rs.max_ind
-    
-    with max_ind.get_lock():
-        max_ind.value += local_max_ind
-    if (i + 1) % thread_number == (limit // page - n) % thread_number:
-        max_prime.value = local_max_prime
+    queue.put((local_max_ind, local_max_prime))
 
 
 def calculate_with_threads(limit: int, page: int, thread_number: int) -> Result:
     n = math.ceil(math.sqrt(limit) / page)
     prime_list = generate_primes_up_to(page * n)
-    max_ind = multiprocessing.Value('i', len(prime_list))
-    max_prime = multiprocessing.Value('i', prime_list[-1])
+    max_ind = len(prime_list)
+    max_prime = prime_list[-1]
+    queue = multiprocessing.Queue()
     
     processes = []
     for i in range(thread_number):
-        p = multiprocessing.Process(target=thread_task, args=(i, limit, page, thread_number, prime_list, max_ind, max_prime, n))
+        p = multiprocessing.Process(target=process_task, args=(i, limit, page, thread_number, prime_list, n, queue))
         processes.append(p)
         p.start()
+
+    for _ in processes:
+        local_max_ind, local_max_prime = queue.get()
+        max_ind += local_max_ind
+        if local_max_prime > max_prime:
+            max_prime = local_max_prime
 
     for p in processes:
         p.join()
 
-    return Result(max_ind.value, max_prime.value)
+    return Result(max_ind, max_prime)
 
 
 if __name__ == "__main__":
